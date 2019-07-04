@@ -1,0 +1,41 @@
+<div class="ui-widget ui-g form-container">
+    <p class="form-text-header">{{'PAGES.EXCHANGES.COININFO' | translate}}</p>
+    <div class="ui-g">
+        <div class="ui-g-3 item-label">{{'PAGES.EXCHANGES.EST-COIN-VALUE' | translate}}</div>
+        <div class="ui-g-9 coin-info-value">{{fiatValue}}</div>
+        <div class="ui-g-3 item-label">{{'PAGES.EXCHANGES.TOTAL-COIN-SUPPLY' | translate}}</div>
+        <div class="ui-g-9 coin-info-value">{{coinSupply | number : '1.2-2'}}</div>
+        <div class="ui-g-3 item-label">{{'PAGES.EXCHANGES.ESTIMATED-CAP' | translate}}</div>
+        <div class="ui-g-9 coin-info-value">{{marketCapital}}</div>
+        <div class="ui-g-3 item-label">{{'PAGES.EXCHANGES.24H-VOLUME' | translate}}</div>
+        <div class="ui-g-9 coin-info-value">{{marketVolumeUSD}}</div>
+    </div>
+    <p class="form-text-header">{{'PAGES.EXCHANGES.EXCHANGES' | translate}}</p>
+    <div class="ui-g-12">
+        <p-contextMenu #cm class="hide-context-menu"></p-contextMenu>
+        <p-table [value]="exchanges" scrollable="true" scrollHeight="50vh"
+                [contextMenu]="cm" (onRowClick)="onExchangeRowClick($event)" (onContextMenuSelect)="onExchangeContextMenu($event)">
+            <ng-template pTemplate="body" let-rowData>
+                <tr (click)="onRowSelect(rowData)" [pRowToggler]="rowData" [pContextMenuRow]="rowData">
+                    <td style="width: 200px;">
+                        <a href="#" (click)="visitExchange()" matTooltip="{{'PAGES.EXCHANGES.CLICK-VISIT' | translate}}">
+                            <img [src]="rowData.imageBase64" [style]="{'width':'200px'}"/>
+                        </a>
+                    </td>
+                    <td style="width: 250px;">
+                        <span>
+                            <p class="item-p"><span class="item-label">{{'PAGES.EXCHANGES.BUY' | translate}}: </span><span class="item-value"> {{ rowData.buy | number : '1.1-8'}}</span></p>
+                            <p class="item-p"><span class="item-label">{{'PAGES.EXCHANGES.SELL' | translate}}: </span><span class="item-value"> {{ rowData.sell | number : '1.1-8'}}</span></p>
+                            <p class="item-p"><span class="item-label">{{'PAGES.EXCHANGES.LAST' | translate}}: </span><span class="item-value"> {{ rowData.last | number : '1.1-8'}}</span></p>
+                            <p class="item-p"><span class="item-label">{{'PAGES.EXCHANGES.VOLUME' | translate}}: </span><span class="item-value"> {{ rowData.volume24H | number : '1.1-2'}}</span></p>
+                            <p class="item-p"><span class="item-label">{{'PAGES.EXCHANGES.LAST-UPDATE' | translate}}: </span><span class="item-value"> {{ rowData.lastUpdateDate| date : 'yyyy-MM-dd HH:mm:ss' }}</span></p>
+                        </span>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+                <p>{{'PAGES.EXCHANGES.NO-EXCHANGES' | translate}}</p>
+            </ng-template>
+        </p-table>
+    </div>
+</div>

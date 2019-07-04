@@ -1,0 +1,42 @@
+<div class="ui-g form-container">
+    <p class="form-text-header">{{ 'PAGES.HISTORY.TITLE' | translate }}</p>
+    <div class="ui-g-12">
+        <p-contextMenu #cm class="hide-context-menu"></p-contextMenu>
+        <p-table [value]="transactions" scrollable="true" scrollHeight="70vh" [contextMenu]="cm" selectionMode="single"
+            responsive="true" styleClass="borderless" (onContextMenuSelect)="showTxContextMenu($event)" [(selection)]="currentTX" contextMenuSelectionMode="joint" #dtTX>
+            <ng-template pTemplate="body" let-rowData>
+                <tr [pContextMenuRow]="rowData">
+                    <td style="width:20px;"><i [ngClass]="getDirectionIconClasses(rowData)"></i></td>
+                    <td style="width:25px;"><img [src]="getTokenURL(rowData)" width="25" height="25" /></td>
+                    <td style="width:70px;">
+                        <span class="text-large">{{rowData.timestamp | cscDate : 'dd'}}</span>
+                        <span class="text-small-bottom">{{rowData.timestamp | cscDate : 'MMM' | uppercase}}</span>
+                        <span class="text-large">{{rowData.timestamp | cscDate : 'HH'}}</span>
+                        <span class="text-small-top" >{{rowData.timestamp | cscDate : ':mm:ss'}}</span>
+                    </td>
+                    <td style="width:175px;">
+                        <span class="text-small">
+                            <p class="item-p"><span class="item-label">from: </span><span class="item-value"> {{ rowData.accountID }}</span></p>
+                            <p class="item-p"><span class="item-label">to: </span><span class="item-value"> {{ rowData.destination }}</span></p>
+                            <p class="item-p" *ngIf="getDescription(rowData) != null"><span class="item-label">message: </span><span class="item-value"> {{ getDescription(rowData) }}</span></p>
+                            <p class="item-p" *ngIf="rowData.destinationTag"><span class="item-label">tag: </span><span class="item-value"> {{ rowData.destinationTag }}</span></p>
+                            <p class="item-p" *ngIf="rowData.invoiceID"><span class="item-label">invoice: </span><span class="item-value"> {{ rowData.invoiceID }}</span></p>
+                        </span>
+                    </td>
+                    <td style="width:50px;">
+                        <div [matTooltip]="getStatusTooltipText(rowData)">
+                            <p class="item-p"><span class="item-label">status: </span><i [ngClass]="getStatusIconClasses(rowData)"></i></p>
+                            <p class="item-p"><span class="item-label">ledger: </span><span class="item-value"> {{ rowData.inLedger }}</span></p>
+                        </div>
+                    </td>
+                    <td style="width:75px;">
+                        <span class="text-medium" #amountColText>{{ getTXTextColor(amountColText,rowData) }}{{rowData.amount | cscAmount : false : true}} {{rowData.currency}}</span>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+                <p>There are no transactions.</p>
+            </ng-template>
+        </p-table>
+    </div>
+</div>

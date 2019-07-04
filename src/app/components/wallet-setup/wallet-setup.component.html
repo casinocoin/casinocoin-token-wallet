@@ -1,0 +1,15 @@
+<div class="container">
+</div>
+<p-dialog [(visible)]="showDialog" [modal]="true" [draggable]="false" [maximizable]="true" [closable]="true"
+          (onHide)="onHideSetup()" [style]="{width: '720px', height: '550px'}">
+    <p-header>
+        <i class="icon csc-dialog-icon icon-chip"></i>
+        {{ 'PAGES.SETUP.TITLE' | translate }}
+    </p-header>
+    <div class="ui-g" style="height: 100%; width: 100%">
+        <router-outlet></router-outlet>
+    </div>
+    <p-footer class="footer-text">
+        {{ 'PAGES.SETUP.FOOTER' | translate }}
+    </p-footer>
+</p-dialog>

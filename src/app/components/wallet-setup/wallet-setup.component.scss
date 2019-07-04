@@ -1,0 +1,92 @@
+@import "src/assets/variables";
+
+.icon-color-csc {
+    color: $casinocoinRed;
+}
+
+.ui-dialog .ui-dialog-content {
+    overflow: hidden;
+    height: calc(100% - 40px);
+    width: 100%;
+}
+
+router-outlet + * {
+    width: 100%;
+}
+
+.full-btn-width {
+    width: 100%;
+}
+
+.cscimg {
+    max-width: 100%;
+    max-height: auto;
+}
+
+.ui-state-highlight {
+    border-color: $casinocoinRedDarker;
+    background: $casinocoinRed;
+    color: #FFFFFF;
+}
+
+.ui-widget-header .ui-button, .ui-widget-content .ui-button, .ui-widget.ui-button, .ui-button {
+    border: $casinocoinRed;
+    background: $casinocoinRed;
+}
+
+.ui-widget-header .ui-button:enabled:active, .ui-widget-content .ui-button:enabled:active, .ui-widget.ui-button:enabled:active, .ui-button:enabled:active {
+    border: $casinocoinRedLighter;
+    background: $casinocoinRedDarker;
+}
+
+.ui-widget-header .ui-button:enabled:hover, .ui-widget-header .ui-button:focus, .ui-widget-content .ui-button:enabled:hover, .ui-widget-content .ui-button:focus, 
+.ui-widget.ui-button:enabled:hover, .ui-widget.ui-button:focus, .ui-button:enabled:hover, .ui-button:focus {
+    border: $casinocoinRedLighter;
+    background: $casinocoinRedDarker;
+}
+
+.ui-chkbox-box.ui-state-active, .ui-radiobutton-box.ui-state-active {
+    border: $casinocoinRedDarker;
+    background: $casinocoinRed;
+}
+
+.ui-chkbox-box.ui-state-focus, .ui-radiobutton-box.ui-state-focus {
+    box-shadow: 0px 0px 5px $casinocoinRedLighter;
+}
+
+.ui-chkbox-box.ui-state-focus.ui-state-active {
+    background: $casinocoinRed;
+}
+
+.footer-text {
+    font-size: small;
+    font-style: italic;
+    text-align: center;
+}
+
+.ui-inputtext {
+    margin: 10px 5px;
+    display: block;
+    border: none;
+    padding: 10px 0;
+    border-bottom: solid 1px $casinocoinRed;
+    -webkit-transition: all 0.3s cubic-bezier(0.64, 0.09, 0.08, 1);
+    transition: all 0.3s cubic-bezier(0.64, 0.09, 0.08, 1);
+    background: -webkit-linear-gradient(top, rgba(255, 255, 255, 0) 96%, $casinocoinRedLighter 4%);
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 96%, $casinocoinRedLighter 4%);
+    background-repeat: no-repeat;
+    color: $casinocoinRedDarker;
+}
+
+input + label {
+    color: $casinocoinRed !important;
+}
+
+.disclaimer-textarea {
+    resize: none; 
+    border: inset 1px; 
+    padding: 0.2em;
+    background: none;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}

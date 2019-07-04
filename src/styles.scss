@@ -1,0 +1,106 @@
+// Global variables
+@import "./assets/variables";
+
+// Material Design
+@import "./assets/material.css";
+
+// PrimeNG
+@import "~primeicons/primeicons.css";
+@import "~primeng/resources/primeng.min.css";
+@import "./assets/primeng-csc/theme.css";
+
+// Font Awesome
+@import "~font-awesome/css/font-awesome.min.css";
+
+// CSC Icon Font
+@import "./assets/csc-icon-font/style.css";
+
+// Components
+// @import "./app/app.component";
+// @import "./app/components/home/home.component";
+// @import "./app/components/login/login.component";
+// @import "./app/components/wallet-setup/wallet-setup.component";
+// @import "./app/components/forms/addressbook/addressbook.component";
+// @import "./app/components/forms/coin-swap/coin-swap.component";
+// @import "./app/components/forms/overview/overview.component";
+// @import "./app/components/forms/receive-coins/receive-coins.component";
+// @import "./app/components/forms/send-coins/send-coins.component";
+
+html, body {
+  margin: 0;
+  padding: 0;
+
+  height: 100%;
+  width: 100%;
+
+  font-family: $fontFamily;
+  font-size: $fontSize;
+}
+
+.centered-image {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: calc(100% - 40rem);
+}
+
+.centered-loader {
+  position: fixed;
+  top: 65%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 250px;
+}
+
+.loader-color {
+  color: $casinocoinRed;
+}
+
+.loader-text {
+  font-size: large;
+  font-weight: bold;
+  margin-bottom: 15px;
+  padding-left: 10px;
+  color: $casinocoinRed;
+}
+
+i.csc-dialog-icon {
+  padding-right: 10px;
+  color: $casinocoinRed;
+  font-size: 1.25em;
+}
+
+.form-container { 
+	display:table; 
+	width:100%; 
+  height: calc(100% - #{$statusBarHeight});
+  padding-top: 25px;
+  padding-bottom: 5px;
+  padding-left: 15px;
+  padding-right: 15px;
+  -webkit-box-shadow: 20px 0px 25px 20px #000;
+  -moz-box-shadow: 20px 0px 25px 20px #000;
+  box-shadow: 20px 0px 25px 20px #000;
+  background-color: #ffffff;
+  background-image: url('./assets/brand/main-bg.jpg');
+  background-repeat: no-repeat;
+  background-position: right bottom;
+}
+
+.form-text-header {
+  font-size: 1.5em;
+  font-weight: bold;
+  color: $casinocoinRed;
+}
+
+:not(input):not(textarea),
+:not(input):not(textarea)::after,
+:not(input):not(textarea)::before {
+    -webkit-user-select: none;
+    user-select: none;
+    cursor: default;
+}
+input, button, textarea, :focus {
+    outline: none; // You should add some other style for :focus to help UX/a11y
+}

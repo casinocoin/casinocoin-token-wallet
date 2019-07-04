@@ -1,0 +1,65 @@
+<p-dialog [(visible)]="dialog_visible" [width]="500" [height]="437" [closable]="true" [modal]="true" (onHide)="onHideLogin()">
+    <p-header><i class="icon csc-dialog-icon icon-chip" aria-hidden="true"></i>
+        {{ 'PAGES.LOGIN.TITLE' | translate }}
+    </p-header>
+    <div class="ui-g ui-fluid">
+        <div class="ui-g-1"></div>
+        <div class="ui-g-10">
+            <div class="ui-inputgroup">
+                <span class="ui-inputgroup-addon" style="box-sizing: content-box;"><i class="fa fa-suitcase"></i></span>
+                <input type="text" pInputText [(ngModel)]="selectedWallet.walletUUID" readonly>
+                <!-- <p-dropdown [style]="{'width':'100%'}" [options]="wallets" [(ngModel)]="selectedWallet" 
+                            placeholder="{{ 'PAGES.LOGIN.SELECT' | translate }}" appendTo="body" autofocus></p-dropdown> -->
+            </div>
+        </div>
+        <div class="ui-g-1"></div>
+        <div class="ui-g-1"></div>
+        <div class="ui-g-10">
+            <div class="ui-inputgroup">
+                <span class="ui-inputgroup-addon" style="box-sizing: content-box;"><i class="fa fa-user"></i></span>
+                <input type="text" pInputText [(ngModel)]="selectedWallet.userEmail" readonly>
+            </div>
+        </div>
+        <div class="ui-g-1"></div>
+        <div class="ui-g-1"></div>
+        <div class="ui-g-10">
+            <div class="ui-inputgroup">
+                <span class="ui-inputgroup-addon" style="box-sizing: content-box;"><i class="fa fa-calendar"></i></span>
+                <input type="text" pInputText [(ngModel)]="walletCreationDate" readonly>
+            </div>
+        </div>
+    
+    </div>
+    <div class="ui-g ui-fluid">
+        <div class="ui-g-1"></div>
+        <div class="ui-g-10">
+            <div class="ui-inputgroup">
+                <span class="ui-inputgroup-addon" style="box-sizing: content-box;"><i class="icon icon-key"></i></span>
+                <input type="password" pInputText placeholder="{{ 'PAGES.LOGIN.PASSWORD' | translate }}" 
+                       [(ngModel)]="walletPassword" (keyup.enter)="doOpenWallet()" id="inputPassword">         
+            </div>
+        </div>
+        <div class="ui-g-1"></div>
+    </div>
+    <div class="ui-g ui-fluid">
+        <div class="ui-g-12" style="height: 30px;"></div>
+        <div class="ui-g-2"></div>
+        <div class="ui-g-8" style="text-align:center;">
+            <a (click)="onRecoverBackup()">{{ 'PAGES.LOGIN.RECOVER-BACKUP' | translate }}</a>
+        </div>
+        <div class="ui-g-2"></div>
+        <div class="ui-g-2"></div>
+        <div class="ui-g-8" style="text-align:center;">
+            <a (click)="onRecoverMnemonic()">{{ 'PAGES.LOGIN.RECOVER-MNEMONIC' | translate }}</a>
+        </div>
+        <div class="ui-g-2"></div>
+        <div class="ui-g-3"></div>
+        <div class="ui-g-6" style="text-align:center;">
+            <button pButton type="button" (click)="doOpenWallet()" [(icon)]="login_icon" iconPos="right" label="Open Wallet"></button>
+        </div>
+        <div class="ui-g-3"></div>
+    </div>
+    <p-footer *ngIf="footer_visible">
+        Error: {{error_message}}
+    </p-footer>
+</p-dialog>

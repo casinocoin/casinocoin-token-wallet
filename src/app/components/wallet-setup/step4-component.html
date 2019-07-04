@@ -1,0 +1,33 @@
+<!-- Wallet Setup Step 4 - Mnemonic -->
+<div class="ui-g-12">
+    <h3 style="text-align: center;">{{ 'PAGES.SETUP.STEP4-TITLE' | translate }}</h3>
+    <div class="ui-g ui-fluid">
+        <div class="ui-g-1"></div>
+        <div class="ui-g-10">{{ 'PAGES.SETUP.STEP4-SUBTITLE' | translate }}</div>
+        <div class="ui-g-1"></div>
+        <div class="ui-g-1"></div>
+        <div class="ui-g-10">
+            <div class="ui-g ui-fluid">
+                <div class="ui-g-3" *ngFor="let word of newWalletMnemonic; let i = index">{{i+1}}. <span style="font-weight: bolder;">{{word}}</span></div>
+            </div>
+        </div>
+        <div class="ui-g-1"></div>
+        <div class="ui-g-1"></div>
+        <div class="ui-g-10">{{ 'PAGES.SETUP.STEP4-EMAIL' | translate }}: <span style="font-weight: bolder;">{{emailAddress}}</span></div>
+        <div class="ui-g-1"></div>
+    </div>
+    <div class="ui-g ui-fluid">
+        <div class="ui-g-1"></div>
+        <div class="ui-g-10">
+            <small style="font-weight: bolder;">
+            <p-checkbox [(ngModel)]="recoveryAccepted" binary="false" label="{{'PAGES.SETUP.STEP4-RECOVERY-ACCEPT' | translate}}"></p-checkbox>
+            </small>
+        </div>
+        <div class="ui-g-1"></div>
+    </div>
+    <div class="ui-g-4"></div>
+    <div class="ui-g-4">
+        <button pButton type="button" label="{{ 'PAGES.SETUP.BTN-CONTINUE' | translate }}" class="full-btn-width" (click)="continue()" [disabled]="!recoveryAccepted"></button>
+    </div>
+    <div class="ui-g-4"></div>
+</div>

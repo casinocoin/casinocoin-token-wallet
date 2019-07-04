@@ -1,0 +1,131 @@
+{
+  "name": "casinocoin-token-wallet",
+  "version": "5.0.0",
+  "description": "CasinoCoin desktop wallet with token support",
+  "homepage": "https://casinocoin.org",
+  "author": {
+    "name": "CasinoCoin Foundation",
+    "email": "info@casinocoin.org"
+  },
+  "keywords": [
+    "CasinoCoin",
+    "CSC",
+    "Tokens",
+    "Crypto"
+  ],
+  "main": "main.js",
+  "scripts": {
+    "postinstall": "npm run postinstall:electron && electron-builder install-app-deps",
+    "postinstall:web": "node postinstall-web",
+    "postinstall:electron": "node postinstall",
+    "compile-sass-theme": "sass src/assets/primeng-csc/theme.scss src/assets/primeng-csc/theme.css",
+    "ng": "ng",
+    "start": "npm run postinstall:electron && npm-run-all -p ng:serve electron:serve",
+    "build": "npm run postinstall:electron && npm run electron:serve-tsc && ng build",
+    "build:dev": "npm run build -- -c dev",
+    "build:prod": "npm run build -- -c production",
+    "ng:serve": "ng serve",
+    "ng:serve:web": "npm run postinstall:web && ng serve -o",
+    "electron:serve-tsc": "tsc -p tsconfig-serve.json",
+    "electron:serve": "wait-on http-get://localhost:4200/ && npm run electron:serve-tsc && electron . --serve",
+    "electron:local": "npm run build:prod && electron .",
+    "electron:linux": "npm run build:prod && electron-builder build --linux",
+    "electron:windows": "npm run build:prod && electron-builder build --windows",
+    "electron:mac": "npm run build:prod && electron-builder build --mac",
+    "test": "npm run postinstall:web && ng test",
+    "e2e": "npm run build:prod && mocha --timeout 300000 --require ts-node/register e2e/**/*.spec.ts",
+    "version": "conventional-changelog -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md"
+  },
+  "build": {
+    "appId": "org.casinocoin.casinocoin-token-wallet",
+    "productName": "CasinoCoin Token Wallet",
+    "copyright": "Copyright © 2013-2019 CasinoCoin Foundation",
+    "directories": {
+      "buildResources": "app-builds",
+      "output": "release-builds"
+    },
+    "mac": {
+      "target": "dmg",
+      "category": "public.app-category.finance",
+      "icon": "dist/assets/brand/casinocoin-icon-512x512.icns",
+      "type": "distribution"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb",
+        "rpm"
+      ]
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "dist/assets/brand/casinocoin-icon-256x256.ico"
+    }
+  },
+  "dependencies": {
+    "@casinocoin/libjs": "file:../casinocoin-libjs-test/tgz/casinocoin-libjs-2.0.0.tgz",
+    "@ngx-translate/core": "11.0.1",
+    "@ngx-translate/http-loader": "4.0.0",
+    "@types/lokijs": "1.5.2",
+    "angular2-uuid": "1.1.1",
+    "electron-updater": "^4.0.14",
+    "font-awesome": "4.7.0",
+    "int": "0.2.0",
+    "js-yaml": "3.13.1",
+    "lodash": "4.17.11",
+    "lokijs": "1.5.6",
+    "lz-string": "1.4.4",
+    "ngx-logger": "3.3.12",
+    "ngx-store": "2.1.0",
+    "primeicons": "1.0.0",
+    "primeng": "7.1.0",
+    "winston": "3.2.1"
+  },
+  "devDependencies": {
+    "@angular-devkit/build-angular": "0.12.1",
+    "@angular/animations": "7.2.11",
+    "@angular/cdk": "7.3.6",
+    "@angular/cli": "7.3.3",
+    "@angular/common": "7.2.11",
+    "@angular/compiler": "7.2.11",
+    "@angular/compiler-cli": "7.2.11",
+    "@angular/core": "7.2.11",
+    "@angular/forms": "7.2.11",
+    "@angular/http": "7.2.11",
+    "@angular/language-service": "7.2.11",
+    "@angular/material": "7.3.6",
+    "@angular/platform-browser": "7.2.11",
+    "@angular/platform-browser-dynamic": "7.2.11",
+    "@angular/router": "7.2.11",
+    "@ngx-translate/core": "11.0.1",
+    "@ngx-translate/http-loader": "4.0.0",
+    "@types/jasmine": "2.8.7",
+    "@types/jasminewd2": "2.0.3",
+    "@types/node": "8.9.4",
+    "chai": "^4.2.0",
+    "codelyzer": "4.5.0",
+    "conventional-changelog-cli": "2.0.11",
+    "core-js": "2.6.1",
+    "electron": "5.0.6",
+    "electron-builder": "20.44.4",
+    "electron-reload": "1.3.0",
+    "jasmine-core": "3.3.0",
+    "jasmine-spec-reporter": "4.2.1",
+    "karma": "^4.1.0",
+    "karma-chrome-launcher": "2.2.0",
+    "karma-coverage-istanbul-reporter": "2.0.4",
+    "karma-jasmine": "2.0.1",
+    "karma-jasmine-html-reporter": "1.4.0",
+    "mocha": "^6.1.4",
+    "node-sass": "^4.12.0",
+    "npm-run-all": "4.1.5",
+    "rxjs": "6.4.0",
+    "spectron": "5.0.0",
+    "ts-node": "7.0.1",
+    "tslint": "5.11.0",
+    "typescript": "3.2.4",
+    "wait-on": "3.2.0",
+    "webdriver-manager": "12.1.0",
+    "zone.js": "0.8.29"
+  }
+}

@@ -1,0 +1,29 @@
+// CSC Icon Font CSS
+// --------------------------
+.csc-icons-general {
+    display: inline-block;
+    font: normal normal normal 14px/1 csc;
+    font-size: inherit;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transform: translate(0, 0);
+}
+
+.ion-ios-icon-contacts:before, .ion-ios-icon-contacts-outline:before, .ion-md-icon-contacts:before {@extend .csc-icons-general; content: "\61";}
+.ion-ios-icon-csc:before, .ion-md-icon-csc:before {@extend .csc-icons-general; content: "\62";}
+.ion-ios-icon-deposit:before, .ion-md-icon-deposit:before {@extend .csc-icons-general; content: "\63";}
+.ion-ios-icon-details:before, .ion-md-icon-details:before {@extend .csc-icons-general; content: "\64";}
+.ion-ios-icon-down:before, .ion-md-icon-down:before {@extend .csc-icons-general; content: "\65";}
+.ion-ios-icon-info:before, .ion-md-icon-info:before {@extend .csc-icons-general; content: "\66";}
+.ion-ios-icon-menu:before, .ion-md-icon-menu:before {@extend .csc-icons-general; content: "\67";}
+.ion-ios-icon-minus:before, .ion-md-icon-minus:before {@extend .csc-icons-general; content: "\68";}
+.ion-ios-icon-network:before, .ion-md-icon-network:before {@extend .csc-icons-general; content: "\69";}
+.ion-ios-icon-operators:before, .ion-md-icon-operators:before {@extend .csc-icons-general; content: "\6a";}
+.ion-ios-icon-plus:before, .ion-md-icon-plus:before {@extend .csc-icons-general; content: "\6b";}
+.ion-ios-icon-receive:before, .ion-md-icon-receive:before {@extend .csc-icons-general; content: "\6c";}
+.ion-ios-icon-up:before, .ion-md-icon-up:before {@extend .csc-icons-general; content: "\6e";}
+.ion-ios-icon-withdrawal:before, .ion-md-icon-withdrawal:before {@extend .csc-icons-general; content: "\6f";}
+.ion-ios-icon-unconfirmed:before, .ion-md-icon-unconfirmed:before {@extend .csc-icons-general; content: "\70";}
+.ion-ios-icon-transactions:before, .ion-md-icon-transactions:before {@extend .csc-icons-general; content: "\71";}
+.ion-ios-icon-send:before, .ion-md-icon-send:before {@extend .csc-icons-general; content: "\6d";}

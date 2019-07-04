@@ -1,0 +1,1 @@
+# casinocoin-token-wallet

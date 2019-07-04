@@ -1,0 +1,206 @@
+<div class="ui-g form-container">
+    <p class="form-text-header">{{ 'PAGES.TOKENLIST.TITLE' | translate }}</p>
+    <div class="ui-g-12">
+        <button pButton type="button" style="margin: 5px;" (click)="doShowLedgers()" icon="icon icon-list-numbered" iconPos="left" 
+                label="{{'PAGES.TOKENLIST.SHOW-LEDGERS'|translate}}"></button>
+        <button pButton type="button" style="margin: 5px;" (click)="doShowAddCSC()" icon="fa fa-plus" iconPos="left" 
+                label="{{'PAGES.TOKENLIST.SHOW-ADD-ACCOUNT'|translate}}"></button>
+        <button pButton type="button" style="margin: 5px;" (click)="doShowAddToken()" icon="fa fa-plus" iconPos="left" 
+                label="{{'PAGES.TOKENLIST.SHOW-ADD-TOKEN'|translate}}" [disabled]="!canActivateAccount()"></button>
+    </div>
+    <div class="ui-g-12">
+        <p-contextMenu #cm class="hide-context-menu"></p-contextMenu>
+        <p-table [value]="tokenlist" scrollable="true" scrollHeight="70vh" [contextMenu]="cm" [columns]="columnCount" selectionMode="single"
+            responsive="true" styleClass="borderless" dataKey="PK" rowExpandMode="single"  [(selection)]="currentToken"
+            contextMenuSelectionMode="joint" (onContextMenuSelect)="showTokenContextMenu($event)" #dtTokens>
+            <ng-template pTemplate="body" let-rowData let-expanded="expanded">
+                <tr (click)="onRowSelect(rowData)" [pRowToggler]="rowData" [pContextMenuRow]="rowData">
+                    <td style="width: 60px;"><img [src]="rowData.IconURL" width="50" height="50" /></td>
+                    <td style="width: 125px;">{{rowData.FullName}}</td>
+                    <td style="width: 150px;">
+                        <p class="item-label">{{'PAGES.TOKENLIST.BALANCE'|translate}}</p>
+                        <p class="item-value" *ngIf="rowData.Token !== 'CSC'">{{rowData.TokenBalance | cscAmount : false : true}} ({{rowData.Token}})</p>
+                        <p class="item-value" *ngIf="rowData.Token === 'CSC'">{{rowData.Balance | cscAmount : false : true}} ({{rowData.Token}})</p>
+                    </td>
+                    <td style="width: 325px;">
+                        <p class="item-label">{{'PAGES.TOKENLIST.ACCOUNT'|translate}}<span *ngIf="rowData.Activated === false"> ({{'PAGES.TOKENLIST.INACTIVE'|translate}})</span></p>
+                        <p class="item-value">{{rowData.AccountID}}</p>
+                    </td>
+                    <td style="width: 25px;"><i class="color_red" [ngClass]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></i></td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="rowexpansion" let-rowData let-columns="columns">
+                <tr>
+                    <td [attr.colspan]="columns">
+                        <div *ngIf="rowData.Token === 'CSC' && rowData.Activated === false" translate="PAGES.TOKENLIST.ACTIVATE-CSC" [translateParams]="translateParams"></div>
+                        <!--
+                        <div *ngIf="rowData.Token !== 'CSC' && rowData.Activated === false && canActivateAccount()">
+                            <form [formGroup]="activateForm" (ngSubmit)="onActivateAccount(activateForm.value)">
+                                <div class="ui-g ui-fluid" style="padding-top: 15px;">
+                                    <div class="ui-g-3">
+                                        <span class="ui-float-label">
+                                            <input id="float-input-password" formControlName="password" type="password"  style="width: 100%;" pInputText required> 
+                                            <label for="float-input-password">{{'PAGES.TOKENLIST.PASSWORD' | translate }}</label>
+                                        </span>
+                                    </div>
+                                    <div class="ui-g-2">
+                                        <button pButton type="submit" label="{{'PAGES.TOKENLIST.ACTIVATE'|translate}}" [disabled]="!activateForm.valid" icon="fa fa-toggle-on" iconPos="right" style="margin-top: 10px; padding: 5px;"></button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div *ngIf="rowData.Token !== 'CSC' && rowData.Activated === false && !canActivateAccount()" translate="PAGES.TOKENLIST.FUND-CSC-TO-ACTIVATE" [translateParams]="translateParams"></div>
+                        -->
+                        <div *ngIf="rowData.Activated === true">
+                            <form [formGroup]="sendForm" (ngSubmit)="onSendFormSubmit(sendForm.value)">
+                                <div class="ui-g ui-fluid" style="padding-top: 15px;">
+                                    <div class="ui-g-2">
+                                        <span class="ui-float-label">
+                                            <input id="float-input-amount" formControlName="amount" type="text"  style="width: 100%;" pInputText required> 
+                                            <label for="float-input-amount">{{'PAGES.TOKENLIST.AMOUNT' | translate }}</label>
+                                        </span>
+                                    </div>
+                                    <div class="ui-g-5">
+                                        <span class="ui-float-label">
+                                            <input id="float-input-accountid" formControlName="accountid" type="text"  style="width: 100%;" pInputText required> 
+                                            <label for="float-input-accountid">{{'PAGES.TOKENLIST.ACCOUNTID' | translate }}</label>
+                                        </span>
+                                    </div>
+                                    <div class="ui-g-3">
+                                        <span class="ui-float-label">
+                                            <input id="float-input-password" formControlName="password" type="password"  style="width: 100%;" pInputText required> 
+                                            <label for="float-input-password">{{'PAGES.TOKENLIST.PASSWORD' | translate }}</label>
+                                        </span>
+                                    </div>
+                                    <div class="ui-g-2">
+                                        <button pButton type="submit" label="{{'PAGES.TOKENLIST.SEND'|translate}}" [disabled]="!sendForm.valid" icon="pi pi-sign-out" iconPos="right" style="margin-top: 10px; padding: 5px;"></button>
+                                    </div>
+                                </div>
+                                <div class="ui-g ui-fluid" style="padding-top: 10px;">
+                                    <div class="ui-g-2">
+                                        <span class="text-small" style="margin: 1em;">
+                                            <p class="item-p"><span class="item-label">{{'PAGES.TOKENLIST.FEES' | translate }}: </span><span class="item-value"> {{ fees }} CSC</span></p>
+                                            <!--
+                                            <p class="item-p"><span class="item-label">{{'PAGES.TOKENLIST.AVAILABLE' | translate }}: </span><span class="item-value"> {{ availableBalanceCSC() | cscAmount : true : true }}</span></p>
+                                            -->
+                                        </span>
+                                    </div>
+                                    <div class="ui-g-2">
+                                        <span class="ui-float-label">
+                                            <input id="float-input-desttag" formControlName="destinationtag" type="number"  style="width: 100%;" pInputText> 
+                                            <label for="float-input-desttag">{{'PAGES.TOKENLIST.DESTTAG' | translate }}</label>
+                                        </span>
+                                    </div>
+                                    <div class="ui-g-5">
+                                        <span class="ui-float-label">
+                                            <input id="float-input-description" formControlName="description" type="text"  style="width: 100%;" pInputText> 
+                                            <label for="float-input-description">{{'PAGES.TOKENLIST.DESCRIPTION' | translate }}</label>
+                                        </span>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</div>
+<p-dialog class="dialog-header" [(visible)]="showLedgerDialog" [width]="500" [height]="425" 
+    [closable]="true" [modal]="true" appendTo="body">
+    <p-header>
+        <i class="icon csc-dialog-icon icon-chip"></i>
+        {{'PAGES.TOKENLIST.LEDGER-INFO' | translate }}
+    </p-header>
+    <p-table [value]="ledgers" scrollable="true" scrollHeight="325px">
+        <ng-template pTemplate="header">
+            <tr>
+                <th>{{'PAGES.TOKENLIST.LEDGER' | translate }}</th>
+                <th>{{'PAGES.TOKENLIST.TIME' | translate }}</th>
+                <th>{{'PAGES.TOKENLIST.TX' | translate }}</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-ledger>
+            <tr>
+                <td style="width: 75px;">{{ledger.ledger_index}}</td>
+                <td style="width: 125px;">{{convertCscTimestamp(ledger.ledger_time) | date : 'yyyy-MM-dd HH:mm:ss'}}</td>
+                <td style="width: 30px;">{{ledger.txn_count}}</td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+            <p>{{'PAGES.TOKENLIST.NO-LEDGERS' | translate }}</p>
+        </ng-template>
+    </p-table>
+</p-dialog>
+<p-dialog class="dialog-header" [(visible)]="showAddTokenDialog" [width]="450" [height]="525" 
+    [closable]="true" [modal]="true" appendTo="body">
+    <p-header>
+        <i class="icon csc-dialog-icon icon-chip"></i>
+        {{'PAGES.TOKENLIST.ADD-NEW-TOKEN-TITTLE' | translate }}
+    </p-header>
+    <div>
+        <p>{{'PAGES.TOKENLIST.SELECT-CSC-ACCOUNT' | translate}}</p>
+        <div class="ui-inputgroup">
+            <span class="ui-inputgroup-addon" style="box-sizing: content-box; width: 50px;"><i class="icon icon-id"></i></span>
+            <p-dropdown [style]="{'width':'370px','padding-top':'2px','padding-bottom':'2px'}" [options]="cscAccounts" [(ngModel)]="selectedCSCAccount"
+                        (onChange)="getCSCAccountInfo()" placeholder="Select CasinoCoin Account ..." appendTo="body"
+                        autofocus #accountDropdown></p-dropdown>
+        </div>
+    </div>
+    <div *ngIf="canActivateAccount() && addTokenAccountSelected == true">
+        <p>{{'PAGES.TOKENLIST.SELECT-NEW-TOKEN' | translate }}:</p>
+        <p-table [value]="availableTokenlist" scrollable="true" scrollHeight="200px" selectionMode="single">
+            <ng-template pTemplate="body" let-rowData>
+                <tr [pSelectableRow]="rowData" (click)="onTokenRowSelect(rowData)">
+                    <td style="width: 60px;"><img [src]="rowData.IconURL" width="50" height="50" /></td>
+                    <td style="width: 60px;">{{rowData.Token}}</td>
+                    <td style="width: 200px;">{{rowData.FullName}}</td>
+                </tr>
+            </ng-template>
+        </p-table>
+        <span class="ui-float-label" style="margin-top: 40px;">
+            <input id="float-input-password" [(ngModel)]="walletPassword" type="password"  style="width: 98%;" pInputText required> 
+            <label for="float-input-password">{{'PAGES.TOKENLIST.PASSWORD' | translate }}</label>
+        </span>
+        <button pButton type="button" style="margin: 5px; float: right;" (click)="doAddToken()" [(icon)]="addIcon" 
+                iconPos="left" label="{{'PAGES.TOKENLIST.ADD-TOKEN'|translate}}" [disabled]="!addToken || (walletPassword == null || walletPassword.length === 0)"></button>
+    </div>
+    <div *ngIf="!canActivateAccount()">
+        {{'PAGES.TOKENLIST.FUND-CSC-TO-ACTIVATE' | translate }}
+    </div>
+    <p-footer *ngIf="footer_visible">
+        Error: {{error_message}}
+    </p-footer>
+</p-dialog>
+<p-dialog class="dialog-header" [(visible)]="showAddCSCDialog" [width]="400" [height]="260" 
+          [closable]="true" [modal]="true" appendTo="body">
+    <p-header>
+        <i class="icon csc-dialog-icon icon-chip"></i>
+        {{'PAGES.TOKENLIST.ADD-NEW-CSC-TITTLE' | translate }}
+    </p-header>
+    <div>
+        <p>{{'PAGES.TOKENLIST.ADD-NEW-CSC-PASSWORD' | translate }}:</p>
+        <span class="ui-float-label" style="margin-top: 40px;">
+            <input id="float-input-password" [(ngModel)]="walletPassword" type="password"  style="width: 98%;" pInputText required> 
+            <label for="float-input-password">{{'PAGES.TOKENLIST.PASSWORD' | translate }}</label>
+        </span>
+        <button pButton type="button" style="margin: 5px; float: right;" (click)="doAddCSCAccount()" [(icon)]="addIcon" 
+                iconPos="left" label="{{'PAGES.TOKENLIST.ADD-ACCOUNT'|translate}}" [disabled]="(walletPassword == null || walletPassword.length === 0)"></button>
+    </div>
+    <p-footer *ngIf="footer_visible">
+        Error: {{error_message}}
+    </p-footer>
+</p-dialog>
+<p-dialog class="dialog-header" [(visible)]="showErrorDialog" [width]="400" [height]="240" 
+          [closable]="true" [modal]="true" appendTo="body">
+    <p-header>
+        <i class="icon csc-dialog-icon icon-chip"></i>
+        {{'PAGES.TOKENLIST.ERROR-TITLE' | translate }}
+    </p-header>
+    <div>
+        <p>{{'PAGES.TOKENLIST.ERROR-MSG' | translate }}:</p>
+        <p><b>{{error_message}}</b></p>
+        <button pButton type="button" style="margin: 5px; float: right;" (click)="doCloseError()" icon="pi pi-check" 
+                iconPos="left" label="{{'PAGES.TOKENLIST.ERROR-OK'|translate}}"></button>
+    </div>
+</p-dialog>

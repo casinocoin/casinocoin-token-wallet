@@ -1,0 +1,37 @@
+@import "src/assets/variables";
+
+::ng-deep .hide-context-menu {
+    display: none;
+}
+
+::ng-deep .footer-error {
+    color: $casinocoinRed;
+    font-weight: bolder;
+}
+
+::ng-deep .ui-datatable-header {
+    display: none;
+}
+
+/** Odd row color **/
+::ng-deep .ui-datatable tbody > tr.ui-widget-content.ui-datatable-odd {
+    background-color: #f3f3f3;
+}
+
+::ng-deep .text-large {
+    font-size: large;
+}
+
+.item-label {
+    color: #717171;
+    font-size: 100%;
+}
+
+.item-value {
+    color: #000000;
+    font-size: 100%;
+}
+
+.coin-info-value {
+    font-weight: bold;
+}

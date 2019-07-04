@@ -1,0 +1,259 @@
+<div class="container">
+    <div class="home-sidenav">
+        <mat-sidenav-container class="home-sidenav-container">
+            <mat-sidenav mode="side" opened="true" disableClose="true">
+                <div class="app-nav">
+                    <img src="assets/brand/casinocoin-icon-white-256x256.png" alt="CasinoCoin" class="csc-logo" />
+                    <div class="csc-logo-text">{{ 'PAGES.HOME.ICON-FOOTER' | translate }}</div>
+                    <div class="menu-nav">
+                        <mat-list style="padding-top: 20px;">
+                            <mat-list-item (click)="onWallet()" class="menu-item" [ngClass]="{active_menu_item: active_menu_item === 'wallet'}"> 
+                                <div class="ui-g">
+                                    <div class="ui-g-3">
+                                        <i class="icon icon-transactions menu-icon"></i>
+                                    </div>
+                                    <div class="ui-g-9 menu-text">{{ 'PAGES.HOME.WALLET' | translate }}</div>
+                                </div>
+                            </mat-list-item>
+                            <mat-list-item (click)="onHistory()" class="menu-item" 
+                                            [ngClass]="{active_menu_item: active_menu_item === 'history'}">
+                                <div class="ui-g">
+                                    <div class="ui-g-3">
+                                        <i class="pi pi-align-justify menu-icon"></i>
+                                    </div>
+                                    <div class="ui-g-9 menu-text">{{ 'PAGES.HOME.HISTORY' | translate }}</div>
+                                </div>
+                            </mat-list-item>
+                            <mat-list-item (click)="onExchanges()" class="menu-item" 
+                                            [ngClass]="{active_menu_item: active_menu_item === 'exchanges'}">
+                                <div class="ui-g">
+                                    <div class="ui-g-3">
+                                        <i class="icon icon-exchange menu-icon"></i>
+                                    </div>
+                                    <div class="ui-g-9 menu-text">{{ 'PAGES.HOME.EXCHANGES' | translate }}</div>
+                                </div>
+                            </mat-list-item>
+                            
+                            <!-- <mat-list-item (click)="onReceiveCoins()" class="menu-item"
+                                            [ngClass]="{active_menu_item: active_menu_item === 'receive'}"> 
+                                <div class="ui-g">
+                                    <div class="ui-g-3">
+                                        <i class="icon icon-receive menu-icon"></i>
+                                    </div>
+                                    <div class="ui-g-9 menu-text">Receive coins</div>
+                                </div>
+                            </mat-list-item> -->
+                            <!-- <mat-list-item (click)="onAddressbook()" class="menu-item"
+                                            [ngClass]="{active_menu_item: active_menu_item === 'addressbook'}"> 
+                                <div class="ui-g">
+                                    <div class="ui-g-3">
+                                        <i class="icon icon-book menu-icon"></i>
+                                    </div>
+                                    <div class="ui-g-9 menu-text">Address book</div>
+                                </div>
+                            </mat-list-item> -->
+                            <!-- <mat-list-item (click)="onPaperWallet()" class="menu-item"
+                                            [ngClass]="{active_menu_item: active_menu_item === 'paperwallet'}"> 
+                                <div class="ui-g">
+                                    <div class="ui-g-3">
+                                        <i class="icon icon-receive menu-icon"></i>
+                                    </div>
+                                    <div class="ui-g-9 menu-text">Paper Wallet</div>
+                                </div>
+                            </mat-list-item> -->
+                            <mat-list-item (click)="onSupport()" class="menu-item"
+                                            [ngClass]="{active_menu_item: active_menu_item === 'support'}"> 
+                                <div class="ui-g">
+                                    <div class="ui-g-3">
+                                        <i class="icon icon-question menu-icon"></i>
+                                    </div>
+                                    <div class="ui-g-9 menu-text">{{ 'PAGES.HOME.SUPPORT' | translate }}</div>
+                                </div>
+                            </mat-list-item>
+                            <mat-list-item (click)="onExit()" class="menu-item"
+                                            [ngClass]="{active_menu_item: active_menu_item === 'exit'}"> 
+                                <div class="ui-g">
+                                    <div class="ui-g-3">
+                                        <i class="pi pi-power-off menu-icon"></i>
+                                    </div>
+                                    <div class="ui-g-9 menu-text">{{ 'PAGES.HOME.EXIT' | translate }}</div>
+                                </div>
+                            </mat-list-item>
+                        </mat-list>
+                    </div>
+                </div>
+                <div id="wallet-version">
+                    Wallet Version: {{applicationVersion}}<br>
+                    Network: {{serverVersion}}
+                </div>
+            </mat-sidenav>
+            <!-- primary content -->
+            <p-messages [(value)]="msgs"></p-messages>
+            <router-outlet></router-outlet>
+            <p-toolbar class="toolbar-height">
+                <div class="ui-toolbar-group-left">
+                    <div class="ui-g">
+                        <div class="ui-g-6">
+                            <span><i class="icon icon-chip footer-icon" aria-hidden="true"></i>Balance: {{balance | number : '1.2-2'}}</span>
+                        </div>
+                        <div class="ui-g-6">
+                            <span><i class="icon icon-banknote footer-icon" aria-hidden="true"></i>Fiat Value: {{fiat_balance}}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="ui-toolbar-group-right">
+                    <div class="ui-g">
+                        <div class="ui-g-4">
+                            <div (click)="onSettingsMenuClick($event)">
+                                <span><i class="icon icon-gear footer-icon" aria-hidden="true"></i>Settings</span>
+                            </div>
+                        </div>
+                        <div class="ui-g-3">
+                            <div (click)="onToolsMenuClick($event)">
+                                <span><i class="icon icon-wrench footer-icon" aria-hidden="true"></i>Tools</span>
+                            </div>
+                        </div>
+                        <div class="ui-g-5" style="text-align: right">
+                            <div (click)="onConnectionClick($event)" [matTooltip]="connected_tooltip">
+                                <span [ngClass]="connectionColorClass"><i class="icon icon-globe footer-icon" aria-hidden="true"></i>{{connected_tooltip}}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </p-toolbar>
+        </mat-sidenav-container>
+    </div>
+</div>
+
+<p-dialog class="dialog-header" [(visible)]="showSettingsDialog" [width]="640" [height]="400" [closable]="true" 
+        [modal]="true" appendTo="body">
+    <p-header><span><i class="icon csc-dialog-icon icon-chip"></i>Settings</span></p-header>
+    <div class="ui-g ui-fluid">
+        <div class="ui-g-1"></div>
+        <div class="ui-g-10">
+            <div class="ui-g">
+                <div class="ui-g-4">Wallet Language</div><div class="ui-g-8 bold-value">English</div>
+                <div class="ui-g-4">Wallet UUID</div><div class="ui-g-8 bold-value">{{currentWalletObject['walletUUID']}}</div>
+                <div class="ui-g-4">Wallet Creationdate</div><div class="ui-g-8 bold-value">{{currentWalletObject['creationDate'] | cscDate : 'yyyy-MM-dd HH:mm:ss'}}</div>
+                <div class="ui-g-4">Fiat value currency</div>
+                <div class="ui-g-8 bold-value">
+                    <p-dropdown
+                            [style]="{'width':'100%'}"
+                            [options]="fiatCurrencies"
+                            [(ngModel)]="walletSettings.fiatCurrency"
+                            (ngModelChange)="updateMarketService($event)"
+                            appendTo="body"
+                            autofocus #fiatCurrenciesDrowdown></p-dropdown>
+                </div>
+                <div class="ui-g-4">Show desktop notifications</div><div class="ui-g-8 bold-value">{{this.walletSettings.showNotifications}}</div>
+            </div>
+        </div>
+        <div class="ui-g-1"></div>
+    </div>
+    <div style="text-align: right;">
+        <button pButton type="button" (click)="onSettingsSave()" icon="icon icon-save" iconPos="right" label="Save" *ngIf="true"
+                style="width: 115px;"></button>
+    </div>
+</p-dialog>
+<p-dialog class="dialog-header" [(visible)]="showServerInfoDialog" [width]="720" [height]="500" [closable]="true" 
+        [modal]="true" appendTo="body">
+    <p-header><span><i class="icon csc-dialog-icon icon-chip"></i>Server Information</span></p-header>
+    <div class="ui-g">
+        <div class="ui-g-4">Server</div><div class="ui-g-8 bold-value">{{currentServer?.pubkeyNode}}</div>
+        <div class="ui-g-4">Server Version</div><div class="ui-g-8 bold-value">{{currentServer?.buildVersion}}</div>
+        <div class="ui-g-4">Response Time (msec)</div><div class="ui-g-8 bold-value">{{currentServer?.ioLatencyMs}}</div>
+        <div class="ui-g-4">Available Ledgers</div><div class="ui-g-8 bold-value">{{currentServer?.completeLedgers}}</div>
+        <div class="ui-g-4">Server Status</div><div class="ui-g-8 bold-value">{{currentServer?.serverState}}</div>
+        <div class="ui-g-4">Connected Peers</div><div class="ui-g-8 bold-value">{{currentServer?.peers}}</div>
+        <div class="ui-g-4">Last Ledger Sequence</div><div class="ui-g-8 bold-value">{{currentServer?.validatedLedger?.ledgerVersion}}</div>
+        <div class="ui-g-4">Last Closing Time</div><div class="ui-g-8 bold-value">{{currentLedger?.ledger_time | cscDate: 'HH:mm:ss'}}</div>
+        <div class="ui-g-4">Close Duration (sec)</div><div class="ui-g-8 bold-value">{{currentServer?.lastClose?.convergeTimeS}}</div>
+        <div class="ui-g-4">Last Close Proposers</div><div class="ui-g-8 bold-value">{{currentServer?.lastClose?.proposers}}</div>
+        <div class="ui-g-4">Current Fee</div><div class="ui-g-8 bold-value">{{currentServer?.validatedLedger?.baseFeeCSC}}</div>
+        <div class="ui-g-4">Current Account Reserve</div><div class="ui-g-8 bold-value">{{currentServer?.validatedLedger?.reserveBaseCSC}}</div>
+    </div>
+</p-dialog>
+
+<p-dialog [(visible)]="showPasswordDialog" [width]="450" [height]="225" [closable]="true" [modal]="true" appendTo="body">
+<p-header><span><i class="icon csc-dialog-icon icon-chip"></i>{{passwordDialogHeader}}</span></p-header>
+<div class="ui-g ui-fluid">
+    <div class="ui-g-1"></div>
+    <div class="ui-g-10">
+        <p>Please enter the password for the wallet.</p>
+    </div>
+    <div class="ui-g-1"></div>
+</div>
+<div class="ui-g ui-fluid">
+    <div class="ui-g-1"></div>
+    <div class="ui-g-10">
+        <div class="ui-inputgroup">
+            <span class="ui-inputgroup-addon" style="box-sizing: content-box;"><i class="icon icon-key"></i></span>
+            <input type="password" pInputText placeholder="Wallet Password" style="width: 100%; padding-left: 5px;"
+                   [(ngModel)]="walletPassword" (keyup.enter)="executePasswordCallback()" #passwordInput>         
+        </div>
+    </div>
+    <div class="ui-g-1"></div>
+</div>
+<div class="ui-g ui-fluid">
+    <div class="ui-g-1"></div>
+    <div class="ui-g-5">
+    </div>
+    <div class="ui-g-5">
+        <span>
+            <button pButton type="button" (click)="executePasswordCallback()" icon="fa-check" iconPos="right" 
+                    label="Ok" style="width: 150px;"></button>
+        </span>
+    </div>
+    <div class="ui-g-1"></div>
+</div>
+<p-footer *ngIf="footer_visible" class="footer-error">
+    Error: {{error_message}}
+</p-footer>
+</p-dialog>
+<p-dialog [(visible)]="showImportKeyDialog" [width]="650" [height]="400" [closable]="true" [modal]="true" appendTo="body">
+    <p-header><span><i class="icon csc-dialog-icon icon-chip"></i>{{ 'PAGES.HOME.IMPORT-KEY' | translate }}</span></p-header>
+    <div class="ui-g ui-fluid">
+        <div class="ui-g-1"></div>
+        <div class="ui-g-10"><p-radioButton name="importChoice" value="existing" label="{{'PAGES.HOME.IMPORT-KEY-EXISTING' | translate}}" [(ngModel)]="importSecretChoice" inputId="preopt1"></p-radioButton></div>
+        <div class="ui-g-1"></div>
+        <div class="ui-g-1"></div>
+        <div class="ui-g-10"><p-radioButton name="importChoice" value="addaccount" label="{{'PAGES.HOME.IMPORT-KEY-ADD' | translate}}" [(ngModel)]="importSecretChoice" inputId="preopt2"></p-radioButton></div>
+        <div class="ui-g-1"></div>
+        <div class="ui-g-1"></div>
+        <div class="ui-g-10">
+            <p>{{ 'PAGES.HOME.IMPORT-KEY-SECRET' | translate }}</p>
+        </div>
+        <div class="ui-g-1"></div>
+    </div>
+    <div class="ui-g ui-fluid">
+        <div class="ui-g-1"></div>
+        <div class="ui-g-10">
+            <div class="ui-inputgroup">
+                <span class="ui-inputgroup-addon" style="box-sizing: content-box;"><i class="icon icon-key"></i></span>
+                <input type="text" pInputText placeholder="{{ 'PAGES.HOME.ACCOUNT-SECRET' | translate }}" style="width: 100%; padding-left: 5px;"
+                       [(ngModel)]="importAccountSecret" #secretInput>         
+            </div>
+        </div>
+        <div class="ui-g-1"></div>
+        <div class="ui-g-1"></div>
+        <div class="ui-g-10">
+            <div class="ui-inputgroup">
+                <span class="ui-inputgroup-addon" style="box-sizing: content-box;"><i class="icon icon-key"></i></span>
+                <input type="password" pInputText placeholder="{{ 'PAGES.HOME.WALLET-PASSWORD' | translate }}" style="width: 100%; padding-left: 5px;"
+                       [(ngModel)]="walletPassword" (keyup.enter)="executePasswordCallback()" #passwordInput>         
+            </div>
+        </div>
+        <div class="ui-g-1"></div>
+    </div>
+    <div class="ui-g ui-fluid">
+        <div class="ui-g-4">
+        </div>
+        <div class="ui-g-4" style="text-align: center;">
+            <button pButton type="button" (click)="executeKeyImport()" [(icon)]="active_icon" iconPos="right" label="Ok" style="width: 100px;"></button>
+        </div>
+        <div class="ui-g-4"></div>
+    </div>
+    <p-footer *ngIf="footer_visible" class="footer-error">
+        {{footer_message}}
+    </p-footer>
+    </p-dialog>

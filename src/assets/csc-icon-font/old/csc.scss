@@ -1,0 +1,21 @@
+// CSC Icon Font CSS
+// --------------------------
+// CSC CSS for Ionic's CSC <csc-icon> element
+// cscicons-icons.scss has the icons and their unicode characters
+@charset "UTF-8";
+
+$cscicons-font-path: $font-path !default;
+
+@font-face {
+  font-family: "csc";
+  src:url("#{$cscicons-font-path}/csc.eot");
+  src:url("#{$cscicons-font-path}/csc.eot?#iefix") format("embedded-opentype"),
+    url("#{$cscicons-font-path}/csc.woff") format("woff"),
+    url("#{$cscicons-font-path}/csc.ttf") format("truetype"),
+    url("#{$cscicons-font-path}/csc.svg#csc") format("svg");
+  font-weight: normal;
+  font-style: normal;
+
+}
+
+@import "cscicons-icons";

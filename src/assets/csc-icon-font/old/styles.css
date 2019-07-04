@@ -1,0 +1,91 @@
+@charset "UTF-8";
+
+@font-face {
+  font-family: "csc";
+  src:url("csc.eot");
+  src:url("csc.eot?#iefix") format("embedded-opentype"),
+    url("csc.woff") format("woff"),
+    url("csc.ttf") format("truetype"),
+    url("csc.svg#csc") format("svg");
+  font-weight: normal;
+  font-style: normal;
+
+}
+
+[data-icon]:before {
+  font-family: "csc" !important;
+  content: attr(data-icon);
+  font-style: normal !important;
+  font-weight: normal !important;
+  font-variant: normal !important;
+  text-transform: none !important;
+  speak: none;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+[class^="icon-"]:before,
+[class*=" icon-"]:before {
+  font-family: "csc" !important;
+  font-style: normal !important;
+  font-weight: normal !important;
+  font-variant: normal !important;
+  text-transform: none !important;
+  speak: none;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-contacts:before {
+  content: "\61";
+}
+.icon-csc:before {
+  content: "\62";
+}
+.icon-deposit:before {
+  content: "\63";
+}
+.icon-details:before {
+  content: "\64";
+}
+.icon-down:before {
+  content: "\65";
+}
+.icon-info:before {
+  content: "\66";
+}
+.icon-menu:before {
+  content: "\67";
+}
+.icon-minus:before {
+  content: "\68";
+}
+.icon-network:before {
+  content: "\69";
+}
+.icon-operators:before {
+  content: "\6a";
+}
+.icon-plus:before {
+  content: "\6b";
+}
+.icon-receive:before {
+  content: "\6c";
+}
+.icon-up:before {
+  content: "\6e";
+}
+.icon-withdrawal:before {
+  content: "\6f";
+}
+.icon-unconfirmed:before {
+  content: "\70";
+}
+.icon-transactions:before {
+  content: "\71";
+}
+.icon-send:before {
+  content: "\6d";
+}
