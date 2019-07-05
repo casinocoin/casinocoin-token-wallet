@@ -2,23 +2,21 @@ import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { WalletService } from '../../providers/wallet.service';
 import { ElectronService } from '../../providers/electron.service';
-import { LocalStorageService, SessionStorageService } from 'ngx-store';
+import { LocalStorageService } from 'ngx-store';
 import { CSCUtil } from '../../domains/csc-util';
 import { CSCCrypto } from '../../domains/csc-crypto';
 import { AppConstants } from '../../domains/app-constants';
 import { LogService } from '../../providers/log.service';
-import { AppComponent } from '../../app.component';
-import { setTimeout } from 'timers';
 import { BehaviorSubject } from 'rxjs';
 import { CasinocoinService } from '../../providers/casinocoin.service';
 import { LokiKey, LokiAccount, LokiTransaction, LokiTxStatus } from '../../domains/lokijs';
-import { WalletSetup, WalletDefinition } from '../../domains/csc-types';
+import { WalletDefinition } from '../../domains/csc-types';
 import { UUID } from 'angular2-uuid';
 
 @Component({
-    moduleId: module.id,
+    selector: 'app-recover-mnemonic',
     templateUrl: './recover-mnemonic.component.html',
-    styleUrls: ['./login.component.scss'],
+    styleUrls: [],
     providers: [ ]
 })
 
@@ -63,11 +61,11 @@ export class RecoverMnemonicComponent implements OnInit {
     ) { }
 
     ngOnInit() {
-        this.logger.debug('### RecoverPassword onInit');
+        this.logger.debug('### RecoverMnemonic onInit');
         // get return url from route parameters or default to '/'
         this.selectedWallet = this.route.snapshot.queryParams['walletUUID'];
         this.walletLocation = this.route.snapshot.queryParams['walletLocation'];
-        this.logger.debug('### RecoverPassword for: ' + this.selectedWallet + ' and path: ' + this.walletLocation);
+        this.logger.debug('### RecoverMnemonic for: ' + this.selectedWallet + ' and path: ' + this.walletLocation);
     }
 
     removeUndefined(obj: Object): Object {
@@ -271,7 +269,7 @@ export class RecoverMnemonicComponent implements OnInit {
                                     // we are finished, disconnect
                                     this.logger.debug('### Recover - Account Find Finished');
                                     this.active_icon = 'pi pi-check';
-                                    let resultMessage = 'There are ' + sequence + ' accounts recovered.';
+                                    let resultMessage = 'Total accounts recovered: ' + sequence;
                                     if (!accountsFound && sequence === 0) {
                                         // No accounts found !
                                         resultMessage = 'No accounts could be restored during recover.';

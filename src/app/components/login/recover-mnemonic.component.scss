@@ -1,0 +1,27 @@
+@import "src/assets/variables";
+
+:host input {
+    width: 100%; padding-left: 5px;
+}
+
+:host p-dropdown {
+    width: 100%;
+}
+
+:host p-footer {
+    text-align: center;
+    color: $casinocoinRed;
+}
+
+.bold-text {
+    font-weight: bolder;
+}
+
+:host a {
+    text-decoration: none; /* no underline */
+}
+
+:host a:hover {
+    color: $casinocoinRed;
+    font-weight: bolder;
+}

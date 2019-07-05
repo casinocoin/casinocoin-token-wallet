@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewEncapsulation, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation, ViewChild, NgZone } from '@angular/core';
 import { trigger, state, transition, style, animate } from '@angular/animations';
 import { Router } from '@angular/router';
 import { LogService } from '../../providers/log.service';
@@ -12,7 +12,7 @@ import { UUID } from 'angular2-uuid';
 import { WalletService } from '../../providers/wallet.service';
 import { CSCCrypto } from '../../domains/csc-crypto';
 import { setTimeout } from 'timers';
-import { DatePipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 
 const path = require('path');
 
@@ -44,13 +44,23 @@ export class WalletSetupComponent implements OnInit {
 
   showDialog: boolean;
 
+  update_dialog_visible = false;
+  autoUpdateRunning = false;
+  downloadedBytes = 0;
+  totalBytes = 0;
+  downloadPercentage: number;
+  downloadVersion = '';
+  downloadCompleted = false;
+
   constructor( private logger: LogService,
                private electron: ElectronService,
                private router: Router,
                private localStorageService: LocalStorageService,
                private sessionStorageService: SessionStorageService,
                private walletService: WalletService,
-               private datePipe: DatePipe ) {
+               private datePipe: DatePipe,
+               private _ngZone: NgZone,
+               private decimalPipe: DecimalPipe ) {
                  this.showDialog = true;
                }
 
@@ -65,13 +75,52 @@ export class WalletSetupComponent implements OnInit {
     this.logger.debug('### Wallet UUID: ' + this.walletService.walletSetup.walletUUID);
     // set backup location
     this.walletService.walletSetup.backupLocation = this.electron.remote.getGlobal('vars.backupLocation');
+    this.electron.ipcRenderer.on('update-message', (event, arg) => {
+      this.logger.info('### LOGIN Received Auto Update Message: ' + arg.event);
+      if (arg.event === 'update-available') {
+          this.logger.debug('### LOGIN Hide Dialog, Show Download');
+          this._ngZone.run(() => {
+              this.autoUpdateRunning = true;
+              this.downloadVersion = arg.data.version;
+              this.downloadPercentage = 0;
+              this.showDialog = false;
+              this.update_dialog_visible = true;
+          });
+          this.logger.debug('### LOGIN AutoUpdate: ' + JSON.stringify(arg.data));
+      } else if (arg.event === 'download-progress') {
+          this.logger.debug('### LOGIN Download Status: ' + JSON.stringify(arg.data));
+          this._ngZone.run(() => {
+              this.downloadPercentage = Number(this.decimalPipe.transform(arg.data.percent, '1.2-2'));
+              this.logger.debug('### LOGIN Download Percentage: ' + this.downloadPercentage);
+              this.downloadedBytes = arg.data.transferred;
+              this.totalBytes = arg.data.total;
+          });
+      } else if (arg.event === 'update-downloaded') {
+        this.logger.debug('### LOGIN Download Finished: ' + JSON.stringify(arg.data));
+        this._ngZone.run(() => {
+          this.downloadPercentage = 100;
+          this.autoUpdateRunning = false;
+          this.downloadCompleted = true;
+        });
+      } else if (arg.event === 'error') {
+          this.logger.debug('### LOGIN AutoUpdate Error: ' + JSON.stringify(arg.data));
+          this.autoUpdateRunning = false;
+      }
+  });
   }
 
   onHideSetup() {
-    this.logger.debug('### Setup -> Quit');
-    // quit the wallet
-    this.electron.remote.app.quit();
-    // we have no wallet yet so send the wallet-closed event
-    this.electron.ipcRenderer.send('wallet-closed', true);
+    if (!this.autoUpdateRunning) {
+      this.logger.debug('### Setup -> Quit');
+      // quit the wallet
+      this.electron.remote.app.quit();
+      // we have no wallet yet so send the wallet-closed event
+      this.electron.ipcRenderer.send('wallet-closed', true);
+    }
+  }
+
+  doRestartAndInstall() {
+    // in case an update was downloaded we'll do a restart and install
+    this.electron.ipcRenderer.send('autoupdate-restart', true);
   }
 }

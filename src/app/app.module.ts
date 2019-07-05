@@ -73,6 +73,7 @@ import {InputTextareaModule} from 'primeng/inputtextarea';
 import {ProgressSpinnerModule} from 'primeng/progressspinner';
 import {RadioButtonModule} from 'primeng/radiobutton';
 import {ListboxModule} from 'primeng/listbox';
+import {ProgressBarModule} from 'primeng/progressbar';
 import { MatListModule, MatSidenavModule, MatTooltipModule, MatButtonModule } from '@angular/material';
 
 // AoT requires an exported function for factories
@@ -126,7 +127,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     MatListModule, MatSidenavModule, ContextMenuModule,
     TieredMenuModule, MatTooltipModule, MatButtonModule,
     InputTextareaModule, ProgressSpinnerModule, InputTextModule,
-    TableModule, ListboxModule, RadioButtonModule
+    TableModule, ListboxModule, RadioButtonModule, ProgressBarModule
   ],
   providers: [
     AuthGuard,

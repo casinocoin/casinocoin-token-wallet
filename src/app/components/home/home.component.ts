@@ -227,15 +227,18 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.onServerInfo();
       }
     });
-        // listen to tools context menu events
-        this.electron.ipcRenderer.on('context-menu-event', (event, arg) => {
-          this.logger.debug('### HOME Menu Event: ' + arg);
-          if (arg === 'import-priv-key') {
-            this.onPrivateKeyImport();
-          } else {
-            this.logger.debug('### Context menu not implemented: ' + arg);
-          }
-        });
+    // listen to tools context menu events
+    this.electron.ipcRenderer.on('context-menu-event', (event, arg) => {
+      this.logger.debug('### HOME Menu Event: ' + arg);
+      if (arg === 'import-priv-key') {
+        this.onPrivateKeyImport();
+      } else {
+        this.logger.debug('### Context menu not implemented: ' + arg);
+      }
+    });
+    this.electron.ipcRenderer.on('update-message', (event, arg) => {
+      this.logger.info('### HOME Received Auto Update Message: ' + arg);
+    });
   }
 
   ngOnDestroy() {

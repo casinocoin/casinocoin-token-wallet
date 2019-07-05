@@ -1,6 +1,6 @@
 {
   "name": "casinocoin-token-wallet",
-  "version": "5.0.0",
+  "version": "5.0.2",
   "description": "CasinoCoin desktop wallet with token support",
   "homepage": "https://casinocoin.org",
   "author": {
@@ -34,7 +34,8 @@
     "electron:mac": "npm run build:prod && electron-builder build --mac",
     "test": "npm run postinstall:web && ng test",
     "e2e": "npm run build:prod && mocha --timeout 300000 --require ts-node/register e2e/**/*.spec.ts",
-    "version": "conventional-changelog -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md"
+    "version": "conventional-changelog -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md",
+    "publish": "electron-builder build --mac --win --linux -p always"
   },
   "build": {
     "appId": "org.casinocoin.casinocoin-token-wallet",
@@ -45,22 +46,23 @@
       "output": "release-builds"
     },
     "mac": {
-      "target": "dmg",
+      "target": ["dmg", "zip"],
       "category": "public.app-category.finance",
       "icon": "dist/assets/brand/casinocoin-icon-512x512.icns",
       "type": "distribution"
     },
     "linux": {
-      "target": [
-        "AppImage",
-        "deb",
-        "rpm"
-      ]
+      "target": ["AppImage", "deb", "rpm"]
     },
     "win": {
       "target": "nsis",
       "icon": "dist/assets/brand/casinocoin-icon-256x256.ico"
-    }
+    },
+    "publish": [{
+      "provider": "github",
+      "owner": "casinocoin",
+      "repo": "casinocoin-token-wallet"
+    }]
   },
   "dependencies": {
     "@casinocoin/libjs": "file:../casinocoin-libjs-test/tgz/casinocoin-libjs-2.0.0.tgz",

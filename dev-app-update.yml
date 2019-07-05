@@ -1,0 +1,4 @@
+owner: casinocoin
+repo: casinocoin-token-wallet
+provider: github
+updaterCacheDirName: casinocoin-token-wallet-updater

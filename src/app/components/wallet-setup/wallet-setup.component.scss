@@ -3,7 +3,6 @@
 .icon-color-csc {
     color: $casinocoinRed;
 }
-
 .ui-dialog .ui-dialog-content {
     overflow: hidden;
     height: calc(100% - 40px);
@@ -64,20 +63,6 @@ router-outlet + * {
     text-align: center;
 }
 
-.ui-inputtext {
-    margin: 10px 5px;
-    display: block;
-    border: none;
-    padding: 10px 0;
-    border-bottom: solid 1px $casinocoinRed;
-    -webkit-transition: all 0.3s cubic-bezier(0.64, 0.09, 0.08, 1);
-    transition: all 0.3s cubic-bezier(0.64, 0.09, 0.08, 1);
-    background: -webkit-linear-gradient(top, rgba(255, 255, 255, 0) 96%, $casinocoinRedLighter 4%);
-    background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 96%, $casinocoinRedLighter 4%);
-    background-repeat: no-repeat;
-    color: $casinocoinRedDarker;
-}
-
 input + label {
     color: $casinocoinRed !important;
 }
@@ -89,4 +74,18 @@ input + label {
     background: none;
     overflow-y: scroll;
     overflow-x: hidden;
+}
+
+.setup-inputtext {
+    margin: 10px 5px;
+    display: block;
+    border: none;
+    padding: 10px 0;
+    border-bottom: solid 1px $casinocoinRed;
+    -webkit-transition: all 0.3s cubic-bezier(0.64, 0.09, 0.08, 1);
+    transition: all 0.3s cubic-bezier(0.64, 0.09, 0.08, 1);
+    background: -webkit-linear-gradient(top, rgba(255, 255, 255, 0) 96%, $casinocoinRedLighter 4%);
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 96%, $casinocoinRedLighter 4%);
+    background-repeat: no-repeat;
+    color: $casinocoinRedDarker;
 }

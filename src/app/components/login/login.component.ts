@@ -1,5 +1,5 @@
-import { Component, OnInit, ViewEncapsulation, ViewChild, ElementRef, Renderer2, AfterViewInit, OnDestroy } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { Component, OnInit, ViewEncapsulation, ViewChild, ElementRef, Renderer2, AfterViewInit, OnDestroy, NgZone } from '@angular/core';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { timer, Subscription } from 'rxjs';
 import { WalletService } from '../../providers/wallet.service';
@@ -44,8 +44,15 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
     timer: any;
     quitFromLogin = false;
     loginFinished = false;
-
     quitListener: Subscription;
+
+    update_dialog_visible = false;
+    autoUpdateRunning = false;
+    downloadedBytes = 0;
+    totalBytes = 0;
+    downloadPercentage: number;
+    downloadVersion = '';
+    downloadCompleted = false;
 
     public availableWallets: Array<WalletDefinition>;
 
@@ -60,7 +67,9 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
         private sessionStorageService: SessionStorageService,
         private casinocoinService: CasinocoinService,
         private translate: TranslateService,
-        public renderer: Renderer2
+        public renderer: Renderer2,
+        private _ngZone: NgZone,
+        private decimalPipe: DecimalPipe
     ) { }
 
     ngOnInit() {
@@ -70,6 +79,7 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
         // get available wallets (we switched to a single wallet for WLT wallet)
         this.availableWallets = this.localStorageService.get(AppConstants.KEY_AVAILABLE_WALLETS);
         if (this.availableWallets === null) {
+            this.selectedWallet = { walletUUID: '', creationDate: -1, location: '', mnemonicHash: '', network: '', passwordHash: '', userEmail: ''};
             this.router.navigate(['/wallet-setup']);
         } else {
             this.selectedWallet = this.availableWallets[0];
@@ -94,6 +104,37 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
                 }
             });
         }
+        this.electron.ipcRenderer.on('update-message', (event, arg) => {
+            this.logger.info('### LOGIN Received Auto Update Message: ' + arg.event);
+            if (arg.event === 'update-available') {
+                this.logger.debug('### LOGIN Hide Dialog, Show Download');
+                this._ngZone.run(() => {
+                    this.autoUpdateRunning = true;
+                    this.downloadVersion = arg.data.version;
+                    this.downloadPercentage = 0;
+                    this.dialog_visible = false;
+                    this.update_dialog_visible = true;
+                });
+                this.logger.debug('### LOGIN AutoUpdate: ' + JSON.stringify(arg.data));
+            } else if (arg.event === 'download-progress') {
+                this.logger.debug('### LOGIN Download Status: ' + JSON.stringify(arg.data));
+                this._ngZone.run(() => {
+                    this.downloadPercentage = Number(this.decimalPipe.transform(arg.data.percent, '1.2-2'));
+                    this.logger.debug('### LOGIN Download Percentage: ' + this.downloadPercentage);
+                    this.downloadedBytes = arg.data.transferred;
+                    this.totalBytes = arg.data.total;
+                });
+            } else if (arg.event === 'update-downloaded') {
+                this.logger.debug('### LOGIN Download Finished: ' + JSON.stringify(arg.data));
+                this._ngZone.run(() => {
+                    this.autoUpdateRunning = false;
+                    this.downloadCompleted = true;
+                });
+            } else if (arg.event === 'error') {
+                this.logger.debug('### LOGIN AutoUpdate Error: ' + JSON.stringify(arg.data));
+                this.autoUpdateRunning = false;
+            }
+        });
     }
 
     ngAfterViewInit(): void {
@@ -101,7 +142,10 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
         // somehow the initial focus only works with a timer waiting some msec
         this.timer = setInterval(() => {
             this.logger.debug('### LoginComponent AfterViewInit Timer');
-            this.renderer.selectRootElement('#inputPassword').focus();
+            try {
+                const passwordElement: any = this.renderer.selectRootElement('#inputPassword');
+                passwordElement.focus();
+            } catch (error) {}
             clearInterval(this.timer);
         }, 500);
     }
@@ -135,7 +179,8 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
         if (this.walletPassword == null || this.walletPassword.length === 0) {
             this.footer_visible = true;
             this.error_message = 'Please enter the wallet password!';
-            this.renderer.selectRootElement('#inputPassword').focus();
+            const passwordElement: any = this.renderer.selectRootElement('#inputPassword');
+            passwordElement.focus();
         } else {
             this.login_icon = 'pi fa-spin pi-spinner';
             this.footer_visible = false;
@@ -158,82 +203,95 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
                     this.footer_visible = true;
                     this.error_message = 'You entered the wrong wallet password!';
                     this.login_icon = 'pi pi-check';
-                    this.renderer.selectRootElement('#inputPassword').value = '';
-                    this.renderer.selectRootElement('#inputPassword').focus();
+                    const passwordElement: any = this.renderer.selectRootElement('#inputPassword');
+                    passwordElement.value = '';
+                    passwordElement.focus();
                 }
             });
         }
     }
 
     onHideLogin() {
-        this.logger.debug('### Login -> Quit');
-        this.quitFromLogin = true;
-        // this.quitListener = this.walletService.openWalletSubject.subscribe( status => {
-        //     this.logger.debug('### LOGIN Wallet: ' + status);
-        //     if (status === AppConstants.KEY_CLOSED && this.quitFromLogin) {
-        //         this.electron.ipcRenderer.removeListener('action', this.handleActionEvent);
-        //         if (this.quitListener !== undefined) {
-        //             this.quitListener.unsubscribe();
-        //         }
-        //         this.electron.remote.app.quit();
-        //     }
-        // });
-        // // close the Database!
-        // this.walletService.closeWallet();
-        this.electron.remote.app.quit();
+        if (!this.autoUpdateRunning) {
+            this.logger.debug('### Login -> Quit');
+            this.quitFromLogin = true;
+            this.electron.remote.app.quit();
+        }
     }
 
     onRecoverBackup() {
         this.logger.debug('### LOGIN -> Recover Backup');
         let restoreInProgress = true;
-        this.electron.remote.dialog.showOpenDialog(
-            { title: 'Wallet Backup Location',
-              defaultPath: this.electron.remote.getGlobal('vars').backupLocation,
-              properties: ['openFile']}, (result) => {
-              this.logger.debug('File Dialog Result: ' + JSON.stringify(result));
-              if (result && result.length > 0) {
-                  const backup = JSON.parse(fs.readFileSync(result[0]));
-                  this.logger.debug('### localStorage: ' + JSON.stringify(backup.LocalStorage));
-                  if (backup.LocalStorage.length > 0) {
-                    // clear current local storage
-                    this.localStorageService.clear('all');
-                    let walletUUID = '';
-                    let walletLocation = '';
-                    // loop over local storage parameters and import them
-                    backup.LocalStorage.forEach(keyItem => {
-                        this.localStorageService.set(keyItem.key, keyItem.value);
-                        if (keyItem.key === 'availableWallets' && keyItem.value.length > 0) {
-                            walletUUID = keyItem.value[0].walletUUID;
-                        } else if (keyItem.key === 'walletLocation' && keyItem.value.length > 0) {
-                            walletLocation = keyItem.value;
+        this.logger.debug('### Login -> Recover With Mnemonic');
+        this.electron.remote.dialog.showMessageBox({ message: 'Recover process will overwrite the current wallet. Are you sure?', buttons: ['OK', 'Cancel']}, (result) => {
+            this.logger.debug('### Warning Result: ' + result);
+            if (result === 0) {
+                // execute recover process
+                this._ngZone.run(() => {
+                    this.electron.remote.dialog.showOpenDialog(
+                        { title: 'Wallet Backup Location',
+                          defaultPath: this.electron.remote.getGlobal('vars').backupLocation,
+                          properties: ['openFile']}, (result) => {
+                          this.logger.debug('File Dialog Result: ' + JSON.stringify(result));
+                          if (result && result.length > 0) {
+                              const backup = JSON.parse(fs.readFileSync(result[0]));
+                              this.logger.debug('### localStorage: ' + JSON.stringify(backup.LocalStorage));
+                              if (backup.LocalStorage.length > 0) {
+                                // clear current local storage
+                                this.localStorageService.clear('all');
+                                let walletUUID = '';
+                                let walletLocation = '';
+                                // loop over local storage parameters and import them
+                                backup.LocalStorage.forEach(keyItem => {
+                                    this.localStorageService.set(keyItem.key, keyItem.value);
+                                    if (keyItem.key === 'availableWallets' && keyItem.value.length > 0) {
+                                        walletUUID = keyItem.value[0].walletUUID;
+                                    } else if (keyItem.key === 'walletLocation' && keyItem.value.length > 0) {
+                                        walletLocation = keyItem.value;
+                                    }
+                                });
+                                this.logger.debug('### LOGIN - Restore - walletUUID: ' + walletUUID + ' walletLocation: ' + walletLocation);
+                                if (walletUUID.length > 0) {
+                                    // import DB
+                                    this.walletService.importWalletDump(backup.DB, walletLocation, walletUUID);
+                                    this.walletService.openWalletSubject.subscribe( openResult => {
+                                        if (openResult === AppConstants.KEY_LOADED && restoreInProgress === true) {
+                                            this.electron.remote.dialog.showMessageBox({type: 'info', message: 'Restore from backup succesful', buttons: ['OK']});
+                                            restoreInProgress = false;
+                                        }
+                                    });
+                                } else {
+                                    if (restoreInProgress === true) {
+                                        restoreInProgress = false;
+                                        this.electron.remote.dialog.showMessageBox({type: 'error', message: 'Restore from backup could not be completed', buttons: ['OK']});
+                                    }
+                                }
+                                // redirect to login
+                                this.router.navigate(['login']);
+                              }
+                          }
                         }
-                    });
-                    this.logger.debug('### LOGIN - Restore - walletUUID: ' + walletUUID + ' walletLocation: ' + walletLocation);
-                    if (walletUUID.length > 0) {
-                        // import DB
-                        this.walletService.importWalletDump(backup.DB, walletLocation, walletUUID);
-                        this.walletService.openWalletSubject.subscribe( openResult => {
-                            if (openResult === AppConstants.KEY_LOADED && restoreInProgress === true) {
-                                this.electron.remote.dialog.showMessageBox({type: 'info', message: 'Restore from backup succesful', buttons: ['OK']});
-                                restoreInProgress = false;
-                            }
-                        });
-                    } else {
-                        if (restoreInProgress === true) {
-                            restoreInProgress = false;
-                            this.electron.remote.dialog.showMessageBox({type: 'error', message: 'Restore from backup could not be completed', buttons: ['OK']});
-                        }
-                    }
-                    // redirect to login
-                    this.router.navigate(['login']);
-                  }
-              }
+                    );
+                });
             }
-        );
+        });
     }
 
     onRecoverMnemonic() {
         this.logger.debug('### Login -> Recover With Mnemonic');
-        this.router.navigate(['recoverMnemonic']);
+        this.electron.remote.dialog.showMessageBox({ message: 'Recover process will overwrite the current wallet. Are you sure?', buttons: ['OK', 'Cancel']}, (result) => {
+            this.logger.debug('### Warning Result: ' + result);
+            if (result === 0) {
+                // execute recover process
+                this._ngZone.run(() => {
+                this.router.navigate(['recoverMnemonic']);
+                });
+            }
+        });
+    }
+
+    doRestartAndInstall() {
+        // in case an update was downloaded we'll do a restart and install
+        this.electron.ipcRenderer.send('autoupdate-restart', true);
     }
 }

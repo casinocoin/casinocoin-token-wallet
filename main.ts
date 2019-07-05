@@ -1,4 +1,5 @@
 import { app, BrowserWindow, screen, ipcMain, Notification, Menu } from 'electron';
+import { autoUpdater } from 'electron-updater';
 import * as path from 'path';
 import * as url from 'url';
 import * as fs from 'fs';
@@ -51,6 +52,45 @@ winston.add(new winston.transports.File(
 winston.remove(winston.transports.Console);
 winston.level = globalTS.loglevel;
 globalTS.logger = winston;
+
+// define function to send update messages to window
+autoUpdater.logger = winston;
+function sendStatusToWindow(text, message, content) {
+  winston.log('info', text);
+  const eventMessage = {'event': message, 'data': content};
+  win.webContents.send('update-message', eventMessage);
+}
+
+autoUpdater.on('checking-for-update', () => {
+  sendStatusToWindow('Checking for update...', 'checking-for-update', null);
+});
+
+autoUpdater.on('update-available', (info) => {
+  sendStatusToWindow('Update available.', 'update-available', info);
+});
+
+autoUpdater.on('update-not-available', (info) => {
+  sendStatusToWindow('Update not available.', 'update-not-available', info);
+});
+
+autoUpdater.on('error', (err) => {
+  sendStatusToWindow('Error in auto-updater. ' + err, 'error', err);
+});
+
+autoUpdater.on('download-progress', (progressObj) => {
+  let log_message = 'Download speed: ' + progressObj.bytesPerSecond;
+  log_message = log_message + ' - Downloaded ' + progressObj.percent + '%';
+  log_message = log_message + ' (' + progressObj.transferred + '/' + progressObj.total + ')';
+  sendStatusToWindow(log_message, 'download-progress', progressObj);
+});
+
+autoUpdater.on('update-downloaded', (info) => {
+  sendStatusToWindow('Update downloaded', 'update-downloaded', info);
+});
+
+ipcMain.on('autoupdate-restart', (ipcevent, arg) => {
+  autoUpdater.quitAndInstall();
+});
 
 function createWindow() {
 
@@ -157,7 +197,10 @@ try {
   // This method will be called when Electron has finished
   // initialization and is ready to create browser windows.
   // Some APIs can only be used after this event occurs.
-  app.on('ready', createWindow);
+  app.on('ready', () => {
+    createWindow();
+    setTimeout(() => autoUpdater.checkForUpdates(), 500);
+  });
 
   app.on('before-quit', (event) => {
     winston.log('info', 'before-quit');

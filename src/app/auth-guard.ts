@@ -16,14 +16,14 @@ export class AuthGuard implements CanActivate {
 
     canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
         this.logger.debug('### AuthGuard route: ' + route.toString());
-        this.logger.debug('### AuthGuard route component: ' + route.routeConfig.component.name);
+        this.logger.debug('### AuthGuard route object: ' + JSON.stringify(route.routeConfig));
         // Check if wallet creation is running
         if (this.sessionStorageService.get(AppConstants.KEY_CREATE_WALLET_RUNNING)) {
             // its ok
             return false;
         }
         // Check if we want to recover our wallet
-        if (route.routeConfig.component.name === 'RecoverMnemonicComponent') {
+        if (route.routeConfig.path === 'recoverMnemonic') {
             // always allowed
             return true;
         }
@@ -31,7 +31,7 @@ export class AuthGuard implements CanActivate {
         if (this.sessionStorageService.get(AppConstants.KEY_CURRENT_WALLET)) {
             // wallet open so return true
             this.logger.debug('### AuthGuard - Wallet Selected?: ' + JSON.stringify(this.sessionStorageService.get(AppConstants.KEY_CURRENT_WALLET)));
-            this.logger.debug('### AuthGuard - Route: ' + route.toString());
+            this.logger.debug('### AuthGuard - Route: ' + route.routeConfig.path);
             return true;
         }
         // Wallet not open, check if setup has been completed

@@ -14,7 +14,7 @@
             <div class="ui-g-1"></div>
             <div class="ui-g-10">
                 <span class="ui-float-label">
-                    <input id="float-input-email" formControlName="email" type="email" pInputText required> 
+                    <input id="float-input-email" formControlName="email" type="email" class="setup-inputtext" pInputText required> 
                     <label for="float-input-emal">{{'PAGES.SETUP.STEP3-EMAIL' | translate }}</label>
                 </span>
             </div>
@@ -23,7 +23,7 @@
             <div class="ui-g-10">
                 <span class="ui-float-label">
                     <input id="float-password" formControlName="password" type="password" [(ngModel)]="newWalletPassword" (ngModelChange)="checkPasswordUpdate($event)"
-                        required [(pattern)]="passwordPattern" pInputText required #passwordInput/>
+                        required [(pattern)]="passwordPattern" class="setup-inputtext" pInputText required #passwordInput/>
                     <label for="float-password">{{'PAGES.SETUP.STEP3-PASSWORD' | translate }}</label>
                 </span>
             </div>
@@ -32,14 +32,14 @@
             <div class="ui-g-10">
                 <span class="ui-float-label">
                     <input id="float-pass-repeat" formControlName="confirmPassword" type="password" [(ngModel)]="newWalletPasswordConfirmed" (ngModelChange)="checkPasswordConfirmedUpdate($event)" 
-                        required [(pattern)]="passwordPattern" [disabled]="!paswordConfirmationEnabled" pInputText #passwordInputConfirmed/>
+                        required [(pattern)]="passwordPattern" [disabled]="!paswordConfirmationEnabled" class="setup-inputtext" pInputText #passwordInputConfirmed/>
                     <label for="float-pass-repeat">{{'PAGES.SETUP.STEP3-REPEAT-PASS' | translate }}</label>
                 </span>
             </div>
             <div class="ui-g-1"></div>
             <div class="ui-g-4"></div>
             <div class="ui-g-4">
-                <button pButton type="submit" label="{{ 'PAGES.SETUP.BTN-CONTINUE' | translate }}" [disabled]="!userform.valid"></button>
+                <button pButton type="submit" label="{{ 'PAGES.SETUP.BTN-CONTINUE' | translate }}" [disabled]="!userform.valid || !passwordsEqual"></button>
             </div>
             <div class="ui-g-4"></div>
         </div>
