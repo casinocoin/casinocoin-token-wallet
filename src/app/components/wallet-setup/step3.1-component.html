@@ -1,0 +1,36 @@
+<!-- Wallet Setup Step 3.1 -->
+<div class="ui-g-12">
+    <div class="ui-g">
+        <div class="ui-g-1"></div>
+        <div class="ui-g-10">
+            <h3 style="text-align: center;">Wallet environment selection</h3>
+        </div>
+        <div class="ui-g-1"></div>
+        <div class="ui-g-1"></div>
+        <div class="ui-g-10">
+            The new wallet will connect to the production network by default. If you need to test you can select the option below. Be aware that coins 
+            sent on the production network to an account in a test network wallet will be lost forever!!!
+        </div>
+        <div class="ui-g-1"></div>
+        <div class="ui-g-1"></div>
+        <div class="ui-g-10">
+            <button pButton type="button" (click)="developerOptions()" label="Developer Options" #developerOptionsButton></button>
+        </div>
+        <div class="ui-g-1"></div>
+        <div class="ui-g-1"></div>
+        <div *ngIf="developerOptionShow" class="ui-g-10">
+            <small style="font-weight: bolder;">
+            <p-checkbox [(ngModel)]="walletTestNetwork" binary="false" (onChange)="onNetworkChanged($event)" 
+                        label="Connect to the test network" [disabled]="networkChoiceDisabled"></p-checkbox>
+            </small>
+        </div>
+        <div *ngIf="!developerOptionShow" class="ui-g-10"></div>
+        <div class="ui-g-1"></div>
+        <div class="ui-g-12" style="height: 12em;"></div>
+        <div class="ui-g-4"></div>
+        <div class="ui-g-4">
+            <button pButton type="button" label="{{ 'PAGES.SETUP.BTN-CONTINUE' | translate }}" class="full-btn-width" (click)="continue()"></button>
+        </div>
+        <div class="ui-g-4"></div>
+    </div>
+</div>

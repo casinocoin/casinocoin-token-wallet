@@ -47,6 +47,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   applicationVersion: string;
   serverVersion: string;
+  network: string;
 
   showPrivateKeyImportDialog = false;
   showSettingsDialog = false;
@@ -123,6 +124,7 @@ export class HomeComponent implements OnInit, OnDestroy {
                private datePipe: DatePipe ) {
     this.logger.debug('### INIT Home');
     this.applicationVersion = this.electron.remote.app.getVersion();
+    this.network = this.sessionStorageService.get(AppConstants.KEY_CURRENT_WALLET).network;
   }
 
   ngOnInit() {

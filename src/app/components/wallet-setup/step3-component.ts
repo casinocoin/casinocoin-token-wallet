@@ -22,7 +22,7 @@ import { WalletService } from '../../providers/wallet.service';
 
     constructor( private logger: LogService,
                  private router: Router,
-                 private walletService: WalletService ,
+                 private walletService: WalletService,
                  private fb: FormBuilder ) { }
 
     ngOnInit() {
@@ -53,7 +53,6 @@ import { WalletService } from '../../providers/wallet.service';
     }
 
     checkPasswordConfirmedUpdate(newConfirmValue: string) {
-      this.logger.debug('### Step3 - newWalletPassword: ' + this.newWalletPassword + ' newConfirmValue: ' + newConfirmValue);
       this.newWalletPasswordConfirmed = newConfirmValue;
       if (newConfirmValue === this.newWalletPassword) {
         this.logger.debug('### Step3 - passwords are the same ')
@@ -68,6 +67,6 @@ import { WalletService } from '../../providers/wallet.service';
         this.walletService.walletSetup.userEmail = value.email;
         this.walletService.walletSetup.userPassword = value.password;
         // navigate to step 4
-        this.router.navigate(['wallet-setup', 'setup-step4']);
+        this.router.navigate(['wallet-setup', 'setup-step3.1']);
     }
   }

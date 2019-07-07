@@ -19,8 +19,6 @@ import { GetServerInfoResponse } from '@casinocoin/libjs/common/serverinfo';
 @Injectable()
 export class CasinocoinService implements OnDestroy {
 
-    private defaultMinimalFee = 100000;
-
     public cscAPI: CasinocoinAPI;
     public accounts: Array<LokiAccount> = [];
     public accountSubject = new Subject<LokiAccount>();

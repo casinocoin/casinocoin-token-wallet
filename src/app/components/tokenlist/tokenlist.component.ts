@@ -234,7 +234,13 @@ export class TokenlistComponent implements OnInit {
 
   onRowSelect(event) {
     this.logger.debug('### onRowSelect: ' + JSON.stringify(event));
-    this.currentToken = event;
+    if (this.currentToken === undefined) {
+      this.currentToken = event;
+    } else if (event.PK !== this.currentToken.PK) {
+      this.logger.debug('### onRowSelect - reset sendForm');
+      this.currentToken = event;
+      this.sendForm.reset();
+    }
   }
 
   canActivateAccount() {

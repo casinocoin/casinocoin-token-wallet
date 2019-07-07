@@ -33,6 +33,7 @@ import { WalletSetupComponent } from './components/wallet-setup/wallet-setup.com
 import { SetupStep1Component } from './components/wallet-setup/step1-component';
 import { SetupStep2Component } from './components/wallet-setup/step2-component';
 import { SetupStep3Component } from './components/wallet-setup/step3-component';
+import { SetupStep31Component } from './components/wallet-setup/step3.1-component';
 import { SetupStep4Component } from './components/wallet-setup/step4-component';
 import { SetupStep5Component } from './components/wallet-setup/step5-component';
 import { LoginComponent } from './components/login/login.component';
@@ -89,6 +90,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     SetupStep1Component,
     SetupStep2Component,
     SetupStep3Component,
+    SetupStep31Component,
     SetupStep4Component,
     SetupStep5Component,
     LoginComponent,

@@ -1,6 +1,6 @@
 {
   "name": "casinocoin-token-wallet",
-  "version": "5.0.2",
+  "version": "5.0.3",
   "description": "CasinoCoin desktop wallet with token support",
   "homepage": "https://casinocoin.org",
   "author": {
@@ -35,7 +35,7 @@
     "test": "npm run postinstall:web && ng test",
     "e2e": "npm run build:prod && mocha --timeout 300000 --require ts-node/register e2e/**/*.spec.ts",
     "version": "conventional-changelog -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md",
-    "publish": "electron-builder build --mac --win --linux -p always"
+    "publish": "npm run build:prod && electron-builder build --mac --win --linux -p always"
   },
   "build": {
     "appId": "org.casinocoin.casinocoin-token-wallet",
