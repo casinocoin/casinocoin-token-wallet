@@ -431,6 +431,9 @@ export class TokenlistComponent implements OnInit {
       this.walletPassword = '';
       this.addIcon = 'fa fa-plus';
       this.showAddTokenDialog = false;
+      this.footer_visible = false;
+      this.error_message = '';
+      this.renderer.selectRootElement('#float-input-password').value = '';
     });
   }
 

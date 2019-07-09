@@ -83,14 +83,7 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
         if (this.availableWallets === null) {
             this.selectedWallet = { walletUUID: '', creationDate: -1, location: '', mnemonicHash: '', network: '', passwordHash: '', userEmail: ''};
             this.router.navigate(['/wallet-setup']);
-        } else if (this.availableWallets.length === 1) {
-            this.selectedWallet = this.availableWallets[0];
-            const walletCreationDate = new Date(CSCUtil.casinocoinToUnixTimestamp(this.selectedWallet.creationDate));
-            this.translate.get('PAGES.LOGIN.CREATED-ON').subscribe((res: string) => {
-                this.walletCreationDate = res + ' ' + this.datePipe.transform(walletCreationDate, 'yyyy-MM-dd HH:mm:ss');
-            });
-            this.walletEmail = this.selectedWallet.userEmail;
-        } else {
+        } else if (this.availableWallets.length > 1) {
             this.logger.debug('### LOGIN Wallet Count: ' + this.availableWallets.length);
             for (let i = 0; i < this.availableWallets.length; i++) {
                 this.logger.debug('### LOGIN Wallet: ' + JSON.stringify(this.availableWallets[i]));
@@ -103,11 +96,14 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
                 this.logger.debug('### LOGIN Wallet Label: ' + walletLabel);
                 this.wallets.push({label: walletLabel, value: this.availableWallets[i]['walletUUID']});
             }
-            // const walletCreationDate = new Date(CSCUtil.casinocoinToUnixTimestamp(this.selectedWallet.creationDate));
-            // this.translate.get('PAGES.LOGIN.CREATED-ON').subscribe((res: string) => {
-            //     this.walletCreationDate = res + ' ' + this.datePipe.transform(walletCreationDate, 'yyyy-MM-dd HH:mm:ss');
-            // });
         }
+        // set first wallet as selected
+        this.selectedWallet = this.availableWallets[0];
+        const walletCreationDate = new Date(CSCUtil.casinocoinToUnixTimestamp(this.selectedWallet.creationDate));
+        this.translate.get('PAGES.LOGIN.CREATED-ON').subscribe((res: string) => {
+            this.walletCreationDate = res + ' ' + this.datePipe.transform(walletCreationDate, 'yyyy-MM-dd HH:mm:ss');
+        });
+        this.walletEmail = this.selectedWallet.userEmail;
         // Listen for electron main events
         this.electron.ipcRenderer.on('action', (event, arg) => {
             this.logger.debug('### LOGIN Received Action: ' + arg);
@@ -131,7 +127,7 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
                 this._ngZone.run(() => {
                     this.autoUpdateRunning = true;
                     this.downloadVersion = arg.data.version;
-                    this.downloadPercentage = 0;
+                    this.downloadPercentage = 1;
                     this.dialog_visible = false;
                     this.update_dialog_visible = true;
                 });
@@ -140,13 +136,16 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
                 this.logger.debug('### LOGIN Download Status: ' + JSON.stringify(arg.data));
                 this._ngZone.run(() => {
                     this.downloadPercentage = Number(this.decimalPipe.transform(arg.data.percent, '1.2-2'));
-                    this.logger.debug('### LOGIN Download Percentage: ' + this.downloadPercentage);
-                    this.downloadedBytes = arg.data.transferred;
-                    this.totalBytes = arg.data.total;
+                    if (this.downloadPercentage > 1) {
+                        this.logger.debug('### LOGIN Download Percentage: ' + this.downloadPercentage);
+                        this.downloadedBytes = arg.data.transferred;
+                        this.totalBytes = arg.data.total;
+                    }
                 });
             } else if (arg.event === 'update-downloaded') {
                 this.logger.debug('### LOGIN Download Finished: ' + JSON.stringify(arg.data));
                 this._ngZone.run(() => {
+                    this.downloadPercentage = 100;
                     this.autoUpdateRunning = false;
                     this.downloadCompleted = true;
                 });

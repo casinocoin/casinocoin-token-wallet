@@ -76,7 +76,8 @@
         </div>
         <div class="ui-g-1"></div>
         <div class="ui-g-1"></div>
-        <div class="ui-g-10" style="text-align: center;">Downloaded {{downloadedBytes | number : '1.0'}} of {{totalBytes | number : '1.0'}} bytes</div>
+        <div class="ui-g-10" style="text-align: center;" *ngIf="!downloadCompleted">Downloaded {{downloadedBytes | number : '1.0'}} of {{totalBytes | number : '1.0'}} bytes</div>
+        <div class="ui-g-10" style="text-align: center;" *ngIf="downloadCompleted">Download Completed</div>
         <div class="ui-g-1"></div>
         <div class="ui-g-3"></div>
         <div class="ui-g-6" style="text-align:center;">

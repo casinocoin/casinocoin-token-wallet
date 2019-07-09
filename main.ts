@@ -175,7 +175,10 @@ function createWindow() {
     notification.show();
   });
 
-  // Create the OSX Application's main menu
+  // hide the application main menu by default
+  win.setMenu(null);
+
+  // Create the OSX Application's main menu as its needed for cut/copy/paste/quit to work
   const template: Electron.MenuItemConstructorOptions[] = [{
     label: 'CasinoCoin Wallet',
     submenu: [

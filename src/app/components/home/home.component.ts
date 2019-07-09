@@ -518,7 +518,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         const accountReserve = this.casinocoinService.serverInfo.validatedLedger.reserveBaseCSC;
         const ownerReserve = Number(this.casinocoinService.serverInfo.validatedLedger.reserveIncrementCSC);
         // check if importing into existing or new account
-        if (this.importSecretChoice === 'existing') {
+        // if (this.importSecretChoice === 'existing') {
           // get main account to import
           const mainAccount: LokiTypes.LokiAccount = this.walletService.getMainAccount();
           const mainAccountKey: LokiKey = this.walletService.getKey(mainAccount.accountID);
@@ -538,52 +538,83 @@ export class HomeComponent implements OnInit, OnDestroy {
             const importCSCValue = new Big(CSCUtil.cscToDrops(cscBalance.value)).minus(this.importRequiredTotalReserve);
             this.logger.debug('### HOME requiredTotalReserve: ' + this.importRequiredTotalReserve);
             if ( importCSCValue > 0) {
-              balances.forEach(balance => {
-                if (balance.currency !== 'CSC') {
-                  // check if main account has a trustline for this token
-                  let tokenAccount = this.walletService.getAccount(balance.currency, mainAccount.accountID);
-                  if (tokenAccount === null) {
-                    // create new account
-                    const tokenInfo = this.casinocoinService.getTokenInfo(balance.currency);
-                    tokenAccount = {
-                        pk: (tokenInfo.Token + mainAccount.accountID),
-                        accountID: mainAccount.accountID,
-                        balance: mainAccount.balance,
-                        accountSequence: mainAccount.accountSequence,
+              // check if we only have CSC to move
+              if (balances.length === 1 && cscBalance !== undefined) {
+                const cscPayment: any = {
+                  source: { address: accountID, maxAmount: { value: CSCUtil.dropsToCsc(importCSCValue.toString()), currency: cscBalance.currency } },
+                  destination: { address: mainAccount.accountID, amount: { value: CSCUtil.dropsToCsc(importCSCValue.toString()), currency: cscBalance.currency } }
+                };
+                this.logger.debug('### HOME import csc payment: ' + JSON.stringify(cscPayment));
+                this.casinocoinService.cscAPI.preparePayment(accountID, cscPayment).then( preparedPayment => {
+                  this.logger.debug('### HOME CSC Prepared Payment Result: ' + JSON.stringify(preparedPayment));
+                  return this.casinocoinService.cscAPI.sign(preparedPayment.txJSON, this.importAccountSecret);
+                }).then( paymentSignResult => {
+                  this.logger.debug('### Payment Sign Result: ' + JSON.stringify(paymentSignResult));
+                  return this.casinocoinService.cscAPI.submit(paymentSignResult.signedTransaction);
+                }).then( cscPaymentSubmitResult => {
+                  this.logger.debug('### Payment Submit Result: ' + JSON.stringify(cscPaymentSubmitResult));
+                  // save the wallet
+                  this.walletService.saveWallet();
+                  // refresh lists
+                  this.casinocoinService.refreshAccountTokenList();
+                  // subcribe to all accounts again
+                  this.casinocoinService.subscribeAccountEvents();
+                  this.active_icon = 'fa fa-check';
+                  this.showImportKeyDialog = false;
+                  this.importAccountSecret = '';
+                  this.walletPassword = '';
+                  this.footer_message = '';
+                  this.footer_visible = false;
+                  this.router.navigate(['home', 'tokenlist']);
+                });
+              } else {
+                balances.forEach(balance => {
+                  if (balance.currency !== 'CSC') {
+                    // check if main account has a trustline for this token
+                    let tokenAccount = this.walletService.getAccount(balance.currency, mainAccount.accountID);
+                    if (tokenAccount === null) {
+                      // create new account
+                      const tokenInfo = this.casinocoinService.getTokenInfo(balance.currency);
+                      tokenAccount = {
+                          pk: (tokenInfo.Token + mainAccount.accountID),
+                          accountID: mainAccount.accountID,
+                          balance: mainAccount.balance,
+                          accountSequence: mainAccount.accountSequence,
+                          currency: tokenInfo.Token,
+                          tokenBalance: '0',
+                          lastSequence: mainAccount.lastSequence,
+                          label: tokenInfo.FullName,
+                          activated: true,
+                          ownerCount: mainAccount.ownerCount,
+                          lastTxID: mainAccount.lastTxID,
+                          lastTxLedger: mainAccount.lastTxLedger
+                      };
+                      // save account to wallet
+                      this.walletService.addAccount(tokenAccount);
+                      // no token account yet so create trustline for it on the main account and add new token account
+                      const trustline = {
                         currency: tokenInfo.Token,
-                        tokenBalance: '0',
-                        lastSequence: mainAccount.lastSequence,
-                        label: tokenInfo.FullName,
-                        activated: true,
-                        ownerCount: mainAccount.ownerCount,
-                        lastTxID: mainAccount.lastTxID,
-                        lastTxLedger: mainAccount.lastTxLedger
-                    };
-                    // save account to wallet
-                    this.walletService.addAccount(tokenAccount);
-                    // no token account yet so create trustline for it on the main account and add new token account
-                    const trustline = {
-                      currency: tokenInfo.Token,
-                      counterparty: tokenInfo.Issuer,
-                      limit: tokenInfo.TotalSupply
-                    };
-                    this.casinocoinService.cscAPI.prepareTrustline(mainAccount.accountID, trustline).then( preparedTrust => {
-                      this.logger.debug('### HOME Trustline Result: ' + JSON.stringify(preparedTrust));
-                      return this.casinocoinService.cscAPI.sign(preparedTrust.txJSON, mainAccountDecryptedSecret);
-                    }).then( trustSignResult => {
-                      this.logger.debug('### Trustline Sign Result: ' + JSON.stringify(trustSignResult));
-                      return this.casinocoinService.cscAPI.submit(trustSignResult.signedTransaction);
-                    }).then( trustSubmitResult => {
-                      this.logger.debug('### Trustline Submit Result: ' + JSON.stringify(trustSubmitResult));
-                      // mark balance ready for payment
+                        counterparty: tokenInfo.Issuer,
+                        limit: tokenInfo.TotalSupply
+                      };
+                      this.casinocoinService.cscAPI.prepareTrustline(mainAccount.accountID, trustline).then( preparedTrust => {
+                        this.logger.debug('### HOME Trustline Result: ' + JSON.stringify(preparedTrust));
+                        return this.casinocoinService.cscAPI.sign(preparedTrust.txJSON, mainAccountDecryptedSecret);
+                      }).then( trustSignResult => {
+                        this.logger.debug('### Trustline Sign Result: ' + JSON.stringify(trustSignResult));
+                        return this.casinocoinService.cscAPI.submit(trustSignResult.signedTransaction);
+                      }).then( trustSubmitResult => {
+                        this.logger.debug('### Trustline Submit Result: ' + JSON.stringify(trustSubmitResult));
+                        // mark balance ready for payment
+                        tokenReadyForTransferSubject.next(balance);
+                      });
+                    } else {
+                      // we only need to move the assets
                       tokenReadyForTransferSubject.next(balance);
-                    });
-                  } else {
-                    // we only need to move the assets
-                    tokenReadyForTransferSubject.next(balance);
+                    }
                   }
-                }
-              });
+                });
+              }
             } else {
               this.footer_message = 'Not enough CSC in the source account to handle all required transactions.';
               this.active_icon = 'fa fa-check';
@@ -650,86 +681,86 @@ export class HomeComponent implements OnInit, OnDestroy {
               }
             });
           });
-        } else {
-          // user selected to add account for secret to this wallet
-          const newKeyPair: LokiKey = {
-            accountID: accountID,
-            encrypted: false,
-            privateKey: importKeyPair.privateKey,
-            publicKey: importKeyPair.publicKey,
-            secret: this.importAccountSecret
-          };
-          this.walletService.addKey(newKeyPair);
-          // loop over balances and add accounts
-          let ledgerAccount;
-          this.casinocoinService.cscAPI.getAccountInfo(accountID).then(accountInfo => {
-            ledgerAccount = accountInfo;
-            return this.casinocoinService.cscAPI.getBalances(accountID);
-          }).then(balances => {
-            balances.forEach(balance => {
-              this.logger.debug('### HOME balance: ' + JSON.stringify(balance));
-              // create new account
-              if (balance.currency !== 'CSC') {
-                const tokenInfo = this.casinocoinService.getTokenInfo(balance.currency);
-                const tokenAccount = {
-                    pk: (tokenInfo.Token + accountID),
-                    accountID: accountID,
-                    balance: CSCUtil.cscToDrops(ledgerAccount.cscBalance),
-                    accountSequence: -1,
-                    currency: tokenInfo.Token,
-                    tokenBalance: CSCUtil.cscToDrops(balance.value),
-                    lastSequence: ledgerAccount.sequence,
-                    label: tokenInfo.FullName,
-                    activated: true,
-                    ownerCount: ledgerAccount.ownerCount,
-                    lastTxID: ledgerAccount.previousAffectingTransactionID,
-                    lastTxLedger: ledgerAccount.previousAffectingTransactionLedgerVersion
-                };
-                this.logger.debug('### HOME account: ' + JSON.stringify(tokenAccount));
-                // save account to wallet
-                this.walletService.addAccount(tokenAccount);
-              } else {
-                const tokenAccount = {
-                    pk: ('CSC' + accountID),
-                    accountID: accountID,
-                    balance: CSCUtil.cscToDrops(ledgerAccount.cscBalance),
-                    accountSequence: -1,
-                    currency: 'CSC',
-                    tokenBalance: '0',
-                    lastSequence: ledgerAccount.sequence,
-                    label: 'CSC Account',
-                    activated: true,
-                    ownerCount: ledgerAccount.ownerCount,
-                    lastTxID: ledgerAccount.previousAffectingTransactionID,
-                    lastTxLedger: ledgerAccount.previousAffectingTransactionLedgerVersion
-                };
-                this.logger.debug('### HOME account: ' + JSON.stringify(tokenAccount));
-                // save account to wallet
-                this.walletService.addAccount(tokenAccount);
-              }
-            });
-            // encrypt all keys
-            this.walletService.encryptAllKeys(this.walletPassword, userEmail).subscribe( encryptResult => {
-                if (encryptResult === AppConstants.KEY_FINISHED) {
-                  this.logger.debug('### HOME Import - Key Encryption Complete');
-                  // save the wallet
-                  this.walletService.saveWallet();
-                  // refresh lists
-                  this.casinocoinService.refreshAccountTokenList();
-                  // subcribe to all accounts again
-                  this.casinocoinService.subscribeAccountEvents();
-                  // close dialog
-                  this.active_icon = 'fa fa-check';
-                  this.showImportKeyDialog = false;
-                  this.importAccountSecret = '';
-                  this.walletPassword = '';
-                  this.footer_message = '';
-                  this.footer_visible = false;
-                  this.router.navigate(['home', 'tokenlist']);
-                }
-            });
-          });
-        }
+        // } else {
+        //   // user selected to add account for secret to this wallet
+        //   const newKeyPair: LokiKey = {
+        //     accountID: accountID,
+        //     encrypted: false,
+        //     privateKey: importKeyPair.privateKey,
+        //     publicKey: importKeyPair.publicKey,
+        //     secret: this.importAccountSecret
+        //   };
+        //   this.walletService.addKey(newKeyPair);
+        //   // loop over balances and add accounts
+        //   let ledgerAccount;
+        //   this.casinocoinService.cscAPI.getAccountInfo(accountID).then(accountInfo => {
+        //     ledgerAccount = accountInfo;
+        //     return this.casinocoinService.cscAPI.getBalances(accountID);
+        //   }).then(balances => {
+        //     balances.forEach(balance => {
+        //       this.logger.debug('### HOME balance: ' + JSON.stringify(balance));
+        //       // create new account
+        //       if (balance.currency !== 'CSC') {
+        //         const tokenInfo = this.casinocoinService.getTokenInfo(balance.currency);
+        //         const tokenAccount = {
+        //             pk: (tokenInfo.Token + accountID),
+        //             accountID: accountID,
+        //             balance: CSCUtil.cscToDrops(ledgerAccount.cscBalance),
+        //             accountSequence: -1,
+        //             currency: tokenInfo.Token,
+        //             tokenBalance: CSCUtil.cscToDrops(balance.value),
+        //             lastSequence: ledgerAccount.sequence,
+        //             label: tokenInfo.FullName,
+        //             activated: true,
+        //             ownerCount: ledgerAccount.ownerCount,
+        //             lastTxID: ledgerAccount.previousAffectingTransactionID,
+        //             lastTxLedger: ledgerAccount.previousAffectingTransactionLedgerVersion
+        //         };
+        //         this.logger.debug('### HOME account: ' + JSON.stringify(tokenAccount));
+        //         // save account to wallet
+        //         this.walletService.addAccount(tokenAccount);
+        //       } else {
+        //         const tokenAccount = {
+        //             pk: ('CSC' + accountID),
+        //             accountID: accountID,
+        //             balance: CSCUtil.cscToDrops(ledgerAccount.cscBalance),
+        //             accountSequence: -1,
+        //             currency: 'CSC',
+        //             tokenBalance: '0',
+        //             lastSequence: ledgerAccount.sequence,
+        //             label: 'CSC Account',
+        //             activated: true,
+        //             ownerCount: ledgerAccount.ownerCount,
+        //             lastTxID: ledgerAccount.previousAffectingTransactionID,
+        //             lastTxLedger: ledgerAccount.previousAffectingTransactionLedgerVersion
+        //         };
+        //         this.logger.debug('### HOME account: ' + JSON.stringify(tokenAccount));
+        //         // save account to wallet
+        //         this.walletService.addAccount(tokenAccount);
+        //       }
+        //     });
+        //     // encrypt all keys
+        //     this.walletService.encryptAllKeys(this.walletPassword, userEmail).subscribe( encryptResult => {
+        //         if (encryptResult === AppConstants.KEY_FINISHED) {
+        //           this.logger.debug('### HOME Import - Key Encryption Complete');
+        //           // save the wallet
+        //           this.walletService.saveWallet();
+        //           // refresh lists
+        //           this.casinocoinService.refreshAccountTokenList();
+        //           // subcribe to all accounts again
+        //           this.casinocoinService.subscribeAccountEvents();
+        //           // close dialog
+        //           this.active_icon = 'fa fa-check';
+        //           this.showImportKeyDialog = false;
+        //           this.importAccountSecret = '';
+        //           this.walletPassword = '';
+        //           this.footer_message = '';
+        //           this.footer_visible = false;
+        //           this.router.navigate(['home', 'tokenlist']);
+        //         }
+        //     });
+        //   });
+        // }
       } else {
         // invalid secret
         this.footer_message = 'Invalid account secret entered!';
@@ -744,35 +775,6 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.footer_visible = true;
       this.walletPassword = '';
     }
-    //   const importValue = new Big(CSCUtil.cscToDrops(account.cscBalance)).minus(new Big(CSCUtil.cscToDrops(accountReserve))).minus(new Big(CSCUtil.cscToDrops(fees))).minus(new Big(CSCUtil.cscToDrops(ownerReserve.toString())));
-    //   this.logger.debug('### HOME fees: ' + fees + ' reserve: ' + accountReserve + ' importValue: ' + importValue);
-    //   this.footer_message = 'Importing ' + CSCUtil.dropsToCsc(importValue.toString()) + ' CSC from account ' + accountID;
-    //   this.footer_visible = true;
-    //   const payment: any = {
-    //     source: { address: accountID, maxAmount: { value: CSCUtil.dropsToCsc(importValue.toString()), currency: 'CSC' } },
-    //     destination: { address: mainAccount.accountID, amount: { value: CSCUtil.dropsToCsc(importValue.toString()), currency: 'CSC' }
-    //     }
-    //   };
-    //   this.logger.debug('### HOME - payment: ' + JSON.stringify(payment));
-    //   return this.casinocoinService.cscAPI.preparePayment(accountID, payment);
-    // }).then(prepared => {
-    //   this.logger.debug('### Prepared: ' + JSON.stringify(prepared));
-    //   return this.casinocoinService.cscAPI.sign(prepared.txJSON, this.importAccountSecret);
-    // }).then( signResult => {
-    //   this.logger.debug('### Sign Result: ' + JSON.stringify(signResult));
-    //   return this.casinocoinService.cscAPI.submit(signResult.signedTransaction);
-    // }).then( submitResult => {
-    //   this.logger.debug('### Submit Result: ' + JSON.stringify(submitResult));
-    //   if (submitResult['resultCode'] === 'tesSUCCESS') {
-    //     this.importAccountSecret = '';
-    //     this.showImportKeyDialog = false;
-    //     this.active_icon = 'fa fa-check';
-    //     this.footer_visible = false;
-    //   } else {
-    //     this.importAccountSecret = '';
-    //     this.footer_message = submitResult['resultMessage'];
-    //     this.active_icon = 'fa fa-check';
-    //   }
 
   }
 
