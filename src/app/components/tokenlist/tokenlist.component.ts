@@ -156,7 +156,7 @@ export class TokenlistComponent implements OnInit {
     this.walletService.openWalletSubject.subscribe( result => {
       if (result === AppConstants.KEY_LOADED) {
         // get the main CSC AccountID
-        this.mainCSCAccountID = this.walletService.getTokenAccount('CSC').accountID;
+        this.mainCSCAccountID = this.walletService.getMainAccount().accountID;
         // get all CSC accounts for add token dropdown
         this.walletService.getAllAccounts().forEach( element => {
           if (element.currency === 'CSC' && new Big(element.balance) > 0 && element.accountSequence >= 0) {
@@ -226,6 +226,19 @@ export class TokenlistComponent implements OnInit {
   doShowAddCSC() {
     this.logger.debug('### TokenList - doShowAddCSC() ###');
     this.showAddCSCDialog = true;
+  }
+
+  onHideTokenDialog() {
+    this.addToken = null;
+    this.walletPassword = '';
+    this.addIcon = 'fa fa-plus';
+    this.showAddTokenDialog = false;
+  }
+
+  onHideCSCDialog() {
+    this.walletPassword = '';
+    this.addIcon = 'fa fa-plus';
+    this.showAddCSCDialog = false;
   }
 
   convertCscTimestamp(inputTime) {

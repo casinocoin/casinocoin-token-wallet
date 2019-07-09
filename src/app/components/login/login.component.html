@@ -7,9 +7,9 @@
         <div class="ui-g-10">
             <div class="ui-inputgroup">
                 <span class="ui-inputgroup-addon" style="box-sizing: content-box;"><i class="fa fa-suitcase"></i></span>
-                <input type="text" pInputText [(ngModel)]="selectedWallet.walletUUID" readonly>
-                <!-- <p-dropdown [style]="{'width':'100%'}" [options]="wallets" [(ngModel)]="selectedWallet" 
-                            placeholder="{{ 'PAGES.LOGIN.SELECT' | translate }}" appendTo="body" autofocus></p-dropdown> -->
+                <input *ngIf="wallets.length == 1" type="text" pInputText [(ngModel)]="selectedWallet.walletUUID" readonly>
+                <p-dropdown *ngIf="wallets.length > 1" [options]="wallets" (onChange)="onChangeSelectedWallet($event)" 
+                            placeholder="{{ 'PAGES.LOGIN.SELECT' | translate }}" appendTo="body"></p-dropdown>
             </div>
         </div>
         <div class="ui-g-1"></div>
@@ -17,7 +17,7 @@
         <div class="ui-g-10">
             <div class="ui-inputgroup">
                 <span class="ui-inputgroup-addon" style="box-sizing: content-box;"><i class="fa fa-user"></i></span>
-                <input type="text" pInputText [(ngModel)]="selectedWallet.userEmail" readonly>
+                <input type="text" pInputText [(ngModel)]="walletEmail" readonly>
             </div>
         </div>
         <div class="ui-g-1"></div>

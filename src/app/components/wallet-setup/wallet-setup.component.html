@@ -11,26 +11,3 @@
         {{ 'PAGES.SETUP.FOOTER' | translate }}
     </p-footer>
 </p-dialog>
-<p-dialog [(visible)]="update_dialog_visible" [width]="500" [height]="250" [closable]="false">
-    <p-header><i class="icon csc-dialog-icon icon-chip" aria-hidden="true"></i>
-        {{ 'PAGES.LOGIN.UPDATE-TITLE' | translate }}
-    </p-header>
-    <div class="ui-g ui-fluid">
-        <div class="ui-g-1"></div>
-        <div class="ui-g-10" style="text-align: center;">Downloading new wallet version {{downloadVersion}}</div>
-        <div class="ui-g-1"></div>
-        <div class="ui-g-1"></div>
-        <div class="ui-g-10">
-            <p-progressBar [value]="downloadPercentage" *ngIf="update_dialog_visible"></p-progressBar>
-        </div>
-        <div class="ui-g-1"></div>
-        <div class="ui-g-1"></div>
-        <div class="ui-g-10" style="text-align: center;">Downloaded {{downloadedBytes | number : '1.0'}} of {{totalBytes | number : '1.0'}} bytes</div>
-        <div class="ui-g-1"></div>
-        <div class="ui-g-3"></div>
-        <div class="ui-g-6" style="text-align:center;">
-            <button pButton type="button" (click)="doRestartAndInstall()" icon="pi pi-check" iconPos="right" label="Restart and Install" [disabled]="!downloadCompleted"></button>
-        </div>
-        <div class="ui-g-3"></div>
-    </div>
-</p-dialog>

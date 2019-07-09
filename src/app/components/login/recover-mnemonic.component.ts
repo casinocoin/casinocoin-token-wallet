@@ -24,6 +24,8 @@ export class RecoverMnemonicComponent implements OnInit {
 
     selectedWallet: string;
     walletLocation: string;
+    walletTestNetwork: boolean;
+    networkChoice = 'LIVE';
 
     returnUrl: string;
     footer_visible = false;
@@ -65,7 +67,13 @@ export class RecoverMnemonicComponent implements OnInit {
         // get return url from route parameters or default to '/'
         this.selectedWallet = this.route.snapshot.queryParams['walletUUID'];
         this.walletLocation = this.route.snapshot.queryParams['walletLocation'];
+        this.walletTestNetwork = false;
         this.logger.debug('### RecoverMnemonic for: ' + this.selectedWallet + ' and path: ' + this.walletLocation);
+    }
+
+    onNetworkChanged(newValue) {
+        this.logger.debug('### RecoverMnemonic - Test Network?: ' + newValue);
+        this.walletService.walletSetup.testNetwork = newValue;
     }
 
     removeUndefined(obj: Object): Object {
@@ -94,6 +102,12 @@ export class RecoverMnemonicComponent implements OnInit {
                 this.error_message = 'Please enter all 12 words!';
         } else {
             this.logger.debug('### Recover with words: ' + JSON.stringify(this.recoveryWords));
+            this.logger.debug('### Network: ' + this.networkChoice);
+            if (this.networkChoice === 'TEST') {
+                this.walletTestNetwork = true;
+            } else {
+                this.walletTestNetwork = false;
+            }
             const recoveryArray = [];
             recoveryArray.push([this.recoveryWords.word1,
                                 this.recoveryWords.word2,
@@ -115,7 +129,7 @@ export class RecoverMnemonicComponent implements OnInit {
                 userEmail: this.recoveryEmail,
                 userPassword: this.walletPassword,
                 recoveryMnemonicWords: recoveryArray,
-                testNetwork: true,
+                testNetwork: this.walletTestNetwork,
                 walletUUID: walletUUID,
                 backupLocation: this.electron.remote.getGlobal('vars').backupLocation,
                 walletPasswordHash: this.walletService.generateWalletPasswordHash(walletUUID, this.walletPassword),
@@ -126,6 +140,7 @@ export class RecoverMnemonicComponent implements OnInit {
             const encMnemonicCscCrypto = new CSCCrypto(this.walletService.walletSetup.userPassword, this.walletService.walletSetup.userEmail);
             const encryptedMnemonicHash = encMnemonicCscCrypto.encrypt(mnemonicHash);
             this.localStorageService.set(AppConstants.KEY_WALLET_PASSWORD_HASH, this.walletService.walletSetup.walletPasswordHash);
+            this.localStorageService.set(AppConstants.KEY_PRODUCTION_NETWORK, !this.walletService.walletSetup.testNetwork);
 
             // regenerate accounts
             const accountFindFinishedSubject = new BehaviorSubject<Boolean>(false);
@@ -197,7 +212,7 @@ export class RecoverMnemonicComponent implements OnInit {
                                         return this.casinocoinService.cscAPI.getTransactions(keyPair.accountID, {earliestFirst: true});
                                     }).then( txResult => {
                                         txResult.forEach( tx => {
-                                            if (tx.type === 'payment') {
+                                            if (tx.type === 'payment' && tx.outcome.result === 'tesSUCCESS') {
                                                 this.logger.debug('### Recover - transaction: ' + JSON.stringify(tx));
                                                 let txDirection: string;
                                                 let txAccountID: string;
@@ -293,12 +308,14 @@ export class RecoverMnemonicComponent implements OnInit {
                                             passwordHash: this.walletService.walletSetup.walletPasswordHash,
                                             mnemonicHash: encryptedMnemonicHash
                                         };
-                                        const walletArray: Array<WalletDefinition> = [];
+                                        let walletArray: Array<WalletDefinition> = this.localStorageService.get(AppConstants.KEY_AVAILABLE_WALLETS);
+                                        if (walletArray == null) {
+                                            // first wallet so init array
+                                            walletArray = [];
+                                        }
                                         walletArray.push(walletDefinition);
                                         this.localStorageService.set(AppConstants.KEY_AVAILABLE_WALLETS, walletArray);
                                         this.localStorageService.set(AppConstants.KEY_WALLET_LOCATION, this.walletService.walletSetup.walletLocation);
-                                        this.localStorageService.set(AppConstants.KEY_BACKUP_LOCATION, this.walletService.walletSetup.backupLocation);
-                                        this.localStorageService.set(AppConstants.KEY_PRODUCTION_NETWORK, !this.walletService.walletSetup.testNetwork);
                                         this.localStorageService.set(AppConstants.KEY_WALLET_PASSWORD_HASH, this.walletService.walletSetup.walletPasswordHash);
                                         this.localStorageService.set(AppConstants.KEY_SETUP_COMPLETED, true);
                                     }

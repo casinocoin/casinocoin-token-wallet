@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
 import { ElectronService } from '../../providers/electron.service';
 import { LogService } from '../../providers/log.service';
@@ -121,7 +121,8 @@ export class HomeComponent implements OnInit, OnDestroy {
                private sessionStorageService: SessionStorageService,
                private translate: TranslateService,
                private router: Router,
-               private datePipe: DatePipe ) {
+               private datePipe: DatePipe,
+               private _ngZone: NgZone ) {
     this.logger.debug('### INIT Home');
     this.applicationVersion = this.electron.remote.app.getVersion();
     this.network = this.sessionStorageService.get(AppConstants.KEY_CURRENT_WALLET).network;
@@ -187,6 +188,14 @@ export class HomeComponent implements OnInit, OnDestroy {
       { label: 'Import Private Key', click(menuItem, browserWindow, event) {
             browserWindow.webContents.send('context-menu-event', 'import-priv-key');
           }
+      },
+      { label: 'Create New Wallet', click(menuItem, browserWindow, event) {
+          browserWindow.webContents.send('context-menu-event', 'create-new-wallet');
+        }
+      },
+      { label: 'Change Wallet', click(menuItem, browserWindow, event) {
+          browserWindow.webContents.send('context-menu-event', 'close-wallet');
+        }
       }
     ];
     this.tools_context_menu = this.electron.remote.Menu.buildFromTemplate(tools_context_menu_template);
@@ -221,22 +230,30 @@ export class HomeComponent implements OnInit, OnDestroy {
     // listen to connect context menu events
     this.electron.ipcRenderer.on('connect-context-menu-event', (event, arg) => {
       this.logger.debug('### connect-context-menu-event: ' + arg);
-      if (arg === 'connect') {
-        this.onConnect();
-      } else if (arg === 'disconnect') {
-        this.onDisconnect();
-      } else if (arg === 'server-info') {
-        this.onServerInfo();
-      }
+      this._ngZone.run(() => {
+        if (arg === 'connect') {
+          this.onConnect();
+        } else if (arg === 'disconnect') {
+          this.onDisconnect();
+        } else if (arg === 'server-info') {
+          this.onServerInfo();
+        }
+      });
     });
     // listen to tools context menu events
     this.electron.ipcRenderer.on('context-menu-event', (event, arg) => {
       this.logger.debug('### HOME Menu Event: ' + arg);
-      if (arg === 'import-priv-key') {
-        this.onPrivateKeyImport();
-      } else {
-        this.logger.debug('### Context menu not implemented: ' + arg);
-      }
+      this._ngZone.run(() => {
+        if (arg === 'import-priv-key') {
+          this.onPrivateKeyImport();
+        } else if (arg === 'create-new-wallet') {
+          this.onCreatNewWallet();
+        } else if (arg === 'close-wallet') {
+          this.onCloseWallet();
+        } else {
+          this.logger.debug('### Context menu not implemented: ' + arg);
+        }
+      });
     });
     this.electron.ipcRenderer.on('update-message', (event, arg) => {
       this.logger.info('### HOME Received Auto Update Message: ' + arg);
@@ -251,21 +268,23 @@ export class HomeComponent implements OnInit, OnDestroy {
     // Listen for electron main events
     this.electron.ipcRenderer.on('action', (event, arg) => {
       this.logger.info('### HOME Received Action: ' + arg);
-      if (arg === 'save-wallet') {
-        this.logger.debug('### HOME Logout Wallet on Suspend ###');
-        this.closeWallet();
-      } else if (arg === 'quit-wallet') {
-        this.logger.info('### HOME Save Wallet on Quit ###');
-        // backup the wallet
-        this.backupWallet();
-        // close and logout
-        // the closeWallet emits KEY_CLOSED on openWalletSubject
-        // this class picks that up and emits wallet-closed to the electron main process
-        this.walletService.closeWallet();
-      } else if (arg === 'refresh-balance') {
-        this.logger.debug('### HOME Refresh Balance Received ###');
-        this.doBalanceUpdate();
-      }
+      this._ngZone.run(() => {
+        if (arg === 'save-wallet') {
+          this.logger.debug('### HOME Logout Wallet on Suspend ###');
+          this.closeWallet();
+        } else if (arg === 'quit-wallet') {
+          this.logger.info('### HOME Save Wallet on Quit ###');
+          // backup the wallet
+          this.backupWallet();
+          // close and logout
+          // the closeWallet emits KEY_CLOSED on openWalletSubject
+          // this class picks that up and emits wallet-closed to the electron main process
+          this.walletService.closeWallet();
+        } else if (arg === 'refresh-balance') {
+          this.logger.debug('### HOME Refresh Balance Received ###');
+          this.doBalanceUpdate();
+        }
+      });
     });
   }
 
@@ -460,6 +479,22 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.active_icon = 'fa fa-check';
     this.footer_message = '';
     this.footer_visible = false;
+  }
+
+  onCreatNewWallet() {
+    this.logger.debug('### HOME - Create New Wallet Clicked !!');
+    this.walletService.closeWallet();
+    this.casinocoinService.disconnect();
+    this.sessionStorageService.remove(AppConstants.KEY_CURRENT_WALLET);
+    this.router.navigate(['wallet-setup', 'setup-step2']);
+  }
+
+  onCloseWallet() {
+    this.walletService.closeWallet();
+    this.casinocoinService.disconnect();
+    this.sessionStorageService.remove(AppConstants.KEY_CURRENT_WALLET);
+    this.router.navigate(['login']);
+    this.logger.debug('### HOME - Change Wallet Clicked !!');
   }
 
   executeKeyImport() {

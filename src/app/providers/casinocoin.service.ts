@@ -35,6 +35,7 @@ export class CasinocoinService implements OnDestroy {
     public connectToProduction: boolean;
     public availableTokenList: TokenType[] = [];
     public availableTokenListSubject = new BehaviorSubject<boolean>(false);
+    private openWalletSubject = new BehaviorSubject<string>(AppConstants.KEY_INIT);
 
     constructor(private logger: LogService,
                 private walletService: WalletService,
@@ -44,27 +45,37 @@ export class CasinocoinService implements OnDestroy {
                 private sessionStorageService: SessionStorageService,
                 private electron: ElectronService ) {
         logger.debug('### INIT  CasinocoinService ###');
-        this.connectToProduction = this.localStorageService.get(AppConstants.KEY_PRODUCTION_NETWORK);
+        // subscribe to wallet updates
+        this.walletService.openWalletSubject.subscribe( result => {
+            this.openWalletSubject.next(result);
+        });
     }
 
     ngOnDestroy() {
         this.logger.debug('### CasinocoinService onDestroy ###');
+        this.walletService.openWalletSubject.unsubscribe();
     }
 
     connect(): Observable<any> {
         this.logger.debug('### CasinocoinService Connect()');
+        this.connectToProduction = this.localStorageService.get(AppConstants.KEY_PRODUCTION_NETWORK);
         this.logger.debug('### CasinocoinService Connect() - Connect To Production?: ' + this.connectToProduction);
 
         // define server connection if not yet defined
         if (this.cscAPI === undefined) {
             this.logger.debug('### Define API connection for CasinocoinAPI');
-            this.cscAPI = new CasinocoinAPI({ server: 'ws://wst02.casinocoin.org:7007' });
+            if (this.connectToProduction) {
+                this.cscAPI = new CasinocoinAPI({ server: 'wss://ws01.casinocoin.org:4443' });
+            } else {
+                this.cscAPI = new CasinocoinAPI({ server: 'wss://wst01.casinocoin.org:4443' });
+            }
         }
         this.logger.debug('### CasinocoinService Connect() - isConnected?: ' + this.cscAPI.isConnected());
         if (!this.cscAPI.isConnected()) {
             // connect to server
             this.logger.debug('### CasinocoinService call API.connect()');
             this.cscAPI.connect().then(() => {
+                this.logger.debug('### CasinocoinService call API.connect() -->> We are Connected!');
                 // get server info
                 this.cscAPI.getServerInfo().then(info => {
                     this.logger.debug('### CasinocoinService Connect() - Server: ' + JSON.stringify(info, null, 2));
@@ -127,6 +138,7 @@ export class CasinocoinService implements OnDestroy {
                 });
                 this.cscAPI.on('disconnected', code => {
                     this.logger.debug('### CasinocoinService.disconnected: ' + JSON.stringify(code));
+                    this.cscAPI = undefined;
                 });
             }).catch(error => {
                 console.log(JSON.stringify(error));
@@ -159,14 +171,16 @@ export class CasinocoinService implements OnDestroy {
         // get accounts and subscribe to accountstream
         const subscribeAccounts = [];
         // make sure the wallet is openend
-        this.walletService.openWalletSubject.subscribe(result => {
+        this.openWalletSubject.subscribe( result => {
             if (result === AppConstants.KEY_LOADED) {
                 this.walletService.getAllKeys().forEach(element => {
                     subscribeAccounts.push(element.accountID);
                 });
                 this.logger.debug('### CasinocoinService Subscribe Accounts: ' + JSON.stringify(subscribeAccounts));
-                // subsribe to all accounts
-                this.subscribeAccounts(subscribeAccounts);
+                if (subscribeAccounts.length > 0) {
+                    // subsribe to all accounts
+                    this.subscribeAccounts(subscribeAccounts);
+                }
             }
         });
     }
@@ -231,6 +245,18 @@ export class CasinocoinService implements OnDestroy {
                 { server_id: 'ws02.casinocoin.org',
                   server_url: 'wss://ws02.casinocoin.org:4443/',
                   server_name: 'Foundation Wallet Server 2'
+                }
+            );
+            this.updateServerListItem(
+                { server_id: 'ws03.casinocoin.org',
+                  server_url: 'wss://ws03.casinocoin.org:4443/',
+                  server_name: 'Foundation Wallet Server 3'
+                }
+            );
+            this.updateServerListItem(
+                { server_id: 'ws04.casinocoin.org',
+                  server_url: 'wss://ws04.casinocoin.org:4443/',
+                  server_name: 'Foundation Wallet Server 4'
                 }
             );
         } else {
@@ -306,7 +332,7 @@ export class CasinocoinService implements OnDestroy {
                 this.cscAPI.getConfigInfo('Token').then( configResult => {
                     this.logger.debug('### CasinocoinService ConfigInfo Token: ' + JSON.stringify(configResult));
                     // make sure the wallet is openend
-                    this.walletService.openWalletSubject.subscribe(result => {
+                    this.openWalletSubject.subscribe( result => {
                         if (result === AppConstants.KEY_LOADED) {
                             this.tokenlist = [];
                             // loop over accounts and add token info
@@ -587,57 +613,66 @@ export class CasinocoinService implements OnDestroy {
     updateAccountInfo(token: string, accountID: string) {
         this.logger.debug('### CasinocoinSerivce - updateAccountInfo: ' + token + '/' + accountID);
         // get the account from the wallet
-        const walletAccount: LokiAccount = this.walletService.getAccount(token, accountID);
-        let mainAccountInfo;
-        this.cscAPI.getAccountInfo(accountID).then( accountInfo => {
-            this.logger.debug('### CasinocoinSerivce - accountInfo: ' + JSON.stringify(accountInfo));
-            mainAccountInfo = accountInfo;
-            // update the info and CSC balance
-            if (new Big(accountInfo.cscBalance).gt(Big(0))) {
-                walletAccount.activated = true;
-            } else {
-                walletAccount.activated = false;
+        this.openWalletSubject.subscribe( result => {
+            if (result === AppConstants.KEY_LOADED) {
+                const walletAccount: LokiAccount = this.walletService.getAccount(token, accountID);
+                let mainAccountInfo;
+                // check if connected
+                this.connectSubject.subscribe( connectResult => {
+                    if (connectResult === AppConstants.KEY_CONNECTED) {
+                        this.cscAPI.getAccountInfo(accountID).then( accountInfo => {
+                            this.logger.debug('### CasinocoinSerivce - accountInfo: ' + JSON.stringify(accountInfo));
+                            mainAccountInfo = accountInfo;
+                            // update the info and CSC balance
+                            if (new Big(accountInfo.cscBalance).gt(Big(0))) {
+                                walletAccount.activated = true;
+                            } else {
+                                walletAccount.activated = false;
+                            }
+                            walletAccount.balance = CSCUtil.cscToDrops(accountInfo.cscBalance);
+                            walletAccount.lastSequence = accountInfo.sequence;
+                            walletAccount.lastTxID = accountInfo.previousAffectingTransactionID;
+                            walletAccount.lastTxLedger = accountInfo.previousAffectingTransactionLedgerVersion;
+                            // if it was a token account update we need to update the CSC account as well in case fees changed the balance
+                            const cscWalletAccount: LokiAccount = this.walletService.getAccount('CSC', accountID);
+                            if (new Big(accountInfo.cscBalance).gt(Big(0))) {
+                                cscWalletAccount.activated = true;
+                            } else {
+                                cscWalletAccount.activated = false;
+                            }
+                            cscWalletAccount.balance = CSCUtil.cscToDrops(accountInfo.cscBalance);
+                            cscWalletAccount.lastSequence = accountInfo.sequence;
+                            cscWalletAccount.lastTxID = accountInfo.previousAffectingTransactionID;
+                            cscWalletAccount.lastTxLedger = accountInfo.previousAffectingTransactionLedgerVersion;
+                            // save back to the wallet
+                            this.walletService.updateAccount(cscWalletAccount);
+                            // update token list
+                            this.updateToken(cscWalletAccount);
+                            // get the trustlines information
+                            return this.cscAPI.getTrustlines(accountID);
+                        }).then( trustLines => {
+                            this.logger.debug('### CasinocoinSerivce - trustLines: ' + JSON.stringify(trustLines));
+                            this.logger.debug('### CasinocoinSerivce - trustLines - mainAccountInfo: ' + JSON.stringify(mainAccountInfo));
+                            // update token balance if applicable
+                            trustLines.forEach(line => {
+                                if (line.specification.currency === token) {
+                                    walletAccount.tokenBalance = CSCUtil.cscToDrops(line.state.balance);
+                                }
+                            });
+                            // save back to the wallet
+                            this.walletService.updateAccount(walletAccount);
+                            // update token list
+                            this.updateToken(walletAccount);
+                            // update accounts array
+                            this.accounts = this.walletService.getAllAccounts();
+                            // emit account updated
+                            this.accountSubject.next(walletAccount);
+                        }).catch( error => {
+                            this.logger.debug('### updateAccountInfo - Error: ' + JSON.stringify(error));
+                        });
+                    }
+                });
             }
-            walletAccount.balance = CSCUtil.cscToDrops(accountInfo.cscBalance);
-            walletAccount.lastSequence = accountInfo.sequence;
-            walletAccount.lastTxID = accountInfo.previousAffectingTransactionID;
-            walletAccount.lastTxLedger = accountInfo.previousAffectingTransactionLedgerVersion;
-            // if it was a token account update we need to update the CSC account as well in case fees changed the balance
-            const cscWalletAccount: LokiAccount = this.walletService.getAccount('CSC', accountID);
-            if (new Big(accountInfo.cscBalance).gt(Big(0))) {
-                cscWalletAccount.activated = true;
-            } else {
-                cscWalletAccount.activated = false;
-            }
-            cscWalletAccount.balance = CSCUtil.cscToDrops(accountInfo.cscBalance);
-            cscWalletAccount.lastSequence = accountInfo.sequence;
-            cscWalletAccount.lastTxID = accountInfo.previousAffectingTransactionID;
-            cscWalletAccount.lastTxLedger = accountInfo.previousAffectingTransactionLedgerVersion;
-            // save back to the wallet
-            this.walletService.updateAccount(cscWalletAccount);
-            // update token list
-            this.updateToken(cscWalletAccount);
-            // get the trustlines information
-            return this.cscAPI.getTrustlines(accountID);
-        }).then( trustLines => {
-            this.logger.debug('### CasinocoinSerivce - trustLines: ' + JSON.stringify(trustLines));
-            this.logger.debug('### CasinocoinSerivce - trustLines - mainAccountInfo: ' + JSON.stringify(mainAccountInfo));
-            // update token balance if applicable
-            trustLines.forEach(line => {
-                if (line.specification.currency === token) {
-                    walletAccount.tokenBalance = CSCUtil.cscToDrops(line.state.balance);
-                }
-            });
-            // save back to the wallet
-            this.walletService.updateAccount(walletAccount);
-            // update token list
-            this.updateToken(walletAccount);
-            // update accounts array
-            this.accounts = this.walletService.getAllAccounts();
-            // emit account updated
-            this.accountSubject.next(walletAccount);
-        }).catch( error => {
-            this.logger.debug('### updateAccountInfo - Error: ' + JSON.stringify(error));
         });
     }
 

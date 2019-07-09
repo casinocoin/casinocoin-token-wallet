@@ -1,4 +1,4 @@
-<p-dialog [(visible)]="dialog_visible" [width]="600" [height]="575" [closable]="true" [modal]="true" (onHide)="onHideRecoverWallet()">
+<p-dialog [(visible)]="dialog_visible" [width]="600" [height]="620" [closable]="true" [modal]="true" (onHide)="onHideRecoverWallet()">
     <p-header>
         <i class="icon csc-dialog-icon icon-chip"></i>
         Recover Wallet with Words
@@ -25,6 +25,13 @@
         <div class="ui-g-2 bold-text">11.</div><div class="ui-g-4"><input type="text" pInputText [(ngModel)]="recoveryWords.word11"></div>
         <div class="ui-g-2 bold-text">12.</div><div class="ui-g-4"><input type="text" pInputText [(ngModel)]="recoveryWords.word12"></div>
         <div class="ui-g-4 bold-text">Email Address</div><div class="ui-g-8"><input type="text" pInputText [(ngModel)]="recoveryEmail"></div>
+        <div class="ui-g-4 bold-text">Network</div>
+        <div class="ui-g-4">
+            <p-radioButton name="networkChoice" value="LIVE" label="Mainnet" [(ngModel)]="networkChoice" inputId="preopt1"></p-radioButton>
+        </div>
+        <div class="ui-g-4">
+            <p-radioButton name="networkChoice" value="TEST" label="Testnet" [(ngModel)]="networkChoice" inputId="preopt2"></p-radioButton>
+        </div>
         <div class="ui-g-4 bold-text">New Wallet Password</div><div class="ui-g-8"><input type="password" pInputText [(ngModel)]="walletPassword"></div>
     </div>
     <div class="ui-g ui-fluid">

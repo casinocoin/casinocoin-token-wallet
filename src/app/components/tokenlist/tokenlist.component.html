@@ -132,7 +132,7 @@
         </ng-template>
     </p-table>
 </p-dialog>
-<p-dialog class="dialog-header" [(visible)]="showAddTokenDialog" [width]="450" [height]="525" 
+<p-dialog class="dialog-header" [(visible)]="showAddTokenDialog" [width]="450" [height]="525" (onHide)="onHideTokenDialog()"
     [closable]="true" [modal]="true" appendTo="body">
     <p-header>
         <i class="icon csc-dialog-icon icon-chip"></i>
@@ -172,7 +172,7 @@
         Error: {{error_message}}
     </p-footer>
 </p-dialog>
-<p-dialog class="dialog-header" [(visible)]="showAddCSCDialog" [width]="400" [height]="260" 
+<p-dialog class="dialog-header" [(visible)]="showAddCSCDialog" [width]="400" [height]="260" (onHide)="onHideCSCDialog()"
           [closable]="true" [modal]="true" appendTo="body">
     <p-header>
         <i class="icon csc-dialog-icon icon-chip"></i>

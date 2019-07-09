@@ -37,7 +37,6 @@ import { WalletService } from '../../providers/wallet.service';
       this.newWalletPassword = newValue;
       if (newValue !== undefined) {
         const testResult = newValue.match(this.passwordPattern);
-        this.logger.debug('### Step3 - testResult: ' + testResult)
         if (testResult != null) {
           this.paswordConfirmationEnabled = true;
         } else {

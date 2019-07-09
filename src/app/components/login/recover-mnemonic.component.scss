@@ -13,7 +13,7 @@
     color: $casinocoinRed;
 }
 
-.bold-text {
+::ng-deep .bold-text {
     font-weight: bolder;
 }
 

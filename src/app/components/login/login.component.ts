@@ -33,6 +33,8 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
     selectedWallet: WalletDefinition;
     walletPassword: string;
     walletCreationDate: string;
+    walletEmail: string;
+    wallets: SelectItem[] = [];
 
     returnUrl: string;
     footer_visible = false;
@@ -81,29 +83,47 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
         if (this.availableWallets === null) {
             this.selectedWallet = { walletUUID: '', creationDate: -1, location: '', mnemonicHash: '', network: '', passwordHash: '', userEmail: ''};
             this.router.navigate(['/wallet-setup']);
-        } else {
+        } else if (this.availableWallets.length === 1) {
             this.selectedWallet = this.availableWallets[0];
             const walletCreationDate = new Date(CSCUtil.casinocoinToUnixTimestamp(this.selectedWallet.creationDate));
             this.translate.get('PAGES.LOGIN.CREATED-ON').subscribe((res: string) => {
                 this.walletCreationDate = res + ' ' + this.datePipe.transform(walletCreationDate, 'yyyy-MM-dd HH:mm:ss');
             });
-            // Listen for electron main events
-            this.electron.ipcRenderer.on('action', (event, arg) => {
-                this.logger.debug('### LOGIN Received Action: ' + arg);
-                if (arg === 'quit-wallet' && (this.quitFromLogin || !this.loginFinished)) {
-                    this.quitListener = this.walletService.openWalletSubject.subscribe( status => {
-                        this.logger.debug('### LOGIN Wallet: ' + status);
-                        if (status === AppConstants.KEY_LOADED && (this.quitFromLogin || !this.loginFinished)) {
-                            // we need to close the wallet
-                            this.walletService.closeWallet();
-                        } else if ((status === AppConstants.KEY_CLOSED || status === AppConstants.KEY_INIT) && (this.quitFromLogin || !this.loginFinished)) {
-                            this.electron.ipcRenderer.send('wallet-closed', true);
-                            this.dialog_visible = false;
-                        }
-                    });
+            this.walletEmail = this.selectedWallet.userEmail;
+        } else {
+            this.logger.debug('### LOGIN Wallet Count: ' + this.availableWallets.length);
+            for (let i = 0; i < this.availableWallets.length; i++) {
+                this.logger.debug('### LOGIN Wallet: ' + JSON.stringify(this.availableWallets[i]));
+                let walletLabel = this.availableWallets[i]['walletUUID'].substring(0, 12);
+                const creationDate = new Date(CSCUtil.casinocoinToUnixTimestamp(this.availableWallets[i]['creationDate']));
+                walletLabel = walletLabel + '... [Created: ' + this.datePipe.transform(creationDate, 'yyyy-MM-dd') + ']';
+                if (this.availableWallets[i]['network']) {
+                    walletLabel = walletLabel + ' ' + this.availableWallets[i]['network'];
                 }
-            });
+                this.logger.debug('### LOGIN Wallet Label: ' + walletLabel);
+                this.wallets.push({label: walletLabel, value: this.availableWallets[i]['walletUUID']});
+            }
+            // const walletCreationDate = new Date(CSCUtil.casinocoinToUnixTimestamp(this.selectedWallet.creationDate));
+            // this.translate.get('PAGES.LOGIN.CREATED-ON').subscribe((res: string) => {
+            //     this.walletCreationDate = res + ' ' + this.datePipe.transform(walletCreationDate, 'yyyy-MM-dd HH:mm:ss');
+            // });
         }
+        // Listen for electron main events
+        this.electron.ipcRenderer.on('action', (event, arg) => {
+            this.logger.debug('### LOGIN Received Action: ' + arg);
+            if (arg === 'quit-wallet' && (this.quitFromLogin || !this.loginFinished)) {
+                this.quitListener = this.walletService.openWalletSubject.subscribe( status => {
+                    this.logger.debug('### LOGIN Wallet: ' + status);
+                    if (status === AppConstants.KEY_LOADED && (this.quitFromLogin || !this.loginFinished)) {
+                        // we need to close the wallet
+                        this.walletService.closeWallet();
+                    } else if ((status === AppConstants.KEY_CLOSED || status === AppConstants.KEY_INIT) && (this.quitFromLogin || !this.loginFinished)) {
+                        this.electron.ipcRenderer.send('wallet-closed', true);
+                        this.dialog_visible = false;
+                    }
+                });
+            }
+        });
         this.electron.ipcRenderer.on('update-message', (event, arg) => {
             this.logger.info('### LOGIN Received Auto Update Message: ' + arg.event);
             if (arg.event === 'update-available') {
@@ -140,14 +160,14 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
     ngAfterViewInit(): void {
         this.logger.debug('### LoginComponent AfterViewInit');
         // somehow the initial focus only works with a timer waiting some msec
-        this.timer = setInterval(() => {
-            this.logger.debug('### LoginComponent AfterViewInit Timer');
-            try {
-                const passwordElement: any = this.renderer.selectRootElement('#inputPassword');
-                passwordElement.focus();
-            } catch (error) {}
-            clearInterval(this.timer);
-        }, 500);
+        // this.timer = setInterval(() => {
+        //     this.logger.debug('### LoginComponent AfterViewInit Timer');
+        //     try {
+        //         const passwordElement: any = this.renderer.selectRootElement('#inputPassword');
+        //         passwordElement.focus();
+        //     } catch (error) {}
+        //     clearInterval(this.timer);
+        // }, 500);
     }
 
     ngOnDestroy(): void {
@@ -193,6 +213,14 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
                     // const walletIndex = this.availableWallets.findIndex( item => item['walletUUID'] === this.selectedWallet);
                     this.sessionStorageService.set(AppConstants.KEY_CURRENT_WALLET, this.selectedWallet);
                     this.sessionStorageService.set(AppConstants.KEY_WALLET_PASSWORD, this.walletPassword);
+                    this.localStorageService.set(AppConstants.KEY_WALLET_LOCATION, this.selectedWallet.location);
+                    if (this.selectedWallet.network === 'LIVE') {
+                        this.localStorageService.set(AppConstants.KEY_PRODUCTION_NETWORK, true);
+                    } else {
+                        this.localStorageService.set(AppConstants.KEY_PRODUCTION_NETWORK, false);
+                    }
+                    this.localStorageService.set(AppConstants.KEY_WALLET_PASSWORD_HASH, this.selectedWallet.passwordHash);
+
                     this.walletService.openWallet(this.selectedWallet.walletUUID);
                     this.router.navigate(['home']);
                     this.footer_visible = false;
@@ -279,19 +307,22 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
 
     onRecoverMnemonic() {
         this.logger.debug('### Login -> Recover With Mnemonic');
-        this.electron.remote.dialog.showMessageBox({ message: 'Recover process will overwrite the current wallet. Are you sure?', buttons: ['OK', 'Cancel']}, (result) => {
-            this.logger.debug('### Warning Result: ' + result);
-            if (result === 0) {
-                // execute recover process
-                this._ngZone.run(() => {
-                this.router.navigate(['recoverMnemonic']);
-                });
-            }
-        });
+        this.router.navigate(['recoverMnemonic']);
     }
 
     doRestartAndInstall() {
         // in case an update was downloaded we'll do a restart and install
         this.electron.ipcRenderer.send('autoupdate-restart', true);
+    }
+
+    onChangeSelectedWallet(event) {
+        this.logger.debug('### onChangeSelectedWallet: ' + JSON.stringify(event));
+        // get selected wallet
+        this.selectedWallet = this.availableWallets.find( item => item.walletUUID === event.value);
+        const walletCreationDate = new Date(CSCUtil.casinocoinToUnixTimestamp(this.selectedWallet.creationDate));
+        this.translate.get('PAGES.LOGIN.CREATED-ON').subscribe((res: string) => {
+            this.walletCreationDate = res + ' ' + this.datePipe.transform(walletCreationDate, 'yyyy-MM-dd HH:mm:ss');
+        });
+        this.walletEmail = this.selectedWallet.userEmail;
     }
 }
