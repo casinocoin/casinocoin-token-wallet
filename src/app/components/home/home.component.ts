@@ -20,7 +20,7 @@ import { GetServerInfoResponse } from '@casinocoin/libjs/common/serverinfo';
 import { TranslateService } from '@ngx-translate/core';
 import Big from 'big.js';
 import { CSCCrypto } from '../../domains/csc-crypto';
-import { DatePipe } from '@angular/common';
+import { DatePipe, CurrencyPipe } from '@angular/common';
 const path = require('path');
 const fs = require('fs');
 
@@ -122,7 +122,8 @@ export class HomeComponent implements OnInit, OnDestroy {
                private translate: TranslateService,
                private router: Router,
                private datePipe: DatePipe,
-               private _ngZone: NgZone ) {
+               private _ngZone: NgZone,
+               private currencyPipe: CurrencyPipe ) {
     this.logger.debug('### INIT Home');
     this.applicationVersion = this.electron.remote.app.getVersion();
     this.network = this.sessionStorageService.get(AppConstants.KEY_CURRENT_WALLET).network;
@@ -262,6 +263,8 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.logger.debug('### HOME OnDestroy');
+    this.electron.ipcRenderer.removeAllListeners('context-menu-event');
+    this.electron.ipcRenderer.removeAllListeners('action');
   }
 
   listenForMainEvents() {
@@ -420,12 +423,12 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.walletBalance = this.walletService.getWalletBalance('CSC') ? this.walletService.getWalletBalance('CSC') : '0';
     this.logger.debug('### HOME - Wallet Balance: ' + this.walletBalance);
     this.balance = CSCUtil.dropsToCsc(this.walletBalance);
-    // let balanceCSC = new Big(this.balance);
-    // if(this.marketService.coinMarketInfo != null && this.marketService.coinMarketInfo.price_fiat !== undefined){
-    //   this.logger.debug("### CSC Price: " + this.marketService.cscPrice + " BTC: " + this.marketService.btcPrice + " Fiat: " + this.marketService.coinMarketInfo.price_fiat);
-    //   let fiatValue = balanceCSC.times(new Big(this.marketService.coinMarketInfo.price_fiat)).toString();
-    //   this.fiat_balance = this.currencyPipe.transform(fiatValue, this.marketService.coinMarketInfo.selected_fiat, "symbol", "1.2-2");
-    // }
+    const balanceCSC = new Big(this.balance);
+    if (this.marketService.coinMarketInfo != null && this.marketService.coinMarketInfo.price_fiat !== undefined) {
+      this.logger.debug('### CSC Price: ' + this.marketService.cscPrice + ' BTC: ' + this.marketService.btcPrice + ' Fiat: ' + this.marketService.coinMarketInfo.price_fiat);
+      const fiatValue = balanceCSC.times(new Big(this.marketService.coinMarketInfo.price_fiat)).toString();
+      this.fiat_balance = this.currencyPipe.transform(fiatValue, this.marketService.coinMarketInfo.selected_fiat, 'symbol', '1.2-2');
+    }
   }
 
   updateMarketService(event) {

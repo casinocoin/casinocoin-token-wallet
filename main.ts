@@ -13,6 +13,8 @@ const globalTS: any = global;
 globalTS.vars = {};
 
 let applicationQuitCalled = false;
+// set the app id to make notifications work on windows
+app.setAppUserModelId('org.casinocoin.casinocoin-token-wallet');
 
 // set application data path
 const defaultCSCPath = path.join(app.getPath('home'), '.casinocoin-wlt');

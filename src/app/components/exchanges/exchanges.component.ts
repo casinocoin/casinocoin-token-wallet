@@ -21,6 +21,7 @@ export class ExchangesComponent implements OnInit {
   coinSupply = '40000000000';
   marketCapital = '0.00';
   marketVolumeUSD = '0.00';
+  visit_exchange_clicked = false;
 
   constructor(private logger: LogService,
               private electronService: ElectronService,
@@ -45,7 +46,7 @@ export class ExchangesComponent implements OnInit {
     this.electronService.ipcRenderer.on('exchanges-context-menu-event', (event, arg) => {
       this.logger.debug('### Exchanges Menu Event: ' + arg);
       if (arg === 'visit-exchange') {
-        this.visitExchange();
+        this.visitExchange(this.selectedExchangeRow);
       } else {
         this.logger.debug('### Context menu not implemented: ' + arg);
       }
@@ -83,15 +84,17 @@ export class ExchangesComponent implements OnInit {
     this.exchange_context_menu.popup({window: this.electronService.remote.getCurrentWindow()});
   }
 
-  onExchangeRowClick(e: any) {
-    this.logger.debug('### onExchangeRowClick: ' + JSON.stringify(e));
-    this.selectedExchangeRow = e.data;
+  onExchangeRowClick(event) {
+    this.logger.debug('### onExchangeRowClick: ' + event.name);
+    this.selectedExchangeRow = event;
+    // if (this.visit_exchange_clicked) {
+      // this.electronService.remote.shell.openExternal(this.selectedExchangeRow.tradeURL);
+    // }
   }
 
-  visitExchange() {
-    if (this.selectedExchangeRow) {
-      this.electronService.remote.shell.openExternal(this.selectedExchangeRow.tradeURL);
-    }
+  visitExchange(rowdata) {
+    this.logger.debug('### visitExchange: ' + rowdata.name);
+    this.electronService.remote.shell.openExternal(rowdata.tradeURL);
     return false;
   }
 

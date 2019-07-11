@@ -44,7 +44,7 @@
         "STEP3-EMAIL": "Email",
         "STEP3-PASSWORD": "Wallet password",
         "STEP3-REPEAT-PASS": "Password Confirmation",
-        "STEP3-INTRO-TEXT": "Please enter your email address and a wallet password. This is an obligatory step! Without a password your wallet can not be created. Keep your password in a safe place, without it your wallet can not be opened or used anymore!",
+        "STEP3-INTRO-TEXT": "Please enter your email address and a wallet password. Keep your password in a safe place, without it your wallet can not be opened or used anymore!",
         "STEP3-REQUIREMENT": "Your password needs to contain letters and numbers and be a minimum of 8 characters long. Your email address must be a real valid email address.",
         "STEP4-TITLE": "Wallet Recovery Passphrase",
         "STEP4-SUBTITLE": "In case you lose access to your wallet or your password, it can be recovered using the Recovery Passphrase and the Email Address you used creating the wallet. Please write down the shown words in the exact order as they appear, together with your email address on a piece of paper or otherwise and keep it safe.",

@@ -14,11 +14,11 @@
     <div class="ui-g-12">
         <p-contextMenu #cm class="hide-context-menu"></p-contextMenu>
         <p-table [value]="exchanges" scrollable="true" scrollHeight="50vh"
-                [contextMenu]="cm" (onRowClick)="onExchangeRowClick($event)" (onContextMenuSelect)="onExchangeContextMenu($event)">
+                [contextMenu]="cm" (onContextMenuSelect)="onExchangeContextMenu($event)">
             <ng-template pTemplate="body" let-rowData>
-                <tr (click)="onRowSelect(rowData)" [pRowToggler]="rowData" [pContextMenuRow]="rowData">
+                <tr (click)="onExchangeRowClick(rowData)" [pContextMenuRow]="rowData">
                     <td style="width: 200px;">
-                        <a href="#" (click)="visitExchange()" matTooltip="{{'PAGES.EXCHANGES.CLICK-VISIT' | translate}}">
+                        <a href="#" (click)="visitExchange(rowData)" matTooltip="{{'PAGES.EXCHANGES.CLICK-VISIT' | translate}}">
                             <img [src]="rowData.imageBase64" [style]="{'width':'200px'}"/>
                         </a>
                     </td>

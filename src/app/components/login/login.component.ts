@@ -83,7 +83,7 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
         if (this.availableWallets === null) {
             this.selectedWallet = { walletUUID: '', creationDate: -1, location: '', mnemonicHash: '', network: '', passwordHash: '', userEmail: ''};
             this.router.navigate(['/wallet-setup']);
-        } else if (this.availableWallets.length > 1) {
+        } else if (this.availableWallets.length >= 1) {
             this.logger.debug('### LOGIN Wallet Count: ' + this.availableWallets.length);
             for (let i = 0; i < this.availableWallets.length; i++) {
                 this.logger.debug('### LOGIN Wallet: ' + JSON.stringify(this.availableWallets[i]));
