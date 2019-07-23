@@ -207,7 +207,7 @@ export class CSCUtil {
     }
 
     static generateCSCQRCodeURI(input: CSCURI) {
-        let uri = 'https://casinocoin.org/send?to=' + input.address;
+        let uri = 'https://casinocoin.org/send?to=' + input.address + '&token=' + input.token;
         if (input.amount) {
             uri = uri + '&amount=' + input.amount;
         }
@@ -224,10 +224,12 @@ export class CSCUtil {
         // let commandStart = input.indexOf(".org/")+5;
         const paramString = input.substr(input.indexOf('?') + 1);
         const params: string[] = paramString.split('&');
-        let address, amount, destinationTag, label;
+        let address, token, amount, destinationTag, label;
         params.forEach( value => {
-            if (value.startsWith('to')) {
+            if (value.startsWith('to=')) {
                 address = value.substr(value.indexOf('=') + 1);
+            } else if (value.startsWith('token=')) {
+                token = value.substr(value.indexOf('=') + 1);
             } else if (value.startsWith('label')) {
                 label = value.substr(value.indexOf('=') + 1);
             } else if (value.startsWith('amount')) {
@@ -240,7 +242,8 @@ export class CSCUtil {
             return null;
         } else {
             const uri: CSCURI = {
-                address: address
+                address: address,
+                token: token
             };
             if (amount !== undefined) {
                 uri.amount = amount;

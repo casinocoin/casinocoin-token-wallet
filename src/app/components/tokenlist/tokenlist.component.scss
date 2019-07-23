@@ -127,3 +127,25 @@ input + label {
     text-align: center;
     color: $casinocoinRed;
 }
+
+.qrcode {
+    width: 100%; 
+    padding: 5px;
+    margin: 5px;
+    text-align: center;
+}
+
+.qrcode-input {
+    margin: unset;
+    padding: 5px;
+    width:100%;
+}
+
+.qrcode-image {
+    padding: 5px 35px;
+    width: 100%;
+}
+
+fieldset {
+    border: 0;
+}

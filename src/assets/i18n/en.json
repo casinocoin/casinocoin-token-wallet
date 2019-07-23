@@ -50,6 +50,10 @@
         "STEP4-SUBTITLE": "In case you lose access to your wallet or your password, it can be recovered using the Recovery Passphrase and the Email Address you used creating the wallet. Please write down the shown words in the exact order as they appear, together with your email address on a piece of paper or otherwise and keep it safe.",
         "STEP4-EMAIL": "Email address",
         "STEP4-RECOVERY-ACCEPT": "I have saved the wallet recovery phrase and the email address, or i understand the consequences of not doing so.",
+        "STEP41-TITLE": "Wallet Recovery Passphrase Check",
+        "STEP41-SUBTITLE": "Please enter the requested words",
+        "STEP41-WORD": "Word",
+        "STEP41-WORDS-NOT-EQUAL": "The requested words are not the same",
         "STEP5-TITLE": "Completing Wallet Setup",
         "STEP5-STATUS": "Status",
         "STEP5-STATUS-FINALIZING": "Finalizing setup",
@@ -93,7 +97,15 @@
         "SELECT-NEW-TOKEN": "Select the new token to add to the wallet",
         "ADD-NEW-CSC-TITTLE": "Add new CasinoCoin account",
         "ADD-NEW-CSC-PASSWORD": "Please supply your current wallet password",
-        "SELECT-CSC-ACCOUNT": "Select the CasinoCoin account to add the token to:"
+        "SELECT-CSC-ACCOUNT": "Select the CasinoCoin account to add the token to:",
+        "SHOW-SECRET-TITLE": "Show Account Secret",
+        "SHOW-SECRET": "Show Secret",
+        "RESERVED": "Reserved",
+        "SEND-ALL": "All",
+        "NOT-ENOUGH-CSC": "Not enough CSC to create a transaction.",
+        "EDIT-LABEL": "Edit Account Label",
+        "ACCOUNT-LABEL": "Account Label",
+        "SAVE": "Save"
       },
       "HISTORY": {
         "TITLE": "Transaction History"

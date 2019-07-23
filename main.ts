@@ -1,4 +1,4 @@
-import { app, BrowserWindow, screen, ipcMain, Notification, Menu } from 'electron';
+import { app, BrowserWindow, screen, ipcMain, Notification, Menu, powerMonitor } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import * as path from 'path';
 import * as url from 'url';
@@ -133,6 +133,24 @@ function createWindow() {
   if (serve) {
     win.webContents.openDevTools();
   }
+
+  powerMonitor.on('suspend', () => {
+    winston.log('info', '### Electron -> The system is going to sleep ###');
+    // send message to save and logout wallet
+    if (win !== null) {
+      win.webContents.send('action', 'save-wallet');
+    }
+  });
+
+  powerMonitor.on('resume', () => {
+    winston.log('info', '### Electron -> The system is resuming after sleep ###');
+    if (win === null) {
+      createWindow();
+    } else {
+      win.reload();
+      win.show();
+    }
+  });
 
   win.on('close', (event) => {
     winston.log('info', 'Window close');

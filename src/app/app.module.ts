@@ -35,6 +35,7 @@ import { SetupStep2Component } from './components/wallet-setup/step2-component';
 import { SetupStep3Component } from './components/wallet-setup/step3-component';
 import { SetupStep31Component } from './components/wallet-setup/step3.1-component';
 import { SetupStep4Component } from './components/wallet-setup/step4-component';
+import { SetupStep41Component } from './components/wallet-setup/step4.1-component';
 import { SetupStep5Component } from './components/wallet-setup/step5-component';
 import { LoginComponent } from './components/login/login.component';
 import { RecoverMnemonicComponent } from './components/login/recover-mnemonic.component';
@@ -76,6 +77,7 @@ import {RadioButtonModule} from 'primeng/radiobutton';
 import {ListboxModule} from 'primeng/listbox';
 import {ProgressBarModule} from 'primeng/progressbar';
 import { MatListModule, MatSidenavModule, MatTooltipModule, MatButtonModule } from '@angular/material';
+import { QRCodeModule } from 'angularx-qrcode';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient) {
@@ -92,6 +94,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     SetupStep3Component,
     SetupStep31Component,
     SetupStep4Component,
+    SetupStep41Component,
     SetupStep5Component,
     LoginComponent,
     RecoverMnemonicComponent,
@@ -129,7 +132,8 @@ export function HttpLoaderFactory(http: HttpClient) {
     MatListModule, MatSidenavModule, ContextMenuModule,
     TieredMenuModule, MatTooltipModule, MatButtonModule,
     InputTextareaModule, ProgressSpinnerModule, InputTextModule,
-    TableModule, ListboxModule, RadioButtonModule, ProgressBarModule
+    TableModule, ListboxModule, RadioButtonModule, ProgressBarModule,
+    QRCodeModule
   ],
   providers: [
     AuthGuard,

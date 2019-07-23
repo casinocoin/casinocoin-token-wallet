@@ -1,4 +1,4 @@
-<p-dialog [(visible)]="dialog_visible" [width]="600" [height]="620" [closable]="true" [modal]="true" (onHide)="onHideRecoverWallet()">
+<p-dialog [(visible)]="dialog_visible" [width]="600" [height]="525" [closable]="true" [modal]="true" (onHide)="onHideRecoverWallet()">
     <p-header>
         <i class="icon csc-dialog-icon icon-chip"></i>
         Recover Wallet with Words
@@ -6,24 +6,23 @@
     <div class="ui-g ui-fluid">
         <div class="ui-g-1"></div>
         <div class="ui-g-10">
-            <p>Please enter the 12 words given during wallet setup in the same order as they appeared. Then enter the email address used during wallet setup.</p>
-            <p>Finally enter a password for the new wallet that will be created during this recovery.</p>
+            <p>Please enter the 12 words given during wallet setup in the same order as they appeared. Then enter the email address used during wallet setup. Finally enter a password for the new wallet that will be created during this recovery.</p>
         </div>
         <div class="ui-g-1"></div>
     </div>
     <div class="ui-g ui-fluid">
-        <div class="ui-g-2 bold-text">1.</div><div class="ui-g-4"><input type="text" pInputText [(ngModel)]="recoveryWords.word1"></div>
-        <div class="ui-g-2 bold-text">2.</div><div class="ui-g-4"><input type="text" pInputText [(ngModel)]="recoveryWords.word2"></div>
-        <div class="ui-g-2 bold-text">3.</div><div class="ui-g-4"><input type="text" pInputText [(ngModel)]="recoveryWords.word3"></div>
-        <div class="ui-g-2 bold-text">4.</div><div class="ui-g-4"><input type="text" pInputText [(ngModel)]="recoveryWords.word4"></div>
-        <div class="ui-g-2 bold-text">5.</div><div class="ui-g-4"><input type="text" pInputText [(ngModel)]="recoveryWords.word5"></div>
-        <div class="ui-g-2 bold-text">6.</div><div class="ui-g-4"><input type="text" pInputText [(ngModel)]="recoveryWords.word6"></div>
-        <div class="ui-g-2 bold-text">7.</div><div class="ui-g-4"><input type="text" pInputText [(ngModel)]="recoveryWords.word7"></div>
-        <div class="ui-g-2 bold-text">8.</div><div class="ui-g-4"><input type="text" pInputText [(ngModel)]="recoveryWords.word8"></div>
-        <div class="ui-g-2 bold-text">9.</div><div class="ui-g-4"><input type="text" pInputText [(ngModel)]="recoveryWords.word9"></div>
-        <div class="ui-g-2 bold-text">10.</div><div class="ui-g-4"><input type="text" pInputText [(ngModel)]="recoveryWords.word10"></div>
-        <div class="ui-g-2 bold-text">11.</div><div class="ui-g-4"><input type="text" pInputText [(ngModel)]="recoveryWords.word11"></div>
-        <div class="ui-g-2 bold-text">12.</div><div class="ui-g-4"><input type="text" pInputText [(ngModel)]="recoveryWords.word12"></div>
+        <div class="ui-g-1 bold-text">1.</div><div class="ui-g-3"><input type="text" pInputText [(ngModel)]="recoveryWords.word1" (ngModelChange)="checkWords()"></div>
+        <div class="ui-g-1 bold-text">2.</div><div class="ui-g-3"><input type="text" pInputText [(ngModel)]="recoveryWords.word2" (ngModelChange)="checkWords()"></div>
+        <div class="ui-g-1 bold-text">3.</div><div class="ui-g-3"><input type="text" pInputText [(ngModel)]="recoveryWords.word3" (ngModelChange)="checkWords()"></div>
+        <div class="ui-g-1 bold-text">4.</div><div class="ui-g-3"><input type="text" pInputText [(ngModel)]="recoveryWords.word4" (ngModelChange)="checkWords()"></div>
+        <div class="ui-g-1 bold-text">5.</div><div class="ui-g-3"><input type="text" pInputText [(ngModel)]="recoveryWords.word5" (ngModelChange)="checkWords()"></div>
+        <div class="ui-g-1 bold-text">6.</div><div class="ui-g-3"><input type="text" pInputText [(ngModel)]="recoveryWords.word6" (ngModelChange)="checkWords()"></div>
+        <div class="ui-g-1 bold-text">7.</div><div class="ui-g-3"><input type="text" pInputText [(ngModel)]="recoveryWords.word7" (ngModelChange)="checkWords()"></div>
+        <div class="ui-g-1 bold-text">8.</div><div class="ui-g-3"><input type="text" pInputText [(ngModel)]="recoveryWords.word8" (ngModelChange)="checkWords()"></div>
+        <div class="ui-g-1 bold-text">9.</div><div class="ui-g-3"><input type="text" pInputText [(ngModel)]="recoveryWords.word9" (ngModelChange)="checkWords()"></div>
+        <div class="ui-g-1 bold-text">10.</div><div class="ui-g-3"><input type="text" pInputText [(ngModel)]="recoveryWords.word10" (ngModelChange)="checkWords()"></div>
+        <div class="ui-g-1 bold-text">11.</div><div class="ui-g-3"><input type="text" pInputText [(ngModel)]="recoveryWords.word11" (ngModelChange)="checkWords()"></div>
+        <div class="ui-g-1 bold-text">12.</div><div class="ui-g-3"><input type="text" pInputText [(ngModel)]="recoveryWords.word12" (ngModelChange)="checkWords()"></div>
         <div class="ui-g-4 bold-text">Email Address</div><div class="ui-g-8"><input type="text" pInputText [(ngModel)]="recoveryEmail"></div>
         <div class="ui-g-4 bold-text">Network</div>
         <div class="ui-g-4">
@@ -32,14 +31,20 @@
         <div class="ui-g-4">
             <p-radioButton name="networkChoice" value="TEST" label="Testnet" [(ngModel)]="networkChoice" inputId="preopt2"></p-radioButton>
         </div>
-        <div class="ui-g-4 bold-text">New Wallet Password</div><div class="ui-g-8"><input type="password" pInputText [(ngModel)]="walletPassword"></div>
+        <div class="ui-g-4 bold-text">New Wallet Password</div><div class="ui-g-8">
+            <input type="password" (ngModelChange)="checkPasswordUpdate($event)" required [(pattern)]="passwordPattern" pInputText [(ngModel)]="walletPassword">
+        </div>
+        <div class="ui-g-4 bold-text">Confirm Wallet Password</div><div class="ui-g-8">
+            <input type="password" (ngModelChange)="checkPasswordConfirmedUpdate($event)" required [(pattern)]="passwordPattern" [disabled]="!paswordConfirmationEnabled" 
+                   pInputText [(ngModel)]="confirmWalletPassword">
+        </div>
     </div>
     <div class="ui-g ui-fluid">
         <div class="ui-g-1"></div>
         <div class="ui-g-5">
         </div>
         <div class="ui-g-5">
-            <button pButton type="button" (click)="doRecoverWallet()" [(icon)]="active_icon" iconPos="right" label="Recover Wallet"></button>
+            <button pButton type="button" (click)="doRecoverWallet()" [(icon)]="active_icon" iconPos="right" label="Recover Wallet" [disabled]="!walletRecoveryEnabled || !passwordsEqual"></button>
         </div>
         <div class="ui-g-1"></div>
     </div>

@@ -153,6 +153,7 @@ export interface Prepare {
 
 export interface CSCURI {
     address: string;
+    token: string;
     amount?: string;
     destinationTag?: number;
     label?: string;
@@ -211,8 +212,10 @@ export interface TokenType {
     AccountID: string;
     Activated: boolean;
     Balance: string;
+    OwnerCount: number;
     TokenBalance: string;
     CoinValue: string;
+    AccountLabel: string;
 }
 
 export interface TokenConfigData {

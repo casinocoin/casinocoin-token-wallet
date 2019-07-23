@@ -51,6 +51,12 @@ export class RecoverMnemonicComponent implements OnInit {
     };
     recoveryEmail: string;
     walletPassword: string;
+    confirmWalletPassword: string;
+    walletRecoveryEnabled = false;
+
+    paswordConfirmationEnabled = false;
+    passwordsEqual = false;
+    passwordPattern = '(?=.*[0-9])(?=.*[a-z]).{8,}';
 
     constructor(
         private logger: LogService,
@@ -69,11 +75,175 @@ export class RecoverMnemonicComponent implements OnInit {
         this.walletLocation = this.route.snapshot.queryParams['walletLocation'];
         this.walletTestNetwork = false;
         this.logger.debug('### RecoverMnemonic for: ' + this.selectedWallet + ' and path: ' + this.walletLocation);
+        this.error_message = '';
+        this.footer_visible = false;
     }
 
     onNetworkChanged(newValue) {
         this.logger.debug('### RecoverMnemonic - Test Network?: ' + newValue);
         this.walletService.walletSetup.testNetwork = newValue;
+    }
+
+    checkPasswordUpdate(newValue: string) {
+        this.walletPassword = newValue;
+        if (newValue !== undefined) {
+            const testResult = newValue.match(this.passwordPattern);
+            if (testResult !== null) {
+                this.paswordConfirmationEnabled = true;
+                // check if equal
+                if (newValue === this.confirmWalletPassword) {
+                    this.passwordsEqual = true;
+                    this.error_message = '';
+                    this.footer_visible = false;
+                } else {
+                    this.passwordsEqual = false;
+                    this.error_message = 'Passwords are not the same';
+                    this.footer_visible = true;
+                }
+            } else {
+                this.paswordConfirmationEnabled = false;
+                this.error_message = 'Password does not meet requirements.';
+                this.footer_visible = true;
+            }
+        }
+    }
+
+    checkPasswordConfirmedUpdate(newConfirmValue: string) {
+        this.confirmWalletPassword = newConfirmValue;
+        if (newConfirmValue === this.walletPassword) {
+            this.logger.debug('### RecoverMnemonic - passwords are the same ');
+            this.passwordsEqual = true;
+            this.error_message = '';
+            this.footer_visible = false;
+        } else {
+            this.passwordsEqual = false;
+            this.error_message = 'Passwords are not the same';
+            this.footer_visible = true;
+        }
+    }
+
+    checkWords() {
+        let wordError = false;
+        let allwordsFilled = true;
+        if (this.recoveryWords.word1.length > 1) {
+            if (!CSCCrypto.isExistingWord(this.recoveryWords.word1)) {
+                this.error_message = 'Word 1 does not exist in the allowed word list';
+                this.footer_visible = true;
+                wordError = true;
+            }
+        } else {
+            allwordsFilled = false;
+        }
+        if (this.recoveryWords.word2.length > 1 && !wordError) {
+            if (!CSCCrypto.isExistingWord(this.recoveryWords.word2)) {
+                this.error_message = 'Word 2 does not exist in the allowed word list';
+                this.footer_visible = true;
+                wordError = true;
+            }
+        } else {
+            allwordsFilled = false;
+        }
+        if (this.recoveryWords.word3.length > 1 && !wordError) {
+            if (!CSCCrypto.isExistingWord(this.recoveryWords.word3)) {
+                this.error_message = 'Word 3 does not exist in the allowed word list';
+                this.footer_visible = true;
+                wordError = true;
+            }
+        } else {
+            allwordsFilled = false;
+        }
+        if (this.recoveryWords.word4.length > 1 && !wordError) {
+            if (!CSCCrypto.isExistingWord(this.recoveryWords.word4)) {
+                this.error_message = 'Word 4 does not exist in the allowed word list';
+                this.footer_visible = true;
+                wordError = true;
+            }
+        } else {
+            allwordsFilled = false;
+        }
+        if (this.recoveryWords.word5.length > 1 && !wordError) {
+            if (!CSCCrypto.isExistingWord(this.recoveryWords.word5)) {
+                this.error_message = 'Word 5 does not exist in the allowed word list';
+                this.footer_visible = true;
+                wordError = true;
+            }
+        } else {
+            allwordsFilled = false;
+        }
+        if (this.recoveryWords.word6.length > 1 && !wordError) {
+            if (!CSCCrypto.isExistingWord(this.recoveryWords.word6)) {
+                this.error_message = 'Word 6 does not exist in the allowed word list';
+                this.footer_visible = true;
+                wordError = true;
+            }
+        } else {
+            allwordsFilled = false;
+        }
+        if (this.recoveryWords.word7.length > 1 && !wordError) {
+            if (!CSCCrypto.isExistingWord(this.recoveryWords.word7)) {
+                this.error_message = 'Word 7 does not exist in the allowed word list';
+                this.footer_visible = true;
+                wordError = true;
+            }
+        } else {
+            allwordsFilled = false;
+        }
+        if (this.recoveryWords.word8.length > 1 && !wordError) {
+            if (!CSCCrypto.isExistingWord(this.recoveryWords.word8)) {
+                this.error_message = 'Word 8 does not exist in the allowed word list';
+                this.footer_visible = true;
+                wordError = true;
+            }
+        } else {
+            allwordsFilled = false;
+        }
+        if (this.recoveryWords.word9.length > 1 && !wordError) {
+            if (!CSCCrypto.isExistingWord(this.recoveryWords.word9)) {
+                this.error_message = 'Word 9 does not exist in the allowed word list';
+                this.footer_visible = true;
+                wordError = true;
+            }
+        } else {
+            allwordsFilled = false;
+        }
+        if (this.recoveryWords.word10.length > 1 && !wordError) {
+            if (!CSCCrypto.isExistingWord(this.recoveryWords.word10)) {
+                this.error_message = 'Word 10 does not exist in the allowed word list';
+                this.footer_visible = true;
+                wordError = true;
+            }
+        } else {
+            allwordsFilled = false;
+        }
+        if (this.recoveryWords.word11.length > 1 && !wordError) {
+            if (!CSCCrypto.isExistingWord(this.recoveryWords.word11)) {
+                this.error_message = 'Word 11 does not exist in the allowed word list';
+                this.footer_visible = true;
+                wordError = true;
+            }
+        } else {
+            allwordsFilled = false;
+        }
+        if (this.recoveryWords.word12.length > 1 && !wordError) {
+            if (!CSCCrypto.isExistingWord(this.recoveryWords.word12)) {
+                this.error_message = 'Word 12 does not exist in the allowed word list';
+                this.footer_visible = true;
+                wordError = true;
+            }
+        } else {
+            allwordsFilled = false;
+        }
+        if (!wordError) {
+            this.error_message = '';
+            this.footer_visible = false;
+            if (allwordsFilled) {
+                this.walletRecoveryEnabled = true;
+            } else {
+                this.walletRecoveryEnabled = false;
+            }
+        } else {
+            this.walletRecoveryEnabled = false;
+        }
     }
 
     removeUndefined(obj: Object): Object {

@@ -5,6 +5,7 @@ import { SetupStep2Component } from './components/wallet-setup/step2-component';
 import { SetupStep3Component } from './components/wallet-setup/step3-component';
 import { SetupStep31Component } from './components/wallet-setup/step3.1-component';
 import { SetupStep4Component } from './components/wallet-setup/step4-component';
+import { SetupStep41Component } from './components/wallet-setup/step4.1-component';
 import { SetupStep5Component } from './components/wallet-setup/step5-component';
 import { LoginComponent } from './components/login/login.component';
 import { TokenlistComponent } from './components/tokenlist/tokenlist.component';
@@ -36,6 +37,7 @@ const routes: Routes = [
             { path: 'setup-step3', component: SetupStep3Component },
             { path: 'setup-step3.1', component: SetupStep31Component },
             { path: 'setup-step4', component: SetupStep4Component },
+            { path: 'setup-step41', component: SetupStep41Component },
             { path: 'setup-step5', component: SetupStep5Component },
             { path: '', redirectTo: 'setup-step1', pathMatch: 'full'}
      ]

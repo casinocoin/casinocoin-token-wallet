@@ -1,6 +1,6 @@
 {
   "name": "casinocoin-token-wallet",
-  "version": "5.0.6",
+  "version": "5.0.7",
   "description": "CasinoCoin desktop wallet with token support",
   "homepage": "https://casinocoin.org",
   "author": {
@@ -46,35 +46,45 @@
       "output": "release-builds"
     },
     "mac": {
-      "target": ["dmg", "zip"],
+      "target": [
+        "dmg",
+        "zip"
+      ],
       "category": "public.app-category.finance",
       "icon": "dist/assets/brand/casinocoin-icon-512x512.icns",
       "type": "distribution"
     },
     "linux": {
-      "target": ["AppImage", "deb", "rpm"]
+      "target": [
+        "AppImage",
+        "deb",
+        "rpm"
+      ]
     },
     "win": {
       "target": "nsis",
       "icon": "dist/assets/brand/casinocoin-icon-256x256.ico"
     },
-    "publish": [{
-      "provider": "github",
-      "owner": "casinocoin",
-      "repo": "casinocoin-token-wallet"
-    }]
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "casinocoin",
+        "repo": "casinocoin-token-wallet"
+      }
+    ]
   },
   "dependencies": {
-    "@casinocoin/libjs": "file:../casinocoin-libjs-test/tgz/casinocoin-libjs-2.0.0.tgz",
+    "@casinocoin/libjs": "^2.0.1",
     "@ngx-translate/core": "11.0.1",
     "@ngx-translate/http-loader": "4.0.0",
     "@types/lokijs": "1.5.2",
     "angular2-uuid": "1.1.1",
+    "angularx-qrcode": "^1.6.2",
     "electron-updater": "^4.0.14",
     "font-awesome": "4.7.0",
     "int": "0.2.0",
     "js-yaml": "3.13.1",
-    "lodash": "4.17.11",
+    "lodash": "4.17.15",
     "lokijs": "1.5.6",
     "lz-string": "1.4.4",
     "ngx-logger": "3.3.12",

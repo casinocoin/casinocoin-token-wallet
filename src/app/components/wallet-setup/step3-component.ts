@@ -37,7 +37,7 @@ import { WalletService } from '../../providers/wallet.service';
       this.newWalletPassword = newValue;
       if (newValue !== undefined) {
         const testResult = newValue.match(this.passwordPattern);
-        if (testResult != null) {
+        if (testResult !== null) {
           this.paswordConfirmationEnabled = true;
         } else {
           this.paswordConfirmationEnabled = false;
@@ -54,7 +54,7 @@ import { WalletService } from '../../providers/wallet.service';
     checkPasswordConfirmedUpdate(newConfirmValue: string) {
       this.newWalletPasswordConfirmed = newConfirmValue;
       if (newConfirmValue === this.newWalletPassword) {
-        this.logger.debug('### Step3 - passwords are the same ')
+        this.logger.debug('### Step3 - passwords are the same ');
         this.passwordsEqual = true;
       } else {
         this.passwordsEqual = false;

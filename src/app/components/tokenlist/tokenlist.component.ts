@@ -1,5 +1,6 @@
-import { Component, OnInit, AfterViewInit, ViewChild, Renderer2 } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, Renderer2, NgZone } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
+import { timer } from 'rxjs';
 import { LogService } from '../../providers/log.service';
 import { CasinocoinService } from '../../providers/casinocoin.service';
 import { WalletService } from '../../providers/wallet.service';
@@ -47,6 +48,7 @@ export class TokenlistComponent implements OnInit {
   amount: string;
   fees: string;
   accountReserve: string;
+  reserveIncrement: string;
   walletPassword: string;
   showPasswordDialog: boolean;
   showLedgerDialog: boolean;
@@ -71,6 +73,20 @@ export class TokenlistComponent implements OnInit {
   addTokenAccountSelected: boolean;
   showErrorDialog = false;
 
+  public cscReceiveURI: string = null;
+  showReceiveQRCodeDialog = false;
+  sendAmount: string;
+  destinationTag: number;
+  label: string;
+  copyIcon = 'fa fa-copy';
+
+  showSecretDialog = false;
+  showSecret = false;
+  accountSecret: string;
+
+  showEditAccountLabel = false;
+  accountLabel = '';
+
   constructor(private logger: LogService,
               private casinocoinService: CasinocoinService,
               private sessionStorageService: SessionStorageService,
@@ -81,6 +97,7 @@ export class TokenlistComponent implements OnInit {
               private route: ActivatedRoute,
               private fb: FormBuilder,
               public renderer: Renderer2,
+              private _ngZone: NgZone,
               private cscAmountPipe: CSCAmountPipe) { }
 
   ngOnInit() {
@@ -95,6 +112,9 @@ export class TokenlistComponent implements OnInit {
         'destinationtag': new FormControl(''),
         'description': new FormControl('')
     });
+    this.sendForm.valueChanges.subscribe(val => {
+      this.logger.debug('### TokenList - sendForm changed: ' + JSON.stringify(val));
+    });
     // initialize activateForm
     this.activateForm = this.fb.group({
       'password': new FormControl('', Validators.compose([Validators.required]))
@@ -106,24 +126,31 @@ export class TokenlistComponent implements OnInit {
       if (result === AppConstants.KEY_CONNECTED) {
         // translation parameters
         // this.translateParams = {accountReserve: this.casinocoinService.serverInfo.reserveBaseCSC};
-        // refresh Token List
-        this.logger.debug('### TokenList Refresh');
-        this.casinocoinService.refreshAccountTokenList().subscribe(finished => {
-          if (finished) {
-            this.tokenlist = this.casinocoinService.tokenlist;
-            this.logger.debug('### TokenList: ' + JSON.stringify(this.tokenlist));
-            // remove password from session if its still there
-            this.sessionStorageService.remove(AppConstants.KEY_WALLET_PASSWORD);
+        // refresh Accounts
+        this.logger.debug('### Account Refresh');
+        this.casinocoinService.refreshAccounts().subscribe(accountRefreshFinished => {
+          if (accountRefreshFinished) {
+            // refresh Token List
+            this.logger.debug('### TokenList Refresh');
+            this.casinocoinService.refreshAccountTokenList().subscribe(finished => {
+              if (finished) {
+                this.tokenlist = this.casinocoinService.tokenlist;
+                this.logger.debug('### TokenList: ' + JSON.stringify(this.tokenlist));
+                // remove password from session if its still there
+                this.sessionStorageService.remove(AppConstants.KEY_WALLET_PASSWORD);
+              }
+            });
+            // Check if user password is still in the session
+            const userPass = this.sessionStorageService.get(AppConstants.KEY_WALLET_PASSWORD);
+            if (userPass != null) {
+                this.sessionStorageService.remove(AppConstants.KEY_WALLET_PASSWORD);
+            }
           }
         });
-        // Check if user password is still in the session
-        const userPass = this.sessionStorageService.get(AppConstants.KEY_WALLET_PASSWORD);
-        if (userPass != null) {
-            this.sessionStorageService.remove(AppConstants.KEY_WALLET_PASSWORD);
-        }
         // set fees
         this.fees = this.casinocoinService.serverInfo.validatedLedger.baseFeeCSC;
         this.accountReserve = this.casinocoinService.serverInfo.validatedLedger.reserveBaseCSC;
+        this.reserveIncrement = this.casinocoinService.serverInfo.validatedLedger.reserveIncrementCSC;
         this.sendForm.controls.fees.setValue(this.fees);
       }
     });
@@ -137,20 +164,42 @@ export class TokenlistComponent implements OnInit {
           browserWindow.webContents.send('token-context-menu-event', 'copy-account'); }
       },
       { label: 'Show in Block Explorer',
-          click(menuItem, browserWindow, event) {
-              browserWindow.webContents.send('token-context-menu-event', 'show-explorer'); }
+        click(menuItem, browserWindow, event) {
+            browserWindow.webContents.send('token-context-menu-event', 'show-explorer'); }
+      },
+      { label: 'Edit Label',
+        click(menuItem, browserWindow, event) {
+          browserWindow.webContents.send('token-context-menu-event', 'edit-account-label'); }
+      },
+      { label: 'Receive QRCode',
+        click(menuItem, browserWindow, event) {
+          browserWindow.webContents.send('token-context-menu-event', 'receive-qrcode');
+        }
+      },
+      { label: 'Show Account Secret',
+        click(menuItem, browserWindow, event) {
+          browserWindow.webContents.send('token-context-menu-event', 'show-secret');
+        }
       }
     ];
     this.token_context_menu = this.electronService.remote.Menu.buildFromTemplate(token_context_menu_template);
     // listen to connection context menu events
     this.electronService.ipcRenderer.on('token-context-menu-event', (event, arg) => {
-      if (arg === 'copy-account') {
-          this.electronService.clipboard.writeText(this.walletService.selectedTableAccount.AccountID);
-      } else if (arg === 'show-explorer') {
-        this.showAccountOnExplorer(this.walletService.selectedTableAccount.AccountID);
-      } else {
-        this.logger.debug('### Context menu not implemented: ' + arg);
-      }
+      this._ngZone.run(() => {
+        if (arg === 'copy-account') {
+            this.electronService.clipboard.writeText(this.walletService.selectedTableAccount.AccountID);
+        } else if (arg === 'edit-account-label') {
+          this.doShowEditAccountLabel();
+        } else if (arg === 'show-explorer') {
+          this.showAccountOnExplorer(this.walletService.selectedTableAccount.AccountID);
+        } else if (arg === 'receive-qrcode') {
+          this.doShowReceiveQRCode();
+        } else if (arg === 'show-secret') {
+          this.doShowAccountSecretDialog();
+        } else {
+          this.logger.debug('### Context menu not implemented: ' + arg);
+        }
+      });
     });
 
     this.walletService.openWalletSubject.subscribe( result => {
@@ -167,10 +216,9 @@ export class TokenlistComponent implements OnInit {
         });
         // subscribe to account updates
         this.casinocoinService.accountSubject.subscribe( account => {
-          this.logger.debug('### TokenList Account Updated');
-          this.doBalanceUpdate();
           this.fees = this.casinocoinService.serverInfo.validatedLedger.baseFeeCSC;
           this.accountReserve = this.casinocoinService.serverInfo.validatedLedger.reserveBaseCSC;
+          this.reserveIncrement = this.casinocoinService.serverInfo.validatedLedger.reserveIncrementCSC;
           // refresh all CSC accounts for add token dropdown
           this.cscAccounts = [];
           this.walletService.getAllAccounts().forEach( element => {
@@ -206,13 +254,101 @@ export class TokenlistComponent implements OnInit {
     this.electronService.remote.shell.openExternal(infoUrl);
   }
 
-  doBalanceUpdate() {
-    this.logger.debug('### TokenList - doBalanceUpdate() ###');
+  doShowLedgers() {
+    this.showLedgerDialog = true;
   }
 
-  doShowLedgers() {
-    this.logger.debug('### TokenList - doShowLedgers(): ' + JSON.stringify(this.ledgers));
-    this.showLedgerDialog = true;
+  doShowReceiveQRCode() {
+    this.updateQRCode();
+    this.logger.debug('### TokenList doShowReceiveQRCode: ' + this.cscReceiveURI);
+    this.showReceiveQRCodeDialog = true;
+  }
+
+  updateQRCode() {
+    const uriObject = {
+      address: this.walletService.selectedTableAccount.AccountID,
+      token: this.walletService.selectedTableAccount.Token
+    };
+    if (this.sendAmount && this.sendAmount.length > 0) {
+      uriObject['amount'] = this.sendAmount;
+    }
+    if (this.destinationTag && (this.destinationTag > 0 && this.destinationTag < 2147483647)) {
+      uriObject['destinationTag'] = this.destinationTag;
+    }
+    if (this.label && this.label.length > 0) {
+      uriObject['label'] = this.label;
+    }
+    this.cscReceiveURI = CSCUtil.generateCSCQRCodeURI(uriObject);
+  }
+
+  copyAccountID() {
+    this.logger.debug('### TokenList - copyAccountID(): ' + this.walletService.selectedTableAccount.AccountID);
+    this.electronService.clipboard.writeText(this.walletService.selectedTableAccount.AccountID);
+    this.copyIcon = 'pi pi-check';
+    const finishTimer = timer(1000);
+    finishTimer.subscribe(val =>  {
+      this.copyIcon = 'fa fa-copy';
+    });
+  }
+
+  doShowAccountSecretDialog() {
+    this.logger.debug('### TokenList - doShowAccountSecret(): ' + this.walletService.selectedTableAccount.AccountID);
+    this.showSecretDialog = true;
+  }
+
+  doShowAccountSecret() {
+    // check password
+    const walletObject: WalletDefinition = this.sessionStorageService.get(AppConstants.KEY_CURRENT_WALLET);
+    if (this.walletService.checkWalletPasswordHash(this.walletPassword, walletObject.walletUUID, walletObject.passwordHash)) {
+      // decrypt secret
+      const cscCrypto = new CSCCrypto(this.walletPassword, this.sessionStorageService.get(AppConstants.KEY_CURRENT_WALLET).userEmail);
+      const accountKey = this.walletService.getKey(this.walletService.selectedTableAccount.AccountID);
+      this.logger.debug('### TokenList - doShowAccountSecret: ' + accountKey.accountID);
+      this.accountSecret = cscCrypto.decrypt(accountKey.secret);
+      this.showSecret = true;
+      this.walletPassword = '';
+    } else {
+      this.error_message = 'You entered the wrong wallet password!';
+      this.showSecretDialog = false;
+      this.walletPassword = '';
+      this.accountSecret = '';
+      this.showErrorDialog = true;
+    }
+  }
+
+  copySecret() {
+    this.logger.debug('### TokenList - copySecret()');
+    this.electronService.clipboard.writeText(this.accountSecret);
+    this.copyIcon = 'pi pi-check';
+    const finishTimer = timer(1000);
+    finishTimer.subscribe(val =>  {
+      this.copyIcon = 'fa fa-copy';
+    });
+  }
+
+  onHideSecretDialog() {
+    this.logger.debug('### TokenList - onHideSecretDialog()');
+    this.accountSecret = '';
+    this.showSecretDialog = false;
+  }
+
+  doShowEditAccountLabel() {
+    this.logger.debug('### TokenList - showEditAccountLabel: ' + this.walletService.selectedTableAccount.AccountLabel);
+    this.accountLabel = this.walletService.selectedTableAccount.AccountLabel;
+    this.showEditAccountLabel = true;
+  }
+
+  doSaveAccountLabel() {
+    const account: LokiAccount = this.walletService.getAccount(this.walletService.selectedTableAccount.Token, this.walletService.selectedTableAccount.AccountID);
+    account.label = this.accountLabel;
+    this.walletService.updateAccount(account);
+    // refresh token list
+    this.casinocoinService.refreshAccountTokenList().subscribe( refreshResult => {
+      if (refreshResult) {
+        this.tokenlist = this.casinocoinService.tokenlist;
+      }
+    });
+    this.showEditAccountLabel = false;
   }
 
   doShowAddToken() {
@@ -628,5 +764,30 @@ export class TokenlistComponent implements OnInit {
   doCloseError() {
     this.showErrorDialog = false;
     this.error_message = '';
+  }
+
+  getTotalReserved(rowData) {
+    return Number(this.accountReserve) + (Number(rowData.OwnerCount) *  Number(this.reserveIncrement));
+  }
+
+  doSendAll(rowData) {
+    this.logger.debug('### TokenList - doSendAll: ' + JSON.stringify(rowData));
+    // if CSC we need to deduce reserves and fees for the tx, for tokens we can send all
+    if (rowData.Token === 'CSC') {
+      const sendMax = Number(CSCUtil.dropsToCsc(rowData.Balance)) - this.getTotalReserved(rowData) - Number(this.fees);
+      this.sendForm.controls.amount.setValue(sendMax.toString());
+    } else {
+      this.sendForm.controls.amount.setValue(CSCUtil.dropsToCsc(rowData.TokenBalance));
+    }
+  }
+
+  getSendFormDisabled(rowData) {
+    const reserved = Number(this.accountReserve) + (Number(rowData.OwnerCount) *  Number(this.reserveIncrement)) + Number(this.fees);
+    return (Number(CSCUtil.cscToDrops(reserved.toString())) > Number(rowData.Balance));
+  }
+
+  onExpandedRowClicked(rowData) {
+    this.walletService.selectedTableAccount = rowData;
+    this.currentToken = rowData;
   }
 }

@@ -306,6 +306,10 @@ export class CSCCrypto {
     return mnemonicArray;
   }
 
+  static isExistingWord(word: string): boolean {
+    return (this.english.findIndex( item => item === word) >= 0);
+  }
+
   encrypt(inputValue: string) {
     // Generates cryptographically strong pseudo-random data. The size argument is a number indicating the number of bytes to generate.
     const iv: Buffer = Buffer.from(crypto.randomBytes(this.IV_LENGTH));

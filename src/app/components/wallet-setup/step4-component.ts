@@ -20,15 +20,14 @@ import { CSCCrypto } from '../../domains/csc-crypto';
                  private router: Router ) { }
 
     ngOnInit() {
-      if (this.newWalletMnemonic === undefined || this.newWalletMnemonic.length === 0) {
-        this.newWalletMnemonic = CSCCrypto.getRandomMnemonic();
-        this.walletService.walletSetup.recoveryMnemonicWords = this.newWalletMnemonic;
-       }
-       this.recoveryAccepted = false;
-       this.emailAddress = this.walletService.walletSetup.userEmail;
+      this.newWalletMnemonic = CSCCrypto.getRandomMnemonic();
+      this.walletService.walletSetup.recoveryMnemonicWords = this.newWalletMnemonic;
+      this.recoveryAccepted = false;
+      this.emailAddress = this.walletService.walletSetup.userEmail;
+      this.logger.debug('### Setup -> mnemonic words: ' + JSON.stringify(this.newWalletMnemonic));
     }
 
     continue() {
-      this.router.navigate(['wallet-setup', 'setup-step5']);
+      this.router.navigate(['wallet-setup', 'setup-step41']);
     }
   }

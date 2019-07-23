@@ -23,7 +23,10 @@
                         <p class="item-value" *ngIf="rowData.Token === 'CSC'">{{rowData.Balance | cscAmount : false : true}} ({{rowData.Token}})</p>
                     </td>
                     <td style="width: 325px;">
-                        <p class="item-label">{{'PAGES.TOKENLIST.ACCOUNT'|translate}}<span *ngIf="rowData.Activated === false"> ({{'PAGES.TOKENLIST.INACTIVE'|translate}})</span></p>
+                        <p class="item-label">{{'PAGES.TOKENLIST.ACCOUNT'|translate}}
+                            <span *ngIf="rowData.AccountLabel.length > 0"> ({{rowData.AccountLabel}}) </span>
+                            <span *ngIf="rowData.Activated === false"> ({{'PAGES.TOKENLIST.INACTIVE'|translate}})</span>
+                        </p>
                         <p class="item-value">{{rowData.AccountID}}</p>
                     </td>
                     <td style="width: 25px;"><i class="color_red" [ngClass]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></i></td>
@@ -51,8 +54,10 @@
                         </div>
                         <div *ngIf="rowData.Token !== 'CSC' && rowData.Activated === false && !canActivateAccount()" translate="PAGES.TOKENLIST.FUND-CSC-TO-ACTIVATE" [translateParams]="translateParams"></div>
                         -->
-                        <div *ngIf="rowData.Activated === true">
+                        <div *ngIf="rowData.Activated === true" (click)="onExpandedRowClicked(rowData)">
                             <form [formGroup]="sendForm" (ngSubmit)="onSendFormSubmit(sendForm.value)">
+                                <fieldset [disabled]="getSendFormDisabled(rowData)">
+                                <div *ngIf="getSendFormDisabled(rowData)">{{'PAGES.TOKENLIST.NOT-ENOUGH-CSC' | translate }}</div>
                                 <div class="ui-g ui-fluid" style="padding-top: 15px;">
                                     <div class="ui-g-2">
                                         <span class="ui-float-label">
@@ -60,13 +65,16 @@
                                             <label for="float-input-amount">{{'PAGES.TOKENLIST.AMOUNT' | translate }}</label>
                                         </span>
                                     </div>
+                                    <div class="ui-g-1">
+                                        <button pButton type="button" style="margin-top: 10px; padding: 2px;" (click)="doSendAll(rowData)" label="{{'PAGES.TOKENLIST.SEND-ALL'|translate}}"></button>
+                                    </div>
                                     <div class="ui-g-5">
                                         <span class="ui-float-label">
                                             <input id="float-input-accountid" formControlName="accountid" type="text"  style="width: 100%;" pInputText required> 
                                             <label for="float-input-accountid">{{'PAGES.TOKENLIST.ACCOUNTID' | translate }}</label>
                                         </span>
                                     </div>
-                                    <div class="ui-g-3">
+                                    <div class="ui-g-2">
                                         <span class="ui-float-label">
                                             <input id="float-input-password" formControlName="password" type="password"  style="width: 100%;" pInputText required> 
                                             <label for="float-input-password">{{'PAGES.TOKENLIST.PASSWORD' | translate }}</label>
@@ -77,27 +85,29 @@
                                     </div>
                                 </div>
                                 <div class="ui-g ui-fluid" style="padding-top: 10px;">
-                                    <div class="ui-g-2">
+                                    <div class="ui-g-3">
                                         <span class="text-small" style="margin: 1em;">
                                             <p class="item-p"><span class="item-label">{{'PAGES.TOKENLIST.FEES' | translate }}: </span><span class="item-value"> {{ fees }} CSC</span></p>
+                                            <p class="item-p"><span class="item-label">{{'PAGES.TOKENLIST.RESERVED' | translate }}: </span><span class="item-value"> {{ getTotalReserved(rowData) | number : '1.2-2' }} CSC</span></p>
                                             <!--
                                             <p class="item-p"><span class="item-label">{{'PAGES.TOKENLIST.AVAILABLE' | translate }}: </span><span class="item-value"> {{ availableBalanceCSC() | cscAmount : true : true }}</span></p>
                                             -->
                                         </span>
                                     </div>
-                                    <div class="ui-g-2">
+                                    <div class="ui-g-3">
                                         <span class="ui-float-label">
                                             <input id="float-input-desttag" formControlName="destinationtag" type="number"  style="width: 100%;" pInputText> 
                                             <label for="float-input-desttag">{{'PAGES.TOKENLIST.DESTTAG' | translate }}</label>
                                         </span>
                                     </div>
-                                    <div class="ui-g-5">
+                                    <div class="ui-g-6">
                                         <span class="ui-float-label">
                                             <input id="float-input-description" formControlName="description" type="text"  style="width: 100%;" pInputText> 
                                             <label for="float-input-description">{{'PAGES.TOKENLIST.DESCRIPTION' | translate }}</label>
                                         </span>
                                     </div>
                                 </div>
+                                </fieldset>
                             </form>
                         </div>
                     </td>
@@ -202,5 +212,66 @@
         <p><b>{{error_message}}</b></p>
         <button pButton type="button" style="margin: 5px; float: right;" (click)="doCloseError()" icon="pi pi-check" 
                 iconPos="left" label="{{'PAGES.TOKENLIST.ERROR-OK'|translate}}"></button>
+    </div>
+</p-dialog>
+<p-dialog [(visible)]="showReceiveQRCodeDialog" [width]="375" [height]="540" [closable]="true" [modal]="true" appendTo="body">
+    <p-header><span><i class="icon csc-dialog-icon icon-chip"></i>Receive CasinoCoin</span></p-header>
+    <div class="qrcode">
+        <div class="ui-inputgroup">
+            <div style="padding-top: 5px; padding-right: 10px;">{{currentToken?.AccountID}}</div>
+            <button pButton type="button" [(icon)]="copyIcon" (click)="copyAccountID()"></button>      
+        </div>
+    </div>
+    <div class="qrcode-image">
+        <qrcode [qrdata]="cscReceiveURI" [size]="256" [level]="'L'"></qrcode>
+    </div>
+    <div class="qrcode">
+        <div class="ui-inputgroup">
+            <span class="ui-inputgroup-addon" style="box-sizing: content-box; width: 75px;"><i class="icon icon-text"></i></span>
+            <input class="qrcode-input" type="text" pInputText placeholder="Label" [(ngModel)]="label" (ngModelChange)="updateQRCode()">         
+        </div>
+    </div>
+    <div class="qrcode">
+        <div class="ui-inputgroup">
+            <span class="ui-inputgroup-addon" style="box-sizing: content-box; width: 75px;"><i class="icon icon-tag"></i></span>
+            <input class="qrcode-input" type="number" placeholder="Destination Tag" [(ngModel)]="destinationTag" min="1" step="1" (ngModelChange)="updateQRCode()">         
+        </div>
+    </div>
+    <div class="qrcode">
+        <div class="ui-inputgroup">
+            <span class="ui-inputgroup-addon" style="box-sizing: content-box; width: 75px;">Amount</span>
+            <input class="qrcode-input" type="text" pInputText placeholder="Amount" [(ngModel)]="sendAmount" (ngModelChange)="updateQRCode()">
+        </div>
+    </div>
+</p-dialog>
+<p-dialog [(visible)]="showSecretDialog" [width]="375" [height]="275" [closable]="true" [modal]="true" appendTo="body" (onHide)="onHideSecretDialog()">
+    <p-header><span><i class="icon csc-dialog-icon icon-chip"></i>{{'PAGES.TOKENLIST.SHOW-SECRET' | translate }}</span></p-header>
+    <p>{{'PAGES.TOKENLIST.ADD-NEW-CSC-PASSWORD' | translate }}:</p>
+    <div style="padding-top: 5px;">
+        <span class="ui-float-label">
+            <input id="float-input-password" [(ngModel)]="walletPassword" type="password"  style="width: 98%;" pInputText required> 
+            <label for="float-input-password">{{'PAGES.TOKENLIST.PASSWORD' | translate }}</label>
+        </span>
+    </div>
+    <div class="ui-inputgroup" *ngIf="showSecret" style="padding-top: 5px;">
+        <div style="padding-top: 5px; padding-right: 10px;">{{accountSecret}}</div>
+        <div style="text-align: right; width: 100%"><button pButton type="button" [(icon)]="copyIcon" (click)="copySecret()" style="margin: 5px;"></button></div>
+    </div>
+    <div style="padding-top: 5px;">
+        <button pButton type="button" style="margin: 5px; float: right;" (click)="doShowAccountSecret()" [(icon)]="addIcon" 
+                iconPos="left" label="{{'PAGES.TOKENLIST.SHOW-SECRET'|translate}}" [disabled]="(walletPassword == null || walletPassword.length === 0)"></button>
+    </div>
+</p-dialog>
+<p-dialog [(visible)]="showEditAccountLabel" [width]="375" [height]="200" [closable]="true" [modal]="true" appendTo="body">
+    <p-header><span><i class="icon csc-dialog-icon icon-chip"></i>{{'PAGES.TOKENLIST.EDIT-LABEL' | translate }}</span></p-header>
+    <div>
+        <span class="ui-float-label">
+            <input id="float-input-label" [(ngModel)]="accountLabel" type="text"  style="width: 98%;" pInputText required> 
+            <label for="float-input-label">{{'PAGES.TOKENLIST.ACCOUNT-LABEL' | translate }}</label>
+        </span>
+    </div>
+    <div style="padding-top: 5px;">
+        <button pButton type="button" style="margin: 5px; float: right;" (click)="doSaveAccountLabel()" icon="pi pi-check" 
+                iconPos="left" label="{{'PAGES.TOKENLIST.SAVE'|translate}}"></button>
     </div>
 </p-dialog>

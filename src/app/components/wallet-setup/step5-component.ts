@@ -80,6 +80,8 @@ import { WalletDefinition } from '../../domains/csc-types';
             // save account to wallet
             this.walletService.addAccount(walletAccount);
             this.logger.debug('### WalletSetup - Encrypt Wallet Password');
+            // save the wallet
+            this.walletService.saveWallet();
             // generate password hash
             this.walletService.walletSetup.walletPasswordHash =
               this.walletService.generateWalletPasswordHash(
@@ -92,12 +94,10 @@ import { WalletDefinition } from '../../domains/csc-types';
             this.walletService.encryptAllKeys(this.walletService.walletSetup.userPassword, this.walletService.walletSetup.userEmail).subscribe( result => {
               if (result === AppConstants.KEY_FINISHED) {
                 this.logger.debug('### WalletSetup - Key Encryption Complete');
+                // save the wallet
+                this.walletService.saveWallet();
               }
             });
-            // save the wallet
-            this.walletService.saveWallet();
-            // backup private keys
-
             // we are done
             this.setupFinished = true;
             this.translate.get('PAGES.SETUP.STEP5-FINISHED').subscribe((res: string) => {
