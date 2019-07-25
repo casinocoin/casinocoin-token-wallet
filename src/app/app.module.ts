@@ -43,6 +43,8 @@ import { TokenlistComponent } from './components/tokenlist/tokenlist.component';
 import { HistoryComponent } from './components/history/history.component';
 import { ExchangesComponent } from './components/exchanges/exchanges.component';
 import { SupportComponent } from './components/support/support.component';
+import { PaperwalletComponent } from './components/paperwallet/paperwallet.component';
+import { WindowRef } from './components/paperwallet/WindowRef';
 
 // Providers
 import { AuthGuard } from './auth-guard';
@@ -102,6 +104,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     HistoryComponent,
     ExchangesComponent,
     SupportComponent,
+    PaperwalletComponent,
     WebviewDirective,
     CSCDatePipe, CSCAmountPipe, ToNumberPipe
   ],
@@ -145,7 +148,8 @@ export function HttpLoaderFactory(http: HttpClient) {
     MarketService,
     LocalStorageService, SessionStorageService, CookiesStorageService,
     DatePipe, DecimalPipe, CurrencyPipe,
-    CSCDatePipe, CSCAmountPipe, ToNumberPipe
+    CSCDatePipe, CSCAmountPipe, ToNumberPipe,
+    WindowRef
   ],
   bootstrap: [AppComponent]
 })

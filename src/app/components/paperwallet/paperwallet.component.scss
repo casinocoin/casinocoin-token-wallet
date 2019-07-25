@@ -1,0 +1,192 @@
+@import "src/assets/variables";
+
+::ng-deep .hide-context-menu {
+    display: none;
+}
+
+::ng-deep .footer-error {
+    color: $casinocoinRed;
+    font-weight: bolder;
+}
+
+.hidden { 
+	visibility: hidden; 
+}
+.displaynone { 
+	display: none !important; 
+}
+
+#mysecret[disabled] { 
+	border: none; 
+}
+
+#myaddress:empty:before { 
+	content: ""; 
+}
+
+table:empty { 
+	display: none; 
+}
+
+td.centered { 
+	text-align: center; 
+}
+
+input[type="text"] { 
+	width: 240px; 
+}
+
+input[type="text"].wide { 
+	width: 280px; 
+}
+
+input[type="text"].narrow { 
+	width: 120px; 
+}
+
+button:not(.offline) {
+	cursor: pointer;
+	font-weight: bold;
+}
+
+.editflagbutton { 
+	width: 60px; 
+}
+
+#sendbutton, .complexsendbutton, .cancelbutton { 
+	width: 72px; 
+}
+
+#trustbutton { 
+	width: 84px; 
+}
+
+#startpathfindingbutton, #rekeybutton { 
+	width: 100px; 
+}
+
+.tilde { 
+	width: 30px; 
+}
+
+.halfoffset {
+	position: relative;
+	top: 9px;
+}
+
+.pathsJSON div { 
+	display: none; 
+}
+
+.pathsJSON:hover div {
+	display: block;
+	position: absolute;
+	word-break: break-all;
+	width: 200px;
+	border: 1px solid black;
+	padding: 8px;
+	background-color: white;
+}
+.pathsJSON:after {
+	content: "hover to view";
+	font-style: italic;
+}
+.pathsJSON:after:hover { content: ""; }
+
+
+.jumbotron {
+    min-height: 300px;
+}
+
+.background-image-coin{
+  background-image: url('../../../assets/bgpaperwallet.jpg');
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: center; 
+  background-size: cover;
+  width: 100%;
+  height: 100%;
+}
+
+// h1, strong {
+//     color: white;
+//     text-shadow: 2px 2px 4px #000000;
+// }
+
+// h2, p{
+// 	color: white;
+// }
+
+.button-css {
+	padding: 15px 25px;
+	font-size: 12px;
+	text-align: center;
+	cursor: pointer;
+	outline: none;
+	color: #bf3131;
+	background-color: #ffffff;
+	border: none;
+	border-radius: 15px;
+	box-shadow: 0 5px #999;
+}
+  
+.button-css:hover {background-color: #ffbbbb}
+  
+.button-css:active {
+	background-color: #d15d5d;
+	box-shadow: 0 3px #666;
+	transform: translateY(4px);
+}
+
+.csc-logo{
+	width: 150px;
+	float: left;
+	position: relative;
+}
+
+.key_box{
+	width: 50%;
+	height: 20%;
+	float: left;
+	text-align: center;
+	border: 1px solid black;
+	background-color: $casinocoinGray;
+    margin: 2% 0 0 0;
+}
+.key_box1{
+	width: 50%;
+	height: 20%;
+	float: left;
+	text-align: center;
+	border: 1px solid black;
+	background-color: $casinocoinGray;
+    margin: 2% 0 0 0;
+}
+
+table {
+    border-collapse: collapse;
+	width: 100%;
+	color: white;
+}
+
+th, td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+tr:hover {background-color:#3a3636;}
+
+::ng-deep qrcode > canvas {
+	display: block;
+	margin: auto;
+}
+
+::ng-deep qrcode > img {
+	margin: auto;
+}
+
+.link-color {
+    color: $casinocoinRed;
+    cursor: pointer;
+}

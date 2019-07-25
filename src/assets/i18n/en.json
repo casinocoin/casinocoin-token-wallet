@@ -124,6 +124,17 @@
         "VOLUME": "Volume",
         "LAST-UPDATE": "Last Update",
         "NO-EXCHANGES": "No Exchanges to show."
+      },
+      "PAPERWALLET": {
+        "TITLE": "Paper Wallet Generator",
+        "EXPLAIN": "A CasinoCoin Paper Wallet is an offline mechanism for storing CasinoCoin and Tokens. The process involves printing the public and private keys onto paper.",
+        "DISCLAIMER": "Disclaimer",
+        "DISCLAIMER-TEXT": "Use of the CasinoCoin Paper Wallet Generator is offered solely to persons who are at least 18 years old. Your use of the Paper Wallet Generator is solely at your own risk, and you hereby agree to release CasinoCoin and its affiliates from any and all claims arising out of or in connection with your use of the Paper Wallet Generator or your Paper Wallet, including risk of loss of the Paper Wallet key(s) and any other damages whatsoever.",
+        "GENERATE-KEYS": "Generate Keys",
+        "INSTRUCTIONS": "Instructions",
+        "PRINT": "Print",
+        "TITLE-INSTRUCTIONS": "Paper Wallet Instructions",
+        "INSTRUCTIONS-TEXT": "Step 1. Generate New Address<br><p>Click on the \"Generate Keys\" button.</p><p>Step 2. Print the Paper Wallet</p><p>Print the page using the high quality setting. Never save the page as a PDF file to print it later since a file is more likely to be hacked than a piece of paper.</p><p>Step 3. Share your public address</p><p>Use your public address to receive CasinoCoin from other users. You can share your public address as much as you want.</p><p>Step 4. Keep your private key secret</p><p>The private key is literally the keys to your coins. If someone were to obtain it, they could withdraw the funds currently in the wallet, and any funds that might be deposited in that wallet.</p><p>Please test sending a small amount before receiving any large payments. You can check the balance of your wallet using your public address here: https://explorer.casinocoin.org or here https://csc.observer</p>"
       }
   }
 }

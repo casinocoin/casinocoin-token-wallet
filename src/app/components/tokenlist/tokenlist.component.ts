@@ -246,6 +246,7 @@ export class TokenlistComponent implements OnInit {
   showTokenContextMenu(event) {
     this.logger.debug('### showTokenContextMenu: ' + JSON.stringify(event));
     this.walletService.selectedTableAccount = event.originalEvent.rowData;
+    this.currentToken = event.originalEvent.rowData;
     this.token_context_menu.popup({window: this.electronService.remote.getCurrentWindow()});
   }
 

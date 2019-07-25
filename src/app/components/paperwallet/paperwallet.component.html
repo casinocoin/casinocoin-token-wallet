@@ -1,0 +1,42 @@
+<div class="ui-widget ui-g form-container">
+    <!-- <img src="../../../../assets/brand/casinocoin-logo.png" alt="CasinoCoin" class="csc-logo" /> -->
+    <!-- <h1 align="center">Paper Wallet Generator</h1><br> -->
+    <p class="form-text-header">{{ 'PAGES.PAPERWALLET.TITLE' | translate }}</p>
+    <p>{{ 'PAGES.PAPERWALLET.EXPLAIN' | translate }}</p>
+    <b>{{ 'PAGES.PAPERWALLET.DISCLAIMER' | translate }}:</b> {{ 'PAGES.PAPERWALLET.DISCLAIMER-TEXT' | translate }}
+    &nbsp;<br>
+    
+    <div class="ui-g-12" style="padding-top: 2%;">
+        <button pButton type="button" (click)="showCreateAddress()" icon="icon icon-text" iconPos="left" label="{{ 'PAGES.PAPERWALLET.GENERATE-KEYS' | translate }}"></button>
+        <button pButton type="button" (click)="print()" *ngIf="!hideQRCodes" style="float: right;" label="{{ 'PAGES.PAPERWALLET.PRINT' | translate }}"></button>
+    </div>
+    <!-- <input type="checkbox" [(ngModel)]="checkBox">Check this to Link with Account -->
+
+    <div class="row" id="printsection">
+        <div class="key_box" (contextmenu)="onPublicContextMenu()">
+            <h4>Public Key</h4>
+            <qrcode *ngIf="!hideQRCodes" [qrdata]="newAddress" [size]="150" [level]="'L'"></qrcode>
+            <br/><br/>
+            <span>{{newAddress}}</span> 
+            &nbsp;<br><br>
+        </div>
+        <div class="key_box1" (contextmenu)="onPrivateContextMenu()">
+            <h4>Private Key</h4>
+            <qrcode *ngIf="!hideQRCodes" [qrdata]="newSecretKey" [size]="150" [level]="'L'"></qrcode>
+            <br/><br/>
+            <span>{{newSecretKey}}</span>
+            &nbsp;<br><br>
+        </div>
+    </div>
+    <div class="ui-g-12" style="padding-top: 3%;">
+        <button pButton type="button" (click)="instructions()" icon="icon icon-list-numbered" iconPos="left" 
+                label="{{ 'PAGES.PAPERWALLET.INSTRUCTIONS' | translate }}"></button>
+    </div>
+</div>
+<p-dialog [(visible)]="showInstructions" [width]="1000" [height]="550" [closable]="true" [modal]="true" appendTo="body">
+    <p-header><span><i class="icon csc-dialog-icon icon-chip"></i>{{ 'PAGES.PAPERWALLET.TITLE-INSTRUCTIONS' | translate }}</span></p-header>
+    <div>
+        <h2>{{ 'PAGES.PAPERWALLET.INSTRUCTIONS' | translate }}</h2>
+        <p [innerHTML]="'PAGES.PAPERWALLET.INSTRUCTIONS-TEXT' | translate"></p>
+    </div>
+</p-dialog>

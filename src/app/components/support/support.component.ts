@@ -11,61 +11,61 @@ import { ElectronService } from '../../providers/electron.service';
 export class SupportComponent implements OnInit {
 
   constructor(private logger: LogService,
-              private electronService: ElectronService) { 
-          this.logger.debug("### INIT Support ###");
+              private electronService: ElectronService) {
+          this.logger.debug('### INIT Support ###');
   }
 
   ngOnInit() {
 
   }
 
-  openFAQ(){
+  openFAQ() {
     event.preventDefault();
-    this.electronService.remote.shell.openExternal("https://casinocoin.org/faq/");
+    this.electronService.remote.shell.openExternal('https://casinocoin.org/faq/');
   }
 
-  openReddit(){
+  openReddit() {
     event.preventDefault();
-    this.electronService.remote.shell.openExternal("https://www.reddit.com/r/casinocoin/");
+    this.electronService.remote.shell.openExternal('https://www.reddit.com/r/casinocoin/');
   }
 
-  openDiscord(){
+  openDiscord() {
     event.preventDefault();
-    this.electronService.remote.shell.openExternal("http://casinocoin.chat/");
+    this.electronService.remote.shell.openExternal('http://casinocoin.chat/');
   }
 
-  openWebsite(){
+  openWebsite() {
     event.preventDefault();
-    this.electronService.remote.shell.openExternal("https://casinocoin.org");
+    this.electronService.remote.shell.openExternal('https://casinocoin.org');
   }
 
-  openGithub(){
+  openGithub() {
     event.preventDefault();
-    this.electronService.remote.shell.openExternal("https://github.com/casinocoin/casinocoin-wallet/issues");
+    this.electronService.remote.shell.openExternal('https://github.com/casinocoin/casinocoin-token-wallet/issues');
   }
 
-  openContactForm(){
+  openContactForm() {
     event.preventDefault();
-    this.electronService.remote.shell.openExternal("https://casinocoin.org/contact");
+    this.electronService.remote.shell.openExternal('https://casinocoin.org/contact');
   }
 
-  openEmail(){
+  openEmail() {
     event.preventDefault();
-    this.electronService.remote.shell.openExternal("mailto:support@casinocoin.org");
+    this.electronService.remote.shell.openExternal('mailto:support@casinocoin.org');
   }
 
-  openFacebook(){
+  openFacebook() {
     event.preventDefault();
-    this.electronService.remote.shell.openExternal("https://www.facebook.com/CasinoCoin/");
+    this.electronService.remote.shell.openExternal('https://www.facebook.com/CasinoCoin/');
   }
 
-  openTwitter(){
+  openTwitter() {
     event.preventDefault();
-    this.electronService.remote.shell.openExternal("https://twitter.com/CasinoCoin");
+    this.electronService.remote.shell.openExternal('https://twitter.com/CasinoCoin');
   }
 
   openBitcoinTalk() {
     event.preventDefault();
-    this.electronService.remote.shell.openExternal("https://bitcointalk.org/index.php?topic=3262543.0");
+    this.electronService.remote.shell.openExternal('https://bitcointalk.org/index.php?topic=3262543.0');
   }
 }

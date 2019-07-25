@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, NgZone } from '@angular/core';
+import { Component, OnInit, OnDestroy, NgZone, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { ElectronService } from '../../providers/electron.service';
 import { LogService } from '../../providers/log.service';
@@ -21,6 +21,8 @@ import { TranslateService } from '@ngx-translate/core';
 import Big from 'big.js';
 import { CSCCrypto } from '../../domains/csc-crypto';
 import { DatePipe, CurrencyPipe } from '@angular/common';
+import { Dropdown } from 'primeng/dropdown';
+import { NotificationService } from '../../providers/notification.service';
 const path = require('path');
 const fs = require('fs');
 
@@ -31,8 +33,11 @@ const fs = require('fs');
 })
 export class HomeComponent implements OnInit, OnDestroy {
 
+  @ViewChild('accountDropdown') accountDropdown: Dropdown;
+
   walletSettings: WalletSettings = {showNotifications: true, fiatCurrency: 'USD'};
   fiatCurrencies: SelectItem[] = [];
+  notifications: SelectItem[] = [];
   selectedFiatCurrency: string;
   currentWalletObject: WalletDefinition;
   active_menu_item: string;
@@ -119,6 +124,7 @@ export class HomeComponent implements OnInit, OnDestroy {
                private marketService: MarketService,
                private localStorageService: LocalStorageService,
                private sessionStorageService: SessionStorageService,
+               private notificationService: NotificationService,
                private translate: TranslateService,
                private router: Router,
                private datePipe: DatePipe,
@@ -148,6 +154,13 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.logger.debug('### HOME Wallet LOADED');
         this.doBalanceUpdate();
         this.listenForMainEvents();
+        // load the account list
+        this.walletService.getAllAccounts().forEach( element => {
+          if (element.currency === 'CSC') {
+            const accountLabel = element.label + ' - ' + element.accountID;
+            this.accounts.push({label: accountLabel, value: element.accountID});
+          }
+        });
       }  else if (result === AppConstants.KEY_CLOSED) {
         this.logger.debug('### HOME Wallet CLOSED');
         this.electron.ipcRenderer.send('wallet-closed', true);
@@ -186,10 +199,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.connection_context_menu = this.electron.remote.Menu.buildFromTemplate(connect_context_menu_template);
     // define Tools context menu
     const tools_context_menu_template = [
-      { label: 'Import Private Key', click(menuItem, browserWindow, event) {
-            browserWindow.webContents.send('context-menu-event', 'import-priv-key');
-          }
-      },
       { label: 'Create New Wallet', click(menuItem, browserWindow, event) {
           browserWindow.webContents.send('context-menu-event', 'create-new-wallet');
         }
@@ -197,37 +206,42 @@ export class HomeComponent implements OnInit, OnDestroy {
       { label: 'Change Wallet', click(menuItem, browserWindow, event) {
           browserWindow.webContents.send('context-menu-event', 'close-wallet');
         }
+      },
+      { label: 'Generate Paper Wallet',
+        click(menuItem, browserWindow, event) {
+          browserWindow.webContents.send('context-menu-event', 'paper-wallet');
+        }, enabled: true
+      },
+      { label: 'Import Private Key',
+        click(menuItem, browserWindow, event) {
+          browserWindow.webContents.send('context-menu-event', 'import-priv-key');
+        }
       }
     ];
     this.tools_context_menu = this.electron.remote.Menu.buildFromTemplate(tools_context_menu_template);
-    // paperwallet submenu
-    // const paperWalletMenu = { label: 'Paper Wallet', submenu: [
-    //   { label: 'Generate Paper Wallet',
-    //     click(menuItem, browserWindow, event) {
-    //       browserWindow.webContents.send('context-menu-event', 'paper-wallet');
-    //     }, enabled: true
-    //   },
-    //   { label: 'Import Paper Wallet',
-    //     click(menuItem, browserWindow, event) {
-    //       browserWindow.webContents.send('context-menu-event', 'import-paper-wallet');
-    //     }, enabled: true
-    //   }
-    // ]};
-    // this.tools_context_menu.append(new this.electron.remote.MenuItem(paperWalletMenu));
     // message signing submenu
-    // const messageSigningMenu = { label: 'Message Signing', submenu: [
-    //     { label: 'Sign Message',
-    //       click(menuItem, browserWindow, event) {
-    //         browserWindow.webContents.send('context-menu-event', 'sign-message');
-    //       }, enabled: true
-    //     },
-    //     { label: 'Verify Message',
-    //       click(menuItem, browserWindow, event) {
-    //         browserWindow.webContents.send('context-menu-event', 'verify-message');
-    //       }, enabled: true
-    //     }
-    //   ]};
-    // this.tools_context_menu.append(new this.electron.remote.MenuItem(messageSigningMenu));
+    const messageSigningMenu = { label: 'Message Signing', submenu: [
+        { label: 'Sign Message',
+          click(menuItem, browserWindow, event) {
+            browserWindow.webContents.send('context-menu-event', 'sign-message');
+          }, enabled: true
+        },
+        { label: 'Verify Message',
+          click(menuItem, browserWindow, event) {
+            browserWindow.webContents.send('context-menu-event', 'verify-message');
+          }, enabled: true
+        }
+    ]};
+    this.tools_context_menu.append(new this.electron.remote.MenuItem(messageSigningMenu));
+    // define Copy context menu
+    const copy_context_menu_template = [
+      { label: 'Copy',
+        click(menuItem, browserWindow, event) {
+          browserWindow.webContents.send('copy-context-menu-event', 'copy');
+        }
+      }
+    ];
+    this.copy_context_menu = this.electron.remote.Menu.buildFromTemplate(copy_context_menu_template);
     // listen to connect context menu events
     this.electron.ipcRenderer.on('connect-context-menu-event', (event, arg) => {
       this.logger.debug('### connect-context-menu-event: ' + arg);
@@ -251,14 +265,40 @@ export class HomeComponent implements OnInit, OnDestroy {
           this.onCreatNewWallet();
         } else if (arg === 'close-wallet') {
           this.onCloseWallet();
+        } else if (arg === 'paper-wallet') {
+          this.onPaperWallet();
+        } else if (arg === 'sign-message') {
+          this.onShowSignMessage();
+        } else if (arg === 'verify-message') {
+          this.onShowVerifyMessage();
         } else {
           this.logger.debug('### Context menu not implemented: ' + arg);
+        }
+      });
+    });
+    // listen to copy context menu events
+    this.electron.ipcRenderer.on('copy-context-menu-event', (event, arg) => {
+      this._ngZone.run(() => {
+        if (arg === 'copy') {
+          this.copyValueToClipboard();
         }
       });
     });
     this.electron.ipcRenderer.on('update-message', (event, arg) => {
       this.logger.info('### HOME Received Auto Update Message: ' + arg);
     });
+    // load wallet settings
+    this.walletSettings = this.localStorageService.get(AppConstants.KEY_WALLET_SETTINGS);
+    if (this.walletSettings == null){
+      // settings do not exist yet so create
+      this.walletSettings = {fiatCurrency: 'USD', showNotifications: false};
+      this.localStorageService.set(AppConstants.KEY_WALLET_SETTINGS, this.walletSettings);
+    }
+    this.notifications.push({label: 'True', value: true});
+    this.notifications.push({label: 'False', value: false});
+    // load fiat currencies and update market value
+    this.fiatCurrencies = this.marketService.getFiatCurrencies();
+    this.updateMarketService(this.walletSettings.fiatCurrency);
   }
 
   ngOnDestroy() {
@@ -437,6 +477,10 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
   }
 
+  updateShowNotification(event) {
+    this.localStorageService.set(AppConstants.KEY_WALLET_SETTINGS, this.walletSettings);
+  }
+
   setWalletUIConnected() {
     this.logger.debug('### HOME Set GUI Connected ###');
     this.connectionImage = 'assets/icons/connected.png';
@@ -498,6 +542,72 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.sessionStorageService.remove(AppConstants.KEY_CURRENT_WALLET);
     this.router.navigate(['login']);
     this.logger.debug('### HOME - Change Wallet Clicked !!');
+  }
+
+  onPaperWallet() {
+    this.logger.debug('### HOME - Paperwallet Clicked !!');
+    // navigate to paperwallet
+    this.router.navigate(['home', 'paperwallet']);
+  }
+
+  onImportPaperWallet() {
+    this.logger.debug('### HOME - ImportPaperwallet Clicked !!');
+    // navigate to paperwallet
+    this.router.navigate(['home', 'importpaperwallet']);
+  }
+
+  onShowSignMessage() {
+    this.logger.debug('### HOME Sign Message ###');
+    this.resetSigning();
+    this.showSignMessageDialog = true;
+  }
+
+  onShowVerifyMessage() {
+    this.logger.debug('### HOME Verify Message ###');
+    this.resetVerification();
+    this.showVerifyMessageDialog = true;
+  }
+
+  signMessage() {
+    this.logger.debug('### Sign With Account: ' + this.selectedAccount);
+    if (!this.walletService.checkWalletPasswordHash(this.walletPassword)) {
+      this.notificationService.addMessage({title: 'Message Signing', body: 'Invalid password. Message can not be signed'});
+    } else {
+      const key: LokiKey = this.walletService.getKey(this.selectedAccount);
+      const secret = this.walletService.getDecryptSecret(this.walletPassword, this.sessionStorageService.get(AppConstants.KEY_CURRENT_WALLET).userEmail, key);
+      const signResult = this.casinocoinService.cscAPI.signMessage(this.msgToSign, secret);
+      this.logger.debug('### HOME Sign Result: ' + JSON.stringify(signResult));
+      this.signPubKey = signResult['public_key'];
+      this.signSignature = signResult['signature'];
+    }
+  }
+
+  resetSigning() {
+    this.accountDropdown.resetFilter();
+    this.selectedAccount = null;
+    this.msgToSign = '';
+    this.walletPassword = '';
+    this.signPubKey = '';
+    this.signSignature = '';
+  }
+
+  resetVerification() {
+    this.msgToVerify = '';
+    this.verifyPubKey = '';
+    this.verifySignature = '';
+    this.verificationFinished = false;
+    this.verificationResult = false;
+  }
+
+  verifyMessage() {
+    if (this.msgToVerify.length === 0 || this.verifyPubKey.length < 32 || this.verifySignature.length < 128) {
+      this.notificationService.addMessage({title: 'Message Verification', body: 'Invalid parameters for message signature verification.'});
+      this.verificationFinished = false;
+    } else {
+      this.verificationResult = this.casinocoinService.cscAPI.verifyMessage(this.msgToVerify, this.verifySignature, this.verifyPubKey);
+      this.verificationFinished = true;
+      this.logger.debug('### HOME Verify Result: ' + this.verificationResult);
+    }
   }
 
   executeKeyImport() {
@@ -803,5 +913,20 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.logger.info('### HOME Backup Location: ' + backupFilePath);
     // Write the backup object to the file
     fs.writeFileSync(backupFilePath, JSON.stringify(backup));
+  }
+
+  saveCopyValue(field) {
+    this.logger.debug('### HOME saveCopyValue: ' + field);
+    if (field === 'signPubKey') {
+      this.copiedValue = this.signPubKey;
+    } else if (field === 'signSignature') {
+      this.copiedValue = this.signSignature;
+    }
+    this.copy_context_menu.popup({window: this.electron.remote.getCurrentWindow()});
+
+  }
+
+  copyValueToClipboard() {
+    this.electron.clipboard.writeText(this.copiedValue);
   }
 }

@@ -125,16 +125,19 @@
     </div>
 </div>
 
-<p-dialog class="dialog-header" [(visible)]="showSettingsDialog" [width]="640" [height]="400" [closable]="true" 
-        [modal]="true" appendTo="body">
+<p-dialog class="dialog-header" [(visible)]="showSettingsDialog" [width]="640" [height]="400" [closable]="true"
+          [modal]="true" appendTo="body">
     <p-header><span><i class="icon csc-dialog-icon icon-chip"></i>Settings</span></p-header>
     <div class="ui-g ui-fluid">
         <div class="ui-g-1"></div>
         <div class="ui-g-10">
             <div class="ui-g">
-                <div class="ui-g-4">Wallet Language</div><div class="ui-g-8 bold-value">English</div>
-                <div class="ui-g-4">Wallet UUID</div><div class="ui-g-8 bold-value">{{currentWalletObject['walletUUID']}}</div>
-                <div class="ui-g-4">Wallet Creationdate</div><div class="ui-g-8 bold-value">{{currentWalletObject['creationDate'] | cscDate : 'yyyy-MM-dd HH:mm:ss'}}</div>
+                <div class="ui-g-4">Wallet Language</div>
+                <div class="ui-g-8 bold-value">English</div>
+                <div class="ui-g-4">Wallet UUID</div>
+                <div class="ui-g-8 bold-value">{{currentWalletObject['walletUUID']}}</div>
+                <div class="ui-g-4">Wallet Creationdate</div>
+                <div class="ui-g-8 bold-value">{{currentWalletObject['creationDate'] | cscDate : 'yyyy-MM-dd HH:mm:ss'}}</div>
                 <div class="ui-g-4">Fiat value currency</div>
                 <div class="ui-g-8 bold-value">
                     <p-dropdown
@@ -145,13 +148,22 @@
                             appendTo="body"
                             autofocus #fiatCurrenciesDrowdown></p-dropdown>
                 </div>
-                <div class="ui-g-4">Show desktop notifications</div><div class="ui-g-8 bold-value">{{this.walletSettings.showNotifications}}</div>
+                <div class="ui-g-4">Show desktop notifications</div><div class="ui-g-8 bold-value">
+                        <p-dropdown
+                        [style]="{'width':'100%'}"
+                        [options]="notifications"
+                        [(ngModel)]="walletSettings.showNotifications"
+                        (ngModelChange)="updateShowNotification($event)"
+                        appendTo="body"
+                        autofocus #notificationsDrowdown></p-dropdown>
+                </div>
             </div>
         </div>
         <div class="ui-g-1"></div>
     </div>
     <div style="text-align: right;">
-        <button pButton type="button" (click)="onSettingsSave()" icon="icon icon-save" iconPos="right" label="Save" *ngIf="true"
+        <button pButton type="button" (click)="onSettingsSave()" icon="icon icon-save" iconPos="right" label="Save"
+                *ngIf="true"
                 style="width: 115px;"></button>
     </div>
 </p-dialog>
@@ -210,6 +222,7 @@
     Error: {{error_message}}
 </p-footer>
 </p-dialog>
+
 <p-dialog [(visible)]="showImportKeyDialog" [width]="650" [height]="325" [closable]="true" [modal]="true" appendTo="body">
     <p-header><span><i class="icon csc-dialog-icon icon-chip"></i>{{ 'PAGES.HOME.IMPORT-KEY' | translate }}</span></p-header>
     <div class="ui-g ui-fluid">
@@ -258,4 +271,83 @@
     <p-footer *ngIf="footer_visible" class="footer-error">
         {{footer_message}}
     </p-footer>
-    </p-dialog>
+</p-dialog>
+
+<p-dialog [(visible)]="showSignMessageDialog" [width]="725" [height]="500" [closable]="true" [modal]="true"
+          appendTo="body">
+    <p-header><span><i class="icon csc-dialog-icon icon-chip"></i>Sign Message</span></p-header>
+    <div class="ui-g ui-fluid">
+        <div class="ui-g-12">
+            <p>Please select the account you want to sign the message with.
+                Then enter the message to sign and the wallet password.
+                Using the generated Public Key and Signature your signed message can be verified.</p>
+        </div>
+    </div>
+    <div class="ui-g ui-fluid">
+        <div class="ui-g-2 bold-value">Account</div>
+        <div class="ui-g-10">
+            <div class="ui-inputgroup">
+                <span class="ui-inputgroup-addon" style="box-sizing: content-box;"><i class="icon icon-id"></i></span>
+                <p-dropdown [style]="{'width':'100%'}" [options]="accounts" [(ngModel)]="selectedAccount"
+                            placeholder="Select Account ..." #accountDropdown autofocus></p-dropdown>
+            </div>
+        </div>
+        <div class="ui-g-2 bold-value">Message</div>
+        <div class="ui-g-10">
+            <textarea [rows]="5" [cols]="60" [(ngModel)]="msgToSign" pInputTextarea></textarea>
+        </div>
+        <div class="ui-g-2 bold-value">Password</div>
+        <div class="ui-g-10">
+            <div class="ui-inputgroup">
+                <span class="ui-inputgroup-addon" style="box-sizing: content-box;"><i class="icon icon-key"></i></span>
+                <input type="password" pInputText placeholder="Wallet Password" style="width: 100%; padding-left: 5px;"
+                       [(ngModel)]="walletPassword" (keyup.enter)="signMessage()" #passwordInput>
+                <button pButton type="button" (click)="signMessage()" label="Sign" class="sign-button"></button>
+                <button pButton type="button" (click)="resetSigning()" label="Reset"></button>
+            </div>
+        </div>
+        <div class="ui-g-2 bold-value">Public Key</div>
+        <div class="ui-g-10" (contextmenu)="saveCopyValue('signPubKey')">
+            <textarea [rows]="2" [cols]="60" style="resize: none;" [ngModel]="signPubKey" pInputTextarea
+                      readonly></textarea>
+        </div>
+        <div class="ui-g-2 bold-value">Signature</div>
+        <div class="ui-g-10" (contextmenu)="saveCopyValue('signSignature')">
+            <textarea [rows]="3" [cols]="60" style="resize: none;" [ngModel]="signSignature" pInputTextarea
+                      readonly></textarea>
+        </div>
+    </div>
+</p-dialog>
+
+<p-dialog [(visible)]="showVerifyMessageDialog" [width]="720" [height]="500" [closable]="true" [modal]="true"
+          appendTo="body">
+    <p-header><span><i class="icon csc-dialog-icon icon-chip"></i>Verify Message</span></p-header>
+    <div class="ui-g ui-fluid">
+        <div class="ui-g-12">
+            <p>Please enter the message, public key and signature you want to verify.</p>
+        </div>
+    </div>
+    <div class="ui-g ui-fluid">
+        <div class="ui-g-2 bold-value">Message</div>
+        <div class="ui-g-10">
+            <textarea [rows]="5" [cols]="60" style="resize: none;" [(ngModel)]="msgToVerify" pInputTextarea></textarea>
+        </div>
+        <div class="ui-g-2 bold-value">Public Key</div>
+        <div class="ui-g-10">
+            <textarea [rows]="2" [cols]="60" style="resize: none;" [(ngModel)]="verifyPubKey" pInputTextarea></textarea>
+        </div>
+        <div class="ui-g-2 bold-value">Signature</div>
+        <div class="ui-g-10">
+            <textarea [rows]="3" [cols]="60" style="resize: none;" [(ngModel)]="verifySignature"
+                      pInputTextarea></textarea>
+        </div>
+        <div class="ui-g-2 bold-value">Result</div>
+        <div class="ui-g-10">
+            <i *ngIf="verificationResult && verificationFinished" class="fa fa-check verify-true"></i>
+            <i *ngIf="!verificationResult && verificationFinished" class="fa fa-times verify-false"></i>
+        </div>
+        <div class="ui-g-12" style="text-align: right">
+            <button pButton type="button" (click)="verifyMessage()" label="Verify" style="width: 115px;"></button>
+        </div>
+    </div>
+</p-dialog>

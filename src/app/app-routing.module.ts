@@ -12,6 +12,7 @@ import { TokenlistComponent } from './components/tokenlist/tokenlist.component';
 import { HistoryComponent } from './components/history/history.component';
 import { ExchangesComponent } from './components//exchanges/exchanges.component';
 import { SupportComponent } from './components/support/support.component';
+import { PaperwalletComponent } from './components/paperwallet/paperwallet.component';
 import { AuthGuard } from './auth-guard';
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
@@ -26,6 +27,7 @@ const routes: Routes = [
             { path: 'exchanges', component: ExchangesComponent },
             { path: 'settings', component: HomeComponent },
             { path: 'support', component: SupportComponent },
+            { path: 'paperwallet', component: PaperwalletComponent },
             { path: 'exit', component: HomeComponent },
             { path: '', redirectTo: 'tokenlist', pathMatch: 'full'}
      ]
