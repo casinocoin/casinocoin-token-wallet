@@ -504,38 +504,41 @@ export class CasinocoinService implements OnDestroy {
                     this.openWalletSubject.subscribe( result => {
                         if (result === AppConstants.KEY_LOADED) {
                             this.tokenlist = [];
-                            // loop over accounts and add token info
-                            const accountList: Array<LokiAccount> = this.walletService.getAllAccounts();
+                            // loop over all CSC accounts and then add any tokens for it
+                            const accountList: Array<LokiAccount> = this.walletService.getSortedCSCAccounts('balance', true);
+                            this.logger.debug('### CasinocoinService - CSC Accounts: ' + JSON.stringify(accountList));
                             accountList.forEach( account => {
                                 this.logger.debug('### CasinocoinService Account: ' + JSON.stringify(account));
-                                // check if CSC account
-                                if (account.currency === 'CSC') {
-                                    const cscToken: TokenType = {
-                                        PK: 'CSC' + account.accountID,
-                                        AccountID: account.accountID,
-                                        Activated: account.activated,
-                                        ApiEndpoint: 'https://api.casincoin.org',
-                                        Balance: account.balance,
-                                        TokenBalance: '0',
-                                        OwnerCount: account.ownerCount,
-                                        AccountLabel: account.label,
-                                        CoinValue: '0.0002',
-                                        ContactEmail: 'info@casinocoin.org',
-                                        Flags: 0,
-                                        FullName: 'CasinoCoin',
-                                        IconURL: 'https://github.com/casinocoin/CasinoCoin-Assets/raw/master/v4/casinocoin-icon-256x256.png',
-                                        Issuer: '',
-                                        Token: 'CSC',
-                                        TotalSupply: '40000000000',
-                                        Website: 'https://casinocoin.org'
-                                    };
-                                    this.tokenlist.push(cscToken);
-                                } else {
+                                // Add CSC account
+                                const cscToken: TokenType = {
+                                    PK: 'CSC' + account.accountID,
+                                    AccountID: account.accountID,
+                                    Activated: account.activated,
+                                    ApiEndpoint: 'https://api.casincoin.org',
+                                    Balance: account.balance,
+                                    TokenBalance: '0',
+                                    OwnerCount: account.ownerCount,
+                                    AccountLabel: account.label,
+                                    CoinValue: '0.0002',
+                                    ContactEmail: 'info@casinocoin.org',
+                                    Flags: 0,
+                                    FullName: 'CasinoCoin',
+                                    IconURL: 'https://github.com/casinocoin/CasinoCoin-Assets/raw/master/v4/casinocoin-icon-256x256.png',
+                                    Issuer: '',
+                                    Token: 'CSC',
+                                    TotalSupply: '40000000000',
+                                    Website: 'https://casinocoin.org'
+                                };
+                                this.tokenlist.push(cscToken);
+                                this.updateAccountInfo('CSC', account.accountID);
+                                // get all tokens for this account
+                                const tokenAccountList: Array<LokiAccount> = this.walletService.getAllTokenAccountsByAccountID(account.accountID);
+                                tokenAccountList.forEach( tokenAccount => {
                                     // search token in config
                                     configResult.forEach( token => {
-                                        if (token.ConfigData['Token'] === account.currency) {
+                                        if (token.ConfigData['Token'] === tokenAccount.currency) {
                                             const listItem: any = {};
-                                            listItem.PK = token.ConfigData['Token'] + account.accountID;
+                                            listItem.PK = token.ConfigData['Token'] + tokenAccount.accountID;
                                             listItem.ApiEndpoint = token.ConfigData['ApiEndpoint'];
                                             listItem.ContactEmail = token.ConfigData['ContactEmail'];
                                             listItem.Flags = token.ConfigData['Flags'];
@@ -545,18 +548,18 @@ export class CasinocoinService implements OnDestroy {
                                             listItem.Token = token.ConfigData['Token'];
                                             listItem.TotalSupply = token.ConfigData['TotalSupply'];
                                             listItem.Website = token.ConfigData['Website'];
-                                            listItem.AccountID = account.accountID;
-                                            listItem.Activated = account.activated;
-                                            listItem.Balance = account.balance;
-                                            listItem.TokenBalance = account.tokenBalance;
-                                            listItem.OwnerCount = account.ownerCount;
-                                            listItem.AccountLabel = account.label;
+                                            listItem.AccountID = tokenAccount.accountID;
+                                            listItem.Activated = tokenAccount.activated;
+                                            listItem.Balance = tokenAccount.balance;
+                                            listItem.TokenBalance = tokenAccount.tokenBalance;
+                                            listItem.OwnerCount = tokenAccount.ownerCount;
+                                            listItem.AccountLabel = tokenAccount.label;
                                             listItem.CoinValue = '0.001';
                                             this.tokenlist.push(listItem);
+                                            this.updateAccountInfo(tokenAccount.currency, tokenAccount.accountID);
                                         }
                                     });
-                                }
-                                this.updateAccountInfo(account.currency, account.accountID);
+                                });
                             });
                             // set refresh finished
                             tokenListSubject.next(true);

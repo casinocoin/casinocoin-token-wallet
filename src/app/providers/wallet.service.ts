@@ -257,6 +257,10 @@ export class WalletService {
     }
   }
 
+  getSortedCSCAccounts(sortAttribute: string, descending: boolean): Array<LokiTypes.LokiAccount> {
+    return this.accounts.chain().find({'currency': {'$eq': 'CSC'}}).simplesort(sortAttribute, descending).data();
+  }
+
   getAllAccounts(): Array<LokiTypes.LokiAccount> {
     return this.accounts.find();
   }
@@ -264,7 +268,8 @@ export class WalletService {
   getAllTokenAccountsByAccountID(accountID: string): Array<LokiTypes.LokiAccount> {
     if (this.isWalletOpen) {
       if (this.accounts.count() > 0) {
-        return this.accounts.find({'accountID': {'$eq': accountID}});
+        // return token accounts for an account id sorted by token abbreviation
+        return this.accounts.chain().find({'$and': [{'accountID': {'$eq': accountID}}, {'currency': {'$ne': 'CSC'}}]}).simplesort('currency', false).data();
       } else {
         return null;
       }

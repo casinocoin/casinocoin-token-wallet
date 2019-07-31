@@ -130,7 +130,7 @@ function createWindow() {
     }));
   }
 
-  if (serve) {
+  if (serve || debug) {
     win.webContents.openDevTools();
   }
 

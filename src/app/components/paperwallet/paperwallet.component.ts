@@ -105,75 +105,30 @@ export class PaperwalletComponent implements OnInit {
     print(): void {
         const BrowserWindow = this.electronService.remote.BrowserWindow;
         const printContents = this.winRef.nativeWindow.document.getElementById('printsection').innerHTML;
+        this.logger.debug('### Paperwallet: ' + printContents);
         let win = new BrowserWindow({ width: 800, height: 700, icon: __dirname + '/favicon.ico' });
         win.on('closed', () => {
             win = null;
         });
-        this.logger.debug('### Paperwallet - loadView');
-        const loadView = ({ title, scriptUrl }) => {
-            return (`
-          <html>
-            <head>
-              <title>Paper Wallet</title>
-              <style>
-                .csc-logo{
-                    width: 100px;
-                    float: left;
-                    position: relative;
-                }
-                .key_box{
-                    width: 48%;
-                    height: 310px;
-                    float: left;
-                    text-align: center;
-                    border: 1px solid black;
-                    margin: 2% 0 0 0;
-                }
-                .key_box1{
-                    width: 48%;
-                    height: 310px;
-                    float: left;
-                    text-align: center;
-                    border: 1px solid black;
-                    margin: 2% 0 0 0;
-                }
-              </style>
-            </head>
-            <body onload="window.print()" onfocus="window.close()">
-            <p><img src="https://casinocoin.org/wp-content/uploads/2018/02/Chip_Red-3.svg" alt="CasinoCoin" class="csc-logo" /></p>
-            <p></p>
-            <h1 align="center">CasinoCoin Paper Wallet</h1>
-            <p></p>
-            <br><br>
-            <h2>About</h2>
-            <p>A CasinoCoin Paper Wallet is an offline mechanism for storing CasinoCoin. The process involves printing the public and private keys onto paper.</p>
-            <p><strong>Disclaimer:</strong> Use of the CasinoCoin Paper Wallet Generator is offered solely to persons who are at least 18 years old. Your use of the Paper Wallet Generator is solely at your own risk, and you hereby agree to release CasinoCoin and its affiliates from any and all claims arising out of or in connection with your use of the Paper Wallet Generator or your Paper Wallet, including risk of loss of the Paper Wallet key(s) and any other damages whatsoever.</p>
-            ${printContents}
-            <div>
-                <h2>Instructions</h2>
-                <strong>Step 1. Generate New Address</strong><br>
-                <p>Click on the "Generate New Address" button.<br>
-                </p><br>
-                <strong>Step 2. Print the Paper Wallet</strong><br>
-                <p>Print the page using the high quality setting. Never save the page as a PDF file to print it later since a file is more likely to be hacked than a piece of paper.<br>
-                </p><br>
-                <strong>Step 3. Share your public address</strong><br>
-                <p>Use your public address to receive CasinoCoin from other users. You can share your public address as much as you want.<br>
-                </p><br>
-                <strong>Step 4. Keep your private key secret</strong><br>
-                <p>The private key is literally the keys to your coins. If someone were to obtain it, they could withdraw the funds currently in the wallet, and any funds that might be deposited in that wallet.<br>
-                </p><br>
-                <p>Please test sending a small amount before receiving any large payments. You can check the balance of your wallet using your public address here: https://explorer.casinocoin.org/<br></p>
-            </div>
-            </body>
-          </html>`);
-        };
-        const file = 'data:text/html;charset=UTF-8,' + encodeURIComponent(loadView({
-            title: 'PaperWallet',
-            scriptUrl: './paperWallet.view.js'
-        }));
+        this.logger.debug('### Paperwallet - load html');
+        // create BrowserWindow with dynamic HTML content
+        const html = [
+            '<head><title>Paper Wallet</title><style>.csc-logo{width: 100px; float: left; position: relative;} .key_box{width: 48%; height: 310px; float: left; text-align: center; border: 1px solid black; margin: 2% 0 0 0;} .key_box1{width: 48%; height: 310px; float: left; text-align: center; border: 1px solid black; margin: 2% 0 0 0;} qrcode > canvas {display: block; margin: auto;} qrcode > img {margin: auto;}</style></head>',
+            '<body style="font-family: sans-serif">',
+            '<div><h1 align="center">CasinoCoin Paper Wallet</h1></div>',
+            '<div>',
+            printContents,
+            '</div>',
+            '</body>'].join('');
         win.setMenu(null);
-        win.loadURL(file);
+        win.loadURL('data:text/html;charset=utf-8,' + encodeURI(html));
+        win.webContents.on('did-finish-load', () => {
+            this.logger.debug('### Paperwallet - Print View Loaded');
+            win.webContents.print({}, () => {
+                this.logger.debug('### Paperwallet - Print Finished');
+                win.close();
+            });
+        });
     }
 
     instructions() {
