@@ -350,8 +350,8 @@ export class CasinocoinService implements OnDestroy {
     refreshAccounts(): Observable<any> {
         const walletPassword = this.sessionStorageService.get(AppConstants.KEY_WALLET_PASSWORD);
         const accountUpdatingSubject = new BehaviorSubject<boolean>(false);
-        let firstAccountRefresh = true;
-        let newAccountFound = false;
+        // let firstAccountRefresh = true;
+        // let newAccountFound = false;
         this.connectSubject.subscribe( connectResult => {
             if (connectResult === AppConstants.KEY_CONNECTED) {
                 this.logger.debug('### CasinocoinService -> refreshAccounts()');
@@ -369,8 +369,11 @@ export class CasinocoinService implements OnDestroy {
                             cscCrypto.setPasswordKey(decryptedMnemonicHash);
                             // get the max account sequence
                             let newAccountSequence = this.walletService.getAccountsMaxSequence();
-                            while (newAccountFound || firstAccountRefresh) {
-                                firstAccountRefresh = false;
+                            let accountsWithOutBalances: Array<LokiAccount> = [];
+                            let count = 0;
+
+                            while (count !== 10) {
+                                // firstAccountRefresh = false;
                                 // increase the account sequence
                                 newAccountSequence = newAccountSequence + 1;
                                 this.logger.debug('### CasinocoinService -> newAccountSequence: ' + newAccountSequence);
@@ -385,6 +388,10 @@ export class CasinocoinService implements OnDestroy {
                                     // get account balances to see if we need to add token accounts
                                     const accountBalances = await this.cscAPI.getBalances(newKeyPair.accountID);
                                     this.logger.debug('### CasinocoinService -> balances: ' + JSON.stringify(accountBalances));
+
+                                    if (accountsWithOutBalances.length > 0) {
+                                        accountsWithOutBalances.forEach(Account => this.walletService.addAccount(Account));
+                                    }
                                     accountBalances.forEach(balance => {
                                         // create new account
                                         const walletAccount: LokiAccount = {
@@ -470,10 +477,28 @@ export class CasinocoinService implements OnDestroy {
                                             this.walletService.addTransaction(dbTX);
                                         }
                                     });
-                                    newAccountFound = true;
+                                    // newAccountFound = true;
+                                    accountsWithOutBalances = [];
+                                    count = 0;
                                 } catch ( error ) {
+                                    const walletAccount: LokiAccount = {
+                                        pk: ('CSC' + newKeyPair.accountID),
+                                        accountID: newKeyPair.accountID,
+                                        balance: '0',
+                                        accountSequence: 0,
+                                        currency: 'CSC',
+                                        lastSequence: 0,
+                                        label: 'Default CSC Account',
+                                        tokenBalance: '0',
+                                        activated: false,
+                                        ownerCount: 0,
+                                        lastTxID: '',
+                                        lastTxLedger: 0
+                                    };
+                                    accountsWithOutBalances.push(walletAccount);
+                                    count ++;
                                     this.logger.debug('### CasinocoinService -> Account Error: ' + JSON.stringify(error));
-                                    newAccountFound = false;
+                                    // newAccountFound = false;
                                 }
                             }
                             // encrypt all keys
