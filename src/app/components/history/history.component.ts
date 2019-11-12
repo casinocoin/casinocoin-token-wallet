@@ -1,3 +1,4 @@
+import { CSCDatePipe } from './../../app-pipes.module';
 import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { LogService } from '../../providers/log.service';
@@ -37,9 +38,17 @@ export class HistoryComponent implements OnInit, AfterViewInit {
               private walletService: WalletService,
               private electronService: ElectronService,
               private router: Router,
+              private cscDatePipe: CSCDatePipe,
               private route: ActivatedRoute) { }
 
+  selectedAccount: string;
+  selectedToken: string;
+  selectedDate: Date;
   transactions: Array<LokiTransaction> = [];
+  tempTransactions: Array<LokiTransaction> = [];
+  dateTransactions = [];
+  accountsTransactions = [];
+  tokenTransactions = [];
   tx_context_menu: ElectronMenu;
   currentTX: LokiTransaction;
 
@@ -49,6 +58,12 @@ export class HistoryComponent implements OnInit, AfterViewInit {
       if (result === AppConstants.KEY_LOADED) {
         // get all transactions
         this.transactions = this.walletService.getAllTransactions();
+        this.tempTransactions = this.transactions;
+        this.accountsTransactions = this.transactions;
+        this.tokenTransactions = this.transactions;
+        this.dateTransactions = this.transactions;
+        console.log(this.transactions);
+        this.processTempTx();
         this.logger.debug('### History ngOnInit() - transactions: ' + JSON.stringify(this.transactions));
       }
     });
@@ -86,6 +101,39 @@ export class HistoryComponent implements OnInit, AfterViewInit {
         this.logger.debug('### Context menu not implemented: ' + arg);
       }
     });
+  }
+
+  processTempTx() {
+    this.accountsTransactions = Object.values(this.tempTransactions.reduce((prev, next) => Object.assign(prev, {[next.accountID]: next}), {}));
+    this.tokenTransactions = Object.values(this.tempTransactions.reduce((prev, next) => Object.assign(prev, {[next.currency]: next}), {}));
+    const date = this.dateTransactions.map((item: any) => {
+      console.log(item.timestamp);
+      return item.timestamp = this.cscDatePipe.transform(item.timestamp, 'dd MMMM yyyy' );
+    });
+    console.log(date);
+  }
+
+  transform(value: number, format: string, date): string {
+    const unixTimestamp = CSCUtil.casinocoinToUnixTimestamp(value);
+    return date.transform(unixTimestamp, format);
+  }
+
+  filterByDate(date) {
+    if (!date) { this.tempTransactions = this.transactions; } else {
+      this.tempTransactions = this.transactions.filter( transaction => transaction.accountID === date);
+    }
+  }
+
+  filterByAccount(account) {
+    if (!account) { this.tempTransactions = this.transactions; } else {
+      this.tempTransactions = this.transactions.filter( transaction => transaction.accountID === account);
+    }
+  }
+
+  filterByToken(token) {
+    if (!token) { this.tempTransactions = this.transactions; } else {
+      this.tempTransactions = this.transactions.filter( transaction => transaction.currency === token);
+    }
   }
 
   ngAfterViewInit() {

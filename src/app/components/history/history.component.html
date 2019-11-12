@@ -1,8 +1,19 @@
 <div class="ui-g form-container">
     <p class="form-text-header">{{ 'PAGES.HISTORY.TITLE' | translate }}</p>
+    <hr>
+    <div class="ui-g-12 ui-md-4">
+        <p-dropdown [options]="accountsTransactions" [(ngModel)]="selectedAccount" placeholder="filter by Account" optionLabel="accountID" name="accountID" [showClear]="true" (ngModelChange)="filterByAccount(selectedAccount ? selectedAccount.accountID : null)"></p-dropdown>
+    </div>
+    <div class="ui-g-12 ui-md-4">
+        <p-dropdown [options]="tokenTransactions" [(ngModel)]="selectedToken" placeholder="filter by Token" optionLabel="currency" name="currency" [showClear]="true" (ngModelChange)="filterByToken(selectedToken ? selectedToken.currency : null)"></p-dropdown>
+    </div>
+    <div class="ui-g-12 ui-md-4">
+        <p-calendar [(ngModel)]="selectedDate" [showIcon]="true" (ngModelChange)="filterByDate()"></p-calendar>
+    </div>
+    <hr>
     <div class="ui-g-12">
         <p-contextMenu #cm class="hide-context-menu"></p-contextMenu>
-        <p-table [value]="transactions" scrollable="true" scrollHeight="70vh" [contextMenu]="cm" selectionMode="single"
+        <p-table [value]="tempTransactions" scrollable="true" scrollHeight="70vh" [contextMenu]="cm" selectionMode="single"
             responsive="true" styleClass="borderless" (onContextMenuSelect)="showTxContextMenu($event)" [(selection)]="currentTX" contextMenuSelectionMode="joint" #dtTX>
             <ng-template pTemplate="body" let-rowData>
                 <tr [pContextMenuRow]="rowData">
