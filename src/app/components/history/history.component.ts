@@ -1,4 +1,4 @@
-import { CSCDatePipe } from './../../app-pipes.module';
+import { CSCAmountPipe } from './../../app-pipes.module';
 import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { LogService } from '../../providers/log.service';
@@ -37,18 +37,19 @@ export class HistoryComponent implements OnInit, AfterViewInit {
               private casinocoinService: CasinocoinService,
               private walletService: WalletService,
               private electronService: ElectronService,
+              private cscAmountPipe: CSCAmountPipe,
               private router: Router,
-              private cscDatePipe: CSCDatePipe,
               private route: ActivatedRoute) { }
 
   selectedAccount: string;
   selectedToken: string;
   selectedDate: Date;
   transactions: Array<LokiTransaction> = [];
-  tempTransactions: Array<LokiTransaction> = [];
+  tempTransactions = [];
   dateTransactions = [];
   accountsTransactions = [];
   tokenTransactions = [];
+  public cscAccounts;
   tx_context_menu: ElectronMenu;
   currentTX: LokiTransaction;
 
@@ -56,15 +57,15 @@ export class HistoryComponent implements OnInit, AfterViewInit {
     this.logger.debug('### History ngOnInit() ###');
     this.walletService.openWalletSubject.subscribe( result => {
       if (result === AppConstants.KEY_LOADED) {
-        // get all transactions
-        this.transactions = this.walletService.getAllTransactions();
-        this.tempTransactions = this.transactions;
-        this.accountsTransactions = this.transactions;
-        this.tokenTransactions = this.transactions;
-        this.dateTransactions = this.transactions;
-        console.log(this.transactions);
-        this.processTempTx();
-        this.logger.debug('### History ngOnInit() - transactions: ' + JSON.stringify(this.transactions));
+        this.init();
+        this.cscAccounts = [];
+        this.walletService.getAllAccounts().forEach( element => {
+          if (element.currency === 'CSC' && new Big(element.balance) > 0  && element.accountSequence >= 0) {
+            const accountLabel = element.accountID.substring(0, 20) + '...' + ' [Balance: ' + this.cscAmountPipe.transform(element.balance, false, true) + ']';
+            this.cscAccounts.push({label: accountLabel, value: element.accountID});
+          }
+        });
+        console.log(this.cscAccounts);
       }
     });
     // define Transaction Context menu
@@ -101,38 +102,59 @@ export class HistoryComponent implements OnInit, AfterViewInit {
         this.logger.debug('### Context menu not implemented: ' + arg);
       }
     });
+
+    this.casinocoinService.validatedTxSubject.subscribe( txHash => {
+      if (txHash) { this.init(); }
+    });
+
+
+  }
+
+  init() {
+    // get all transactions
+    this.transactions = this.walletService.getAllTransactions();
+    this.tempTransactions = this.transactions;
+    this.accountsTransactions = this.transactions;
+    this.tokenTransactions = this.transactions;
+    this.processTempTx();
+    console.log(this.transactions);
+    this.logger.debug('### History ngOnInit() - transactions: ' + JSON.stringify(this.transactions));
   }
 
   processTempTx() {
-    this.accountsTransactions = Object.values(this.tempTransactions.reduce((prev, next) => Object.assign(prev, {[next.accountID]: next}), {}));
+    // this.accountsTransactions = Object.values(this.tempTransactions.reduce((prev, next) => Object.assign(prev, {[next.accountID]: next}), {}));
     this.tokenTransactions = Object.values(this.tempTransactions.reduce((prev, next) => Object.assign(prev, {[next.currency]: next}), {}));
-    const date = this.dateTransactions.map((item: any) => {
-      console.log(item.timestamp);
-      return item.timestamp = this.cscDatePipe.transform(item.timestamp, 'dd MMMM yyyy' );
+  }
+
+  filterByDate() {
+    const dateFilter = this.selectedDate.toISOString().split('T')[0];
+    this.tempTransactions = this.transactions.filter( transaction => {
+      const dateTimestamp = CSCUtil.casinocoinTimeToISO8601(transaction.timestamp);
+      const dateTimeString = dateTimestamp.toString().toString().split('T')[0];
+      if (dateTimeString  === dateFilter) {
+        return transaction; }
     });
-    console.log(date);
-  }
-
-  transform(value: number, format: string, date): string {
-    const unixTimestamp = CSCUtil.casinocoinToUnixTimestamp(value);
-    return date.transform(unixTimestamp, format);
-  }
-
-  filterByDate(date) {
-    if (!date) { this.tempTransactions = this.transactions; } else {
-      this.tempTransactions = this.transactions.filter( transaction => transaction.accountID === date);
-    }
+    this.selectedAccount = null;
+    this.selectedToken = null;
   }
 
   filterByAccount(account) {
-    if (!account) { this.tempTransactions = this.transactions; } else {
+    if (!account) {
+      this.tempTransactions = this.transactions;
+    } else {
       this.tempTransactions = this.transactions.filter( transaction => transaction.accountID === account);
+      this.selectedDate = null;
+      this.selectedToken = null;
     }
   }
 
   filterByToken(token) {
-    if (!token) { this.tempTransactions = this.transactions; } else {
+    if (!token) {
+      this.tempTransactions = this.transactions;
+    } else {
       this.tempTransactions = this.transactions.filter( transaction => transaction.currency === token);
+      this.selectedAccount = null;
+      this.selectedDate = null;
     }
   }
 
