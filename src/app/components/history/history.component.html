@@ -52,7 +52,9 @@
                 </tr>
             </ng-template>
             <ng-template pTemplate="emptymessage">
-                <p>There are no transactions.</p>
+                <div *ngIf="!tokenlist" class="ui-g-12" style=" display: flex; justify-content: center; align-items: center;">
+                    <h2>There are no transactions.</h2> <i class="pi pi-exclamation-triangle" style="font-size: 3em; color: brown"></i>
+                </div>
             </ng-template>
         </p-table>
     </div>
