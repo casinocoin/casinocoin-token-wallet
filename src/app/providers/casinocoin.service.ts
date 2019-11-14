@@ -1,6 +1,7 @@
+import { flatMap } from 'rxjs/operators';
 import { Injectable, OnInit, OnDestroy } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
-import { Observable, BehaviorSubject, Subscription, Subject, from } from 'rxjs';
+import { Observable, BehaviorSubject, Subscription, Subject, from, Observer } from 'rxjs';
 import { WalletService } from './wallet.service';
 import { LocalStorageService, SessionStorageService } from 'ngx-store';
 import { LogService } from './log.service';
@@ -15,6 +16,7 @@ import { CSCUtil } from '../domains/csc-util';
 import { ServerDefinition } from '../domains/csc-types';
 import Big from 'big.js';
 import { GetServerInfoResponse } from '@casinocoin/libjs/common/serverinfo';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable()
 export class CasinocoinService implements OnDestroy {
@@ -36,6 +38,7 @@ export class CasinocoinService implements OnDestroy {
     public availableTokenList: TokenType[] = [];
     public availableTokenListSubject = new BehaviorSubject<boolean>(false);
     private openWalletSubject = new BehaviorSubject<string>(AppConstants.KEY_INIT);
+    public cscBase64;
 
     constructor(private logger: LogService,
                 private walletService: WalletService,
@@ -43,11 +46,15 @@ export class CasinocoinService implements OnDestroy {
                 private decimalPipe: DecimalPipe,
                 private localStorageService: LocalStorageService,
                 private sessionStorageService: SessionStorageService,
-                private electron: ElectronService ) {
+                private electron: ElectronService,
+                private httpSvc: HttpClient ) {
         logger.debug('### INIT  CasinocoinService ###');
         // subscribe to wallet updates
         this.walletService.openWalletSubject.subscribe( result => {
             this.openWalletSubject.next(result);
+        });
+        this.downloadDataAsBase64('https://github.com/casinocoin/CasinoCoin-Assets/raw/master/v4/casinocoin-icon-256x256.png').subscribe((base64Data: string) => {
+            this.cscBase64 = base64Data;
         });
     }
 
@@ -326,8 +333,11 @@ export class CasinocoinService implements OnDestroy {
                                 listItem.TotalSupply = token.ConfigData['TotalSupply'];
                                 listItem.Website = token.ConfigData['Website'];
                                 listItem.CoinValue = '0.001';
-                                this.availableTokenList.push(listItem);
-                                this.availableTokenListSubject.next(true);
+                                this.downloadDataAsBase64(token.ConfigData['IconURL']).subscribe((base64Data: string) => {
+                                    listItem.IconImage = base64Data;
+                                    this.availableTokenList.push(listItem);
+                                    this.availableTokenListSubject.next(true);
+                                });
                             }
                         });
                     });
@@ -337,8 +347,36 @@ export class CasinocoinService implements OnDestroy {
         return this.availableTokenListSubject.asObservable();
     }
 
+    getImageCSC() {
+        return this.cscBase64;
+    }
+
     getTokenInfo(token: string): TokenType {
         return this.availableTokenList.find( item => item.Token === token);
+    }
+
+    public downloadDataAsBase64(UrlData: string): Observable<string> {
+        return this.httpSvc.get(UrlData, { responseType: 'blob' }).pipe(
+            flatMap(blob => {
+                if (!blob) {
+                    return this.blobToBase64(blob);
+                    console.log('Error to blobToBase64');
+                 }
+                return this.blobToBase64(blob);
+            })
+        );
+    }
+
+    public blobToBase64(blob: Blob): Observable<any> {
+        const fileReader = new FileReader();
+        const observable = new Observable(observer => {
+            fileReader.onloadend = () => {
+                observer.next(fileReader.result);
+                observer.complete();
+            };
+        });
+        fileReader.readAsDataURL(blob);
+        return observable;
     }
 
     removeUndefined(obj: Object): Object {
@@ -536,6 +574,7 @@ export class CasinocoinService implements OnDestroy {
                                 this.logger.debug('### CasinocoinService Account: ' + JSON.stringify(account));
                                 // Add CSC account
                                 const cscToken: TokenType = {
+                                    IconImage : this.cscBase64,
                                     PK: 'CSC' + account.accountID,
                                     AccountID: account.accountID,
                                     Activated: account.activated,
@@ -568,6 +607,7 @@ export class CasinocoinService implements OnDestroy {
                                             listItem.ContactEmail = token.ConfigData['ContactEmail'];
                                             listItem.Flags = token.ConfigData['Flags'];
                                             listItem.FullName = token.ConfigData['FullName'];
+                                            listItem.IconImage = token.ConfigData['IconURL'];
                                             listItem.IconURL = token.ConfigData['IconURL'];
                                             listItem.Issuer = token.ConfigData['Issuer'];
                                             listItem.Token = token.ConfigData['Token'];
@@ -585,6 +625,9 @@ export class CasinocoinService implements OnDestroy {
                                         }
                                     });
                                 });
+                            });
+                            this.tokenlist.forEach(element => {
+                                this.downloadDataAsBase64(element.IconImage).subscribe((base64Data: string) => element.IconImage = base64Data);
                             });
                             // set refresh finished
                             tokenListSubject.next(true);

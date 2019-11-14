@@ -289,7 +289,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
     // load wallet settings
     this.walletSettings = this.localStorageService.get(AppConstants.KEY_WALLET_SETTINGS);
-    if (this.walletSettings == null){
+    if (this.walletSettings == null) {
       // settings do not exist yet so create
       this.walletSettings = {fiatCurrency: 'USD', showNotifications: false};
       this.localStorageService.set(AppConstants.KEY_WALLET_SETTINGS, this.walletSettings);
@@ -305,6 +305,10 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.logger.debug('### HOME OnDestroy');
     this.electron.ipcRenderer.removeAllListeners('context-menu-event');
     this.electron.ipcRenderer.removeAllListeners('action');
+  }
+
+  onRefresh() {
+    console.log('refresh page');
   }
 
   listenForMainEvents() {

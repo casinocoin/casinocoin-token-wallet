@@ -15,7 +15,7 @@
             contextMenuSelectionMode="joint" (onContextMenuSelect)="showTokenContextMenu($event)" #dtTokens>
             <ng-template pTemplate="body" let-rowData let-expanded="expanded">
                 <tr (click)="onRowSelect(rowData)" [pRowToggler]="rowData" [pContextMenuRow]="rowData">
-                    <td style="width: 60px;"><img [src]="rowData.IconURL" width="50" height="50" /></td>
+                    <td style="width: 60px;"><img [src]="rowData.IconImage" width="50" height="50" /></td>
                     <td style="width: 125px;">{{rowData.FullName}}</td>
                     <td style="width: 150px;">
                         <p class="item-label">{{'PAGES.TOKENLIST.BALANCE'|translate}}</p>

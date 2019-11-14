@@ -41,17 +41,18 @@ export class HistoryComponent implements OnInit, AfterViewInit {
               private router: Router,
               private route: ActivatedRoute) { }
 
-  selectedAccount: string;
-  selectedToken: string;
-  selectedDate: Date;
-  transactions: Array<LokiTransaction> = [];
-  tempTransactions = [];
-  dateTransactions = [];
-  accountsTransactions = [];
-  tokenTransactions = [];
+  public selectedAccount: string;
+  public selectedToken: string;
+  public selectedDate: Date;
+  public transactions: Array<LokiTransaction> = [];
+  public tempTransactions = [];
+  public dateTransactions = [];
+  public accountsTransactions = [];
+  public tokenTransactions = [];
+  public cscsBase64;
   public cscAccounts;
-  tx_context_menu: ElectronMenu;
-  currentTX: LokiTransaction;
+  public tx_context_menu: ElectronMenu;
+  public currentTX: LokiTransaction;
 
   ngOnInit() {
     this.logger.debug('### History ngOnInit() ###');
@@ -65,7 +66,6 @@ export class HistoryComponent implements OnInit, AfterViewInit {
             this.cscAccounts.push({label: accountLabel, value: element.accountID});
           }
         });
-        console.log(this.cscAccounts);
       }
     });
     // define Transaction Context menu
@@ -106,8 +106,6 @@ export class HistoryComponent implements OnInit, AfterViewInit {
     this.casinocoinService.validatedTxSubject.subscribe( txHash => {
       if (txHash) { this.init(); }
     });
-
-
   }
 
   init() {
@@ -117,7 +115,6 @@ export class HistoryComponent implements OnInit, AfterViewInit {
     this.accountsTransactions = this.transactions;
     this.tokenTransactions = this.transactions;
     this.processTempTx();
-    console.log(this.transactions);
     this.logger.debug('### History ngOnInit() - transactions: ' + JSON.stringify(this.transactions));
   }
 
@@ -223,14 +220,13 @@ export class HistoryComponent implements OnInit, AfterViewInit {
 
   getTokenURL(rowData) {
     if (rowData.currency === 'CSC') {
-      return 'https://github.com/casinocoin/CasinoCoin-Assets/raw/master/v4/casinocoin-icon-256x256.png';
+      return this.casinocoinService.getImageCSC();
+    }
+    const token = this.casinocoinService.getTokenInfo(rowData.currency);
+    if (token !== undefined) {
+      return token.IconImage;
     } else {
-      const token = this.casinocoinService.getTokenInfo(rowData.currency);
-      if (token !== undefined) {
-        return token.IconURL;
-      } else {
-        return '';
-      }
+      return '';
     }
   }
 
