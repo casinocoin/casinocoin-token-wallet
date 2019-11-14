@@ -203,6 +203,10 @@ export class HomeComponent implements OnInit, OnDestroy {
           browserWindow.webContents.send('context-menu-event', 'create-new-wallet');
         }
       },
+      { label: 'Refresh Wallet', click(menuItem, browserWindow, event) {
+          browserWindow.webContents.send('context-menu-event', 'refresh-wallet');
+        }
+      },
       { label: 'Change Wallet', click(menuItem, browserWindow, event) {
           browserWindow.webContents.send('context-menu-event', 'close-wallet');
         }
@@ -263,6 +267,8 @@ export class HomeComponent implements OnInit, OnDestroy {
           this.onPrivateKeyImport();
         } else if (arg === 'create-new-wallet') {
           this.onCreatNewWallet();
+        } else if (arg === 'refresh-wallet') {
+          this.onRefresh();
         } else if (arg === 'close-wallet') {
           this.onCloseWallet();
         } else if (arg === 'paper-wallet') {
@@ -308,7 +314,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   onRefresh() {
-    console.log('refresh page');
+    alert('Refresh Wallet Successfully');
   }
 
   listenForMainEvents() {

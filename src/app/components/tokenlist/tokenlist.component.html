@@ -8,6 +8,9 @@
         <button pButton type="button" style="margin: 5px;" (click)="doShowAddToken()" icon="fa fa-plus" iconPos="left" 
                 label="{{'PAGES.TOKENLIST.SHOW-ADD-TOKEN'|translate}}" [disabled]="!canActivateAccount()"></button>
     </div>
+    <div *ngIf="!tokenlist" class="ui-g-12" style=" display: flex; justify-content: center; align-items: center;">
+        <i class="pi pi-spin pi-spinner" style="font-size: 10em; color: brown" ></i>
+    </div>
     <div class="ui-g-12">
         <p-contextMenu #cm class="hide-context-menu"></p-contextMenu>
         <p-table [value]="tokenlist" scrollable="true" scrollHeight="70vh" [contextMenu]="cm" [columns]="columnCount" selectionMode="single"
