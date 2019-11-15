@@ -104,7 +104,20 @@ export class HistoryComponent implements OnInit, AfterViewInit {
     });
 
     this.casinocoinService.validatedTxSubject.subscribe( txHash => {
-      if (txHash) { this.init(); }
+      if (txHash) {
+        // this.transactions = this.walletService.getAllTransactions().map(element => {
+        //   if (element.currency === 'CSC') {
+        //     const ImageCSC = this.casinocoinService.getImageCSC();
+        //     return {...element, ImageBase64: ImageCSC };
+        //   } else {
+        //     const token = this.casinocoinService.getTokenInfo(element.currency);
+        //     console.log('token', token);
+        //     return {...element, ImageBase64: token.IconImage };
+        //   }
+        //   console.log();
+        // });
+        this.init();
+      }
     });
   }
 
