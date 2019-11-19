@@ -351,3 +351,17 @@
         </div>
     </div>
 </p-dialog>
+
+<p-dialog header="Refresh Wallet" [(visible)]="display" [modal]="true" [responsive]="true" [style]="{width: '350px', minWidth: '200px'}" [minY]="70" 
+        [maximizable]="true" [baseZIndex]="10000">
+        <h3 class="first">Password</h3>
+        <div class="ui-inputgroup">
+            <span class="ui-inputgroup-addon"><i class="pi pi-key" style="line-height: 1.25;"></i></span>
+            <input pPassword type="password" id="password" name="password" #password autofocus (keyup.enter)="onRefresh(password.value)"/>
+        </div>
+        <p-footer class=" d-flex">
+            <p style="color: brown; float: left;" *ngIf="errorPass" >Incorrect Password !!</p>
+            <button type="button" pButton icon="pi pi-check" (click)="onRefresh(password.value)" label="Yes"></button>
+            <button type="button" pButton icon="pi pi-close" (click)="display=false" label="No" class="ui-button-secondary"></button>
+        </p-footer>
+</p-dialog>

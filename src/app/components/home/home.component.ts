@@ -78,6 +78,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   active_icon = 'fa fa-check';
   manualDisconnect = false;
   searchDate: Date;
+  display = false;
 
   serverState: any;
   currentServer: GetServerInfoResponse;
@@ -116,6 +117,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   importAccountSecret: string;
   importRequiredTotalReserve: any;
   importSecretChoice = 'existing';
+  errorPass = false;
 
   constructor( private logger: LogService,
                private electron: ElectronService,
@@ -268,7 +270,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         } else if (arg === 'create-new-wallet') {
           this.onCreatNewWallet();
         } else if (arg === 'refresh-wallet') {
-          this.onRefresh();
+          this.showDialog();
         } else if (arg === 'close-wallet') {
           this.onCloseWallet();
         } else if (arg === 'paper-wallet') {
@@ -313,9 +315,24 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.electron.ipcRenderer.removeAllListeners('action');
   }
 
-  onRefresh() {
-    alert('Refresh Wallet Successfully');
+
+  onRefresh(password) {
+    try {
+      this.casinocoinService.regenerateAccounts(password);
+      this.display = false;
+    } catch (error) {
+      this.errorPass = true;
+      setTimeout(() => {
+        this.errorPass = false;
+      }, 3000);
+    }
   }
+
+  showDialog() {
+    this.errorPass = false;
+    this.display = true;
+  }
+
 
   listenForMainEvents() {
     // Listen for electron main events
