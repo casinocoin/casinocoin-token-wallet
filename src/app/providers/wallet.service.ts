@@ -195,6 +195,13 @@ export class WalletService {
     this.openWalletSubject.next(AppConstants.KEY_CLOSED);
   }
 
+  resetWallet() {
+    // reset all collection objects
+    this.accounts.clear();
+    this.transactions.clear();
+    this.keys.clear();
+  }
+
   // encrypt secret key
   encryptSecretKey(decryptPin: string) {
     const cscCrypto = new CSCCrypto(decryptPin);
@@ -318,6 +325,7 @@ export class WalletService {
   }
 
   getAccountsMaxSequence(): number {
+    console.log(this.accounts);
     return this.accounts.chain().find().simplesort('accountSequence', true).limit(1).data()[0].accountSequence;
   }
 
