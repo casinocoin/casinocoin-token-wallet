@@ -13,7 +13,7 @@ import { Menu as ElectronMenu, MenuItem as ElectronMenuItem } from 'electron';
 import { MatListModule, MatSidenavModule } from '@angular/material';
 import { LokiKey } from '../../domains/lokijs';
 import * as LokiTypes from '../../domains/lokijs';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
 import { CasinocoinAPI } from '@casinocoin/libjs';
 import { SelectItem, Message, MenuItem as PrimeMenuItem } from 'primeng/api';
 import { GetServerInfoResponse } from '@casinocoin/libjs/common/serverinfo';
@@ -79,6 +79,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   manualDisconnect = false;
   searchDate: Date;
   display = false;
+  refreshWallet = false;
+
 
   serverState: any;
   currentServer: GetServerInfoResponse;
@@ -118,6 +120,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   importRequiredTotalReserve: any;
   importSecretChoice = 'existing';
   errorPass = false;
+  subscriptionWatchItem: Subscription;
 
   constructor( private logger: LogService,
                private electron: ElectronService,
@@ -307,6 +310,11 @@ export class HomeComponent implements OnInit, OnDestroy {
     // load fiat currencies and update market value
     this.fiatCurrencies = this.marketService.getFiatCurrencies();
     this.updateMarketService(this.walletSettings.fiatCurrency);
+
+    this.subscriptionWatchItem = this.casinocoinService.eventSubject.subscribe( value => {
+      this.router.navigate(['home/tokenlist']);
+      this.refreshWallet = value;
+    });
   }
 
   ngOnDestroy() {
@@ -319,6 +327,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   onRefresh(password) {
     try {
       this.casinocoinService.regenerateAccounts(password);
+      this.refreshWallet = !this.refreshWallet;
       this.display = false;
     } catch (error) {
       this.errorPass = true;

@@ -357,11 +357,21 @@
         <h3 class="first">Password</h3>
         <div class="ui-inputgroup">
             <span class="ui-inputgroup-addon"><i class="pi pi-key" style="line-height: 1.25;"></i></span>
-            <input pPassword type="password" id="password" name="password" #password autofocus (keyup.enter)="onRefresh(password.value)"/>
+            <input pPassword type="password" id="password" name="password" #password autofocus (keyup.enter)="onRefresh(password.value); password.value = null"/>
         </div>
         <p-footer class=" d-flex">
             <p style="color: brown; float: left;" *ngIf="errorPass" >Incorrect Password !!</p>
-            <button type="button" pButton icon="pi pi-check" (click)="onRefresh(password.value)" label="Yes"></button>
+            <button type="button" pButton icon="pi pi-check" (click)="onRefresh(password.value); password.value = null" label="Yes"></button>
             <button type="button" pButton icon="pi pi-close" (click)="display=false" label="No" class="ui-button-secondary"></button>
         </p-footer>
 </p-dialog>
+
+<p-dialog  [(visible)]="refreshWallet" [responsive]="true" [style]="{width: '350px', minWidth: '200px'}" [minY]="70" [baseZIndex]="10000">
+    <div *ngIf="!tokenlist || tokenlist.lenght <= 1" class="ui-g-12" style=" display: flex; justify-content: center; align-items: center;">
+        <div class="d-flex">
+            <i class="pi pi-spin pi-spinner" style="font-size: 10em; color: brown" ></i>
+            <h1 style="color: brown;">Waiting...</h1>
+        </div>
+    </div>        
+</p-dialog>
+
