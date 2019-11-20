@@ -1,5 +1,5 @@
 import { flatMap } from 'rxjs/operators';
-import { Injectable, OnInit, OnDestroy } from '@angular/core';
+import { Injectable, OnDestroy, NgZone } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { Observable, BehaviorSubject, Subscription, Subject, from, Observer } from 'rxjs';
 import { WalletService } from './wallet.service';
@@ -40,6 +40,7 @@ export class CasinocoinService implements OnDestroy {
     public availableTokenListSubject = new BehaviorSubject<boolean>(false);
     private openWalletSubject = new BehaviorSubject<string>(AppConstants.KEY_INIT);
     public cscBase64;
+    public eventSubject = new Subject<boolean>();
 
     constructor(private logger: LogService,
                 private walletService: WalletService,
@@ -49,7 +50,8 @@ export class CasinocoinService implements OnDestroy {
                 private sessionStorageService: SessionStorageService,
                 private electron: ElectronService,
                 private httpSvc: HttpClient,
-                private router: Router ) {
+                private router: Router,
+                private _ngZone: NgZone ) {
         logger.debug('### INIT  CasinocoinService ###');
         // subscribe to wallet updates
         this.walletService.openWalletSubject.subscribe( result => {
@@ -177,14 +179,13 @@ export class CasinocoinService implements OnDestroy {
         return this.connectSubject.asObservable();
     }
 
-    regenerateAccounts(password) {
+    regenerateAccounts (password) {
         //  generate new token account
         this.walletService.resetWallet();
         const userEmail = this.sessionStorageService.get(AppConstants.KEY_CURRENT_WALLET).userEmail;
         const cscCrypto = new CSCCrypto(password, userEmail);
         const decryptedMnemonicHash = cscCrypto.decrypt(this.sessionStorageService.get(AppConstants.KEY_CURRENT_WALLET).mnemonicHash);
         cscCrypto.setPasswordKey(decryptedMnemonicHash);
-        console.log('cscCrypto', cscCrypto.getPasswordSalt());
 
         let sequence = 0;
         let accountsWithOutBalances: Array<LokiAccount> = [];
@@ -345,7 +346,6 @@ export class CasinocoinService implements OnDestroy {
                     resultMessage = 'No accounts could be restored during recover.';
                 } else {
                     // encrypt all found keys
-                    console.log('this.walletService', this.walletService);
                     this.walletService.encryptAllKeys(password, userEmail).subscribe( encryptResult => {
                         if (encryptResult === AppConstants.KEY_FINISHED) {
                             this.logger.debug('### Recover - Key Encryption Complete');
@@ -353,10 +353,13 @@ export class CasinocoinService implements OnDestroy {
                     });
                 }
                 this.electron.remote.dialog.showMessageBox({ message: resultMessage, buttons: ['OK']}, (showResult) => {
-                    setTimeout(() => {
-                        // this.refreshAccounts();
-                        this.router.navigate(['home/tokenlist']);
-                    }, 2500);
+                    this.eventSubject.next(false);
+                });
+                this._ngZone.run(() => {
+                    console.log('executing....');
+                    this.router.navigateByUrl('/RefreshComponent', { skipLocationChange: true }).then(() => {
+                        this.router.navigate(['home/history']);
+                    });
                 });
             }
         });

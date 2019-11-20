@@ -205,7 +205,6 @@ export class TokenlistComponent implements OnInit {
     this.walletService.openWalletSubject.subscribe( result => {
       if (result === AppConstants.KEY_LOADED) {
         // get the main CSC AccountID
-        console.log(this.walletService.getMainAccount());
         this.mainCSCAccountID = this.walletService.getMainAccount().accountID;
         // get all CSC accounts for add token dropdown
         this.walletService.getAllAccounts().forEach( element => {

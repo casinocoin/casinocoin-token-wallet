@@ -325,7 +325,6 @@ export class WalletService {
   }
 
   getAccountsMaxSequence(): number {
-    console.log(this.accounts);
     return this.accounts.chain().find().simplesort('accountSequence', true).limit(1).data()[0].accountSequence;
   }
 
