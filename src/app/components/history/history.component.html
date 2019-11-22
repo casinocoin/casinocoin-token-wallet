@@ -35,7 +35,7 @@
             <ng-template pTemplate="body" let-rowData>
                 <tr [pContextMenuRow]="rowData">
                     <td style="width:20px;"><i [ngClass]="getDirectionIconClasses(rowData)"></i></td>
-                    <td style="width:25px;"><img [src]="getTokenURL(rowData)" width="25" height="25" alt="icon" /></td>
+                    <td style="width:25px;"><img  [src]="rowData.ImageBase64" width="25" height="25" alt="icon" /></td>
                     <td style="width:70px;">
                         <span class="text-large">{{rowData.timestamp | cscDate : 'dd'}}</span>
                         <span class="text-small-bottom">{{rowData.timestamp | cscDate : 'MMM' | uppercase}}</span>

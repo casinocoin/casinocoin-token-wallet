@@ -102,20 +102,8 @@ export class HistoryComponent implements OnInit, AfterViewInit {
         this.logger.debug('### Context menu not implemented: ' + arg);
       }
     });
-
     this.casinocoinService.validatedTxSubject.subscribe( txHash => {
       if (txHash) {
-        // this.transactions = this.walletService.getAllTransactions().map(element => {
-        //   if (element.currency === 'CSC') {
-        //     const ImageCSC = this.casinocoinService.getImageCSC();
-        //     return {...element, ImageBase64: ImageCSC };
-        //   } else {
-        //     const token = this.casinocoinService.getTokenInfo(element.currency);
-        //     console.log('token', token);
-        //     return {...element, ImageBase64: token.IconImage };
-        //   }
-        //   console.log();
-        // });
         this.init();
       }
     });
@@ -124,15 +112,27 @@ export class HistoryComponent implements OnInit, AfterViewInit {
   init() {
     // get all transactions
     this.transactions = this.walletService.getAllTransactions();
-    this.tempTransactions = this.transactions;
     this.accountsTransactions = this.transactions;
-    this.tokenTransactions = this.transactions;
+    this.transactions = this.transactions.map(element => {
+      if (element.currency === 'CSC') {
+        const ImageCSC = this.casinocoinService.getImageCSC();
+        return {...element, ImageBase64: ImageCSC };
+      } else {
+        const token = this.casinocoinService.getTokenInfo(element.currency);
+        if (!token) {
+         this.router.navigate(['home/tokenlist']);
+         return;
+        } else {
+          return {...element, ImageBase64: token.IconImage };
+        }
+      }
+    });
+    this.tempTransactions = this.transactions;
     this.processTempTx();
     this.logger.debug('### History ngOnInit() - transactions: ' + JSON.stringify(this.transactions));
   }
 
   processTempTx() {
-    // this.accountsTransactions = Object.values(this.tempTransactions.reduce((prev, next) => Object.assign(prev, {[next.accountID]: next}), {}));
     this.tokenTransactions = Object.values(this.tempTransactions.reduce((prev, next) => Object.assign(prev, {[next.currency]: next}), {}));
   }
 
@@ -232,6 +232,7 @@ export class HistoryComponent implements OnInit, AfterViewInit {
   }
 
   getTokenURL(rowData) {
+
     if (rowData.currency === 'CSC') {
       return this.casinocoinService.getImageCSC();
     }
