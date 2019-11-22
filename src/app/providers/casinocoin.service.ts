@@ -187,6 +187,7 @@ export class CasinocoinService implements OnDestroy {
         const decryptedMnemonicHash = cscCrypto.decrypt(this.sessionStorageService.get(AppConstants.KEY_CURRENT_WALLET).mnemonicHash);
         cscCrypto.setPasswordKey(decryptedMnemonicHash);
 
+        const accountFindFinishedSubject = new BehaviorSubject<boolean>(false);
         let sequence = 0;
         let accountsWithOutBalances: Array<LokiAccount> = [];
         let count = 0;
@@ -336,30 +337,40 @@ export class CasinocoinService implements OnDestroy {
                         };
                         accountsWithOutBalances.push(walletAccount);
                         count ++;
+                        if (count === 10  ) { accountFindFinishedSubject.next(true); }
                     }
                     sequence ++;
+                    if (count === 10  ) {
+                        accountFindFinishedSubject.next(true);
+                    }
                 }
-                this.logger.debug('### Recover - Account Find Finished');
-                let resultMessage = `Wallet Refresh Successfully With ${sequence} Accounts`;
-                if (sequence === 0) {
-                    // No accounts found !
-                    resultMessage = 'No accounts could be restored during recover.';
-                } else {
-                    // encrypt all found keys
-                    this.walletService.encryptAllKeys(password, userEmail).subscribe( encryptResult => {
-                        if (encryptResult === AppConstants.KEY_FINISHED) {
-                            this.logger.debug('### Recover - Key Encryption Complete');
+                accountFindFinishedSubject.subscribe( finished => {
+                    if (finished) {
+                        this.logger.debug('### Recover - Account Find Finished');
+                        let resultMessage = `Wallet Refresh Successfully With ${sequence} Verifications`;
+                        if (sequence === 0) {
+                            // No accounts found !
+                            resultMessage = 'No accounts could be restored during recover.';
+                        } else {
+                            // encrypt all found keys
+                            this.walletService.encryptAllKeys(password, userEmail).subscribe( encryptResult => {
+                                if (encryptResult === AppConstants.KEY_FINISHED) {
+                                    this.logger.debug('### Recover - Key Encryption Complete');
+                                }
+                            });
+                             // save the wallet
+                             this.walletService.saveWallet();
                         }
-                    });
-                }
-                this.electron.remote.dialog.showMessageBox({ message: resultMessage, buttons: ['OK']}, (showResult) => {
-                    this.eventSubject.next(false);
-                });
-                this._ngZone.run(() => {
-                    console.log('executing....');
-                    this.router.navigateByUrl('/RefreshComponent', { skipLocationChange: true }).then(() => {
-                        this.router.navigate(['home/history']);
-                    });
+                        if (count === 10  ) {
+                            this.electron.remote.dialog.showMessageBox({ message: resultMessage, buttons: ['OK']}, (showResult) => {
+                                this.eventSubject.next(false);
+                            });
+                            this._ngZone.run(() => {
+                                this.router.navigate(['home/history']);
+                            });
+                            accountFindFinishedSubject.next(false);
+                        }
+                    }
                 });
             }
         });
