@@ -366,12 +366,17 @@
         </p-footer>
 </p-dialog>
 
-<p-dialog  [(visible)]="refreshWallet" [responsive]="true" [style]="{width: '350px', minWidth: '200px'}" [minY]="70" [baseZIndex]="10000">
-    <div *ngIf="!tokenlist || tokenlist.lenght <= 1" class="ui-g-12" style=" display: flex; justify-content: center; align-items: center;">
-        <div class="d-flex">
-            <i class="pi pi-spin pi-spinner" style="font-size: 10em; color: brown" ></i>
-            <h1 style="color: brown;">Waiting...</h1>
+<p-dialog  [(visible)]="refreshWallet" [responsive]="true" [style]="{width: '350px', minWidth: '200px'}">
+        <p-header style="color: rgb(255, 255, 255);">
+                Wait for the wallet to refresh
+        </p-header>
+    <div class="ui-g-12">
+        <div class="" style=" display: flex; justify-content: center; align-items: center;">
+            <i class="pi pi-spin pi-spinner" style="font-size: 5em; color: brown" ></i>
+            <h1 style="color: brown;">Refreshing</h1>
         </div>
     </div>        
 </p-dialog>
+
+
 

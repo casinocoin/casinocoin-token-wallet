@@ -40,7 +40,7 @@ export class CasinocoinService implements OnDestroy {
     public availableTokenListSubject = new BehaviorSubject<boolean>(false);
     private openWalletSubject = new BehaviorSubject<string>(AppConstants.KEY_INIT);
     public cscBase64;
-    public eventSubject = new Subject<boolean>();
+    public eventSubject = new Subject<string>();
 
     constructor(private logger: LogService,
                 private walletService: WalletService,
@@ -179,21 +179,23 @@ export class CasinocoinService implements OnDestroy {
         return this.connectSubject.asObservable();
     }
 
-    regenerateAccounts (password) {
+    async regenerateAccounts (password) {
         //  generate new token account
-        this.walletService.resetWallet();
-        const userEmail = this.sessionStorageService.get(AppConstants.KEY_CURRENT_WALLET).userEmail;
-        const cscCrypto = new CSCCrypto(password, userEmail);
-        const decryptedMnemonicHash = cscCrypto.decrypt(this.sessionStorageService.get(AppConstants.KEY_CURRENT_WALLET).mnemonicHash);
-        cscCrypto.setPasswordKey(decryptedMnemonicHash);
+            this.walletService.resetWallet();
+            const userEmail = this.sessionStorageService.get(AppConstants.KEY_CURRENT_WALLET).userEmail;
+            const cscCrypto = new CSCCrypto(password, userEmail);
+            if (!cscCrypto) { return new Error('Something went wrong'); }
+            const decryptedMnemonicHash = cscCrypto.decrypt(this.sessionStorageService.get(AppConstants.KEY_CURRENT_WALLET).mnemonicHash);
+            cscCrypto.setPasswordKey(decryptedMnemonicHash);
 
-        const accountFindFinishedSubject = new BehaviorSubject<boolean>(false);
-        let sequence = 0;
-        let accountsWithOutBalances: Array<LokiAccount> = [];
-        let count = 0;
-        // connect to a daemon
-        this.connect().subscribe(async result => {
-            if (result === AppConstants.KEY_CONNECTED) {
+            const accountFindFinishedSubject = new BehaviorSubject<boolean>(false);
+            let sequence = 0;
+            let accountsWithOutBalances: Array<LokiAccount> = [];
+            let count = 0;
+            this.eventSubject.next('showDialog');
+
+            // connect to a daemon
+            if (AppConstants.KEY_CONNECTED === 'CONNECTED') {
                 while (count !== 10) {
                     const keyPair: LokiKey = cscCrypto.generateKeyPair(sequence);
                     let accountInfo: any;
@@ -358,22 +360,25 @@ export class CasinocoinService implements OnDestroy {
                                     this.logger.debug('### Recover - Key Encryption Complete');
                                 }
                             });
-                             // save the wallet
-                             this.walletService.saveWallet();
+                                // save the wallet
+                            this.walletService.saveWallet();
                         }
+                        accountFindFinishedSubject.next(false);
                         if (count === 10  ) {
+                            count = 0;
                             this.electron.remote.dialog.showMessageBox({ message: resultMessage, buttons: ['OK']}, (showResult) => {
-                                this.eventSubject.next(false);
+                                this.eventSubject.next('hiddenRefreshing');
                             });
                             this._ngZone.run(() => {
-                                this.router.navigate(['home/history']);
+                                this.router.navigateByUrl('/RefreshComponent', { skipLocationChange: true }).then(() => {
+                                    this.router.navigate(['home/history']);
+                                });
                             });
-                            accountFindFinishedSubject.next(false);
+                            accountFindFinishedSubject.unsubscribe();
                         }
                     }
                 });
             }
-        });
     }
 
     disconnect() {
@@ -587,6 +592,7 @@ export class CasinocoinService implements OnDestroy {
     }
 
     refreshAccounts(): Observable<any> {
+        console.log('entry Refresh accounts');
         const walletPassword = this.sessionStorageService.get(AppConstants.KEY_WALLET_PASSWORD);
         const accountUpdatingSubject = new BehaviorSubject<boolean>(false);
         // let firstAccountRefresh = true;
@@ -615,6 +621,7 @@ export class CasinocoinService implements OnDestroy {
                                 // firstAccountRefresh = false;
                                 // increase the account sequence
                                 newAccountSequence = newAccountSequence + 1;
+                                console.log('newAccountSequence', newAccountSequence);
                                 this.logger.debug('### CasinocoinService -> newAccountSequence: ' + newAccountSequence);
                                 const newKeyPair: LokiKey = cscCrypto.generateKeyPair(newAccountSequence);
                                 this.logger.debug('### CasinocoinService -> check AccountID: ' + newKeyPair.accountID);

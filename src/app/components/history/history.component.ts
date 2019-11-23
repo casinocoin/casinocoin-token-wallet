@@ -41,8 +41,8 @@ export class HistoryComponent implements OnInit, AfterViewInit {
               private router: Router,
               private route: ActivatedRoute) { }
 
-  public selectedAccount: string;
-  public selectedToken: string;
+  public selectedAccount: any;
+  public selectedToken: any;
   public selectedDate: Date;
   public transactions: Array<LokiTransaction> = [];
   public tempTransactions = [];

@@ -8,10 +8,10 @@
         <button pButton type="button" style="margin: 5px;" (click)="doShowAddToken()" icon="fa fa-plus" iconPos="left" 
                 label="{{'PAGES.TOKENLIST.SHOW-ADD-TOKEN'|translate}}" [disabled]="!canActivateAccount()"></button>
     </div>
-    <div *ngIf="!tokenlist || tokenlist.lenght <= 1" class="ui-g-12" style=" display: flex; justify-content: center; align-items: center;">
+    <div *ngIf="!tokenlist" class="ui-g-12" style=" display: flex; justify-content: center; align-items: center;">
         <div class="d-flex">
-            <i class="pi pi-spin pi-spinner" style="font-size: 10em; color: brown" ></i>
-            <h1 style="color: brown;">Waiting...</h1>
+            <i class="pi pi-spin pi-spinner" style="font-size: 6em; color: brown" ></i>
+            <h1 style="color: brown;">Wait</h1>
         </div>
     </div>
     <div class="ui-g-12">

@@ -21,6 +21,7 @@ import * as LokiIndexedAdapter from 'lokijs/src/loki-indexed-adapter';
 import * as LokiTypes from '../domains/lokijs';
 import { LokiKey } from '../domains/lokijs';
 import { WalletSetup } from '../domains/csc-types';
+import { sequence } from '@angular/animations';
 
 // const lfsa = require('../../../node_modules/lokijs/src/loki-fs-structured-adapter.js');
 // import  LokiIndexedAdapter = require('../../../node_modules/lokijs/src/loki-indexed-adapter.js');
@@ -325,7 +326,12 @@ export class WalletService {
   }
 
   getAccountsMaxSequence(): number {
-    return this.accounts.chain().find().simplesort('accountSequence', true).limit(1).data()[0].accountSequence;
+    const account = this.accounts.chain().find().simplesort('accountSequence', true).limit(1).data()[0];
+    if (!account) {
+      return -1;
+    } else {
+      return account.accountSequence;
+    }
   }
 
   // #########################################

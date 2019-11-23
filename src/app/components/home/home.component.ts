@@ -312,8 +312,14 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.updateMarketService(this.walletSettings.fiatCurrency);
 
     this.subscriptionWatchItem = this.casinocoinService.eventSubject.subscribe( value => {
-      this.router.navigate(['home/tokenlist']);
-      this.refreshWallet = value;
+      if (value === 'hiddenRefreshing') {
+        this.router.navigate(['home/tokenlist']);
+        this.refreshWallet = false;
+      }
+      if (value === 'showDialog') {
+        this.refreshWallet = !this.refreshWallet;
+        this.display = false;
+      }
     });
   }
 
@@ -324,12 +330,11 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
 
-  onRefresh(password) {
+  async onRefresh(password) {
     try {
-      this.casinocoinService.regenerateAccounts(password);
-      this.refreshWallet = !this.refreshWallet;
-      this.display = false;
+      await this.casinocoinService.regenerateAccounts(password);
     } catch (error) {
+      console.log('error');
       this.errorPass = true;
       setTimeout(() => {
         this.errorPass = false;
