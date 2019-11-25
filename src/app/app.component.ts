@@ -13,7 +13,6 @@ export class AppComponent {
   constructor( public electronService: ElectronService,
                private translate: TranslateService,
                private logger: LogService ) {
-
     translate.setDefaultLang('en');
     this.logger.debug('### AppConfig: ' + JSON.stringify(AppConfig));
 

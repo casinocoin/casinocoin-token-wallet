@@ -122,6 +122,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   errorPass = false;
   subscriptionWatchItem: Subscription;
 
+  public selectLanguage: any;
+  public languages: Array<object>;
+
   constructor( private logger: LogService,
                private electron: ElectronService,
                private walletService: WalletService,
@@ -135,6 +138,13 @@ export class HomeComponent implements OnInit, OnDestroy {
                private datePipe: DatePipe,
                private _ngZone: NgZone,
                private currencyPipe: CurrencyPipe ) {
+    this.languages = [
+                  {name: 'English', value: 'en'},
+                  {name: 'Portuguese', value: 'po'},
+                  {name: 'French', value: 'fr'},
+                  {name: 'Español', value: 'es'},
+                  {name: 'German', value: 'gr'},
+                ];
     this.logger.debug('### INIT Home');
     this.applicationVersion = this.electron.remote.app.getVersion();
     this.network = this.sessionStorageService.get(AppConstants.KEY_CURRENT_WALLET).network;
@@ -329,6 +339,9 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.electron.ipcRenderer.removeAllListeners('action');
   }
 
+  changeLanguage() {
+    this.translate.use(this.selectLanguage.value);
+  }
 
   async onRefresh(password) {
     try {

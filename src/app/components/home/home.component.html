@@ -132,13 +132,21 @@
         <div class="ui-g-1"></div>
         <div class="ui-g-10">
             <div class="ui-g">
-                <div class="ui-g-4">Wallet Language</div>
-                <div class="ui-g-8 bold-value">English</div>
-                <div class="ui-g-4">Wallet UUID</div>
+                <div class="ui-g-4">{{'PAGES.SETTINGS.WALLET-LANG' | translate}}</div>
+                <div class="ui-g-8 bold-value">
+                    <p-dropdown 
+                        [options]="languages" 
+                        [(ngModel)]="selectLanguage" 
+                        placeholder="Select Language"
+                        appendTo="body"
+                        optionLabel="name">
+                    </p-dropdown>
+                </div>
+                <div class="ui-g-4">{{'PAGES.SETTINGS.WALLET-UUID' | translate}}</div>
                 <div class="ui-g-8 bold-value">{{currentWalletObject['walletUUID']}}</div>
-                <div class="ui-g-4">Wallet Creationdate</div>
+                <div class="ui-g-4">{{'PAGES.SETTINGS.WALLET-CREAT-DATE' | translate}}</div>
                 <div class="ui-g-8 bold-value">{{currentWalletObject['creationDate'] | cscDate : 'yyyy-MM-dd HH:mm:ss'}}</div>
-                <div class="ui-g-4">Fiat value currency</div>
+                <div class="ui-g-4">{{'PAGES.SETTINGS.FIAT-VAL-CUR' | translate}}</div>
                 <div class="ui-g-8 bold-value">
                     <p-dropdown
                             [style]="{'width':'100%'}"
@@ -146,9 +154,9 @@
                             [(ngModel)]="walletSettings.fiatCurrency"
                             (ngModelChange)="updateMarketService($event)"
                             appendTo="body"
-                            autofocus #fiatCurrenciesDrowdown></p-dropdown>
+                            autofocus #fiatCurrenciesDrodown></p-dropdown>
                 </div>
-                <div class="ui-g-4">Show desktop notifications</div><div class="ui-g-8 bold-value">
+                <div class="ui-g-4">{{'PAGES.SETTINGS.SHOW-DESK-NOT' | translate}}</div><div class="ui-g-8 bold-value">
                         <p-dropdown
                         [style]="{'width':'100%'}"
                         [options]="notifications"
@@ -162,7 +170,7 @@
         <div class="ui-g-1"></div>
     </div>
     <div style="text-align: right;">
-        <button pButton type="button" (click)="onSettingsSave()" icon="icon icon-save" iconPos="right" label="Save"
+        <button pButton type="button" (click)="onSettingsSave(); changeLanguage()" icon="icon icon-save" iconPos="right" label="Save"
                 *ngIf="true"
                 style="width: 115px;"></button>
     </div>
