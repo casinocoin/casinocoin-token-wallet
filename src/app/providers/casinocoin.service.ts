@@ -180,13 +180,13 @@ export class CasinocoinService implements OnDestroy {
     }
 
     async regenerateAccounts (password) {
-        //  generate new token account
-            this.walletService.resetWallet();
+
             const userEmail = this.sessionStorageService.get(AppConstants.KEY_CURRENT_WALLET).userEmail;
             const cscCrypto = new CSCCrypto(password, userEmail);
             if (!cscCrypto) { return new Error('Something went wrong'); }
             const decryptedMnemonicHash = cscCrypto.decrypt(this.sessionStorageService.get(AppConstants.KEY_CURRENT_WALLET).mnemonicHash);
             cscCrypto.setPasswordKey(decryptedMnemonicHash);
+            this.walletService.resetWallet();
 
             const accountFindFinishedSubject = new BehaviorSubject<boolean>(false);
             let sequence = 0;
@@ -592,7 +592,6 @@ export class CasinocoinService implements OnDestroy {
     }
 
     refreshAccounts(): Observable<any> {
-        console.log('entry Refresh accounts');
         const walletPassword = this.sessionStorageService.get(AppConstants.KEY_WALLET_PASSWORD);
         const accountUpdatingSubject = new BehaviorSubject<boolean>(false);
         // let firstAccountRefresh = true;
@@ -621,12 +620,12 @@ export class CasinocoinService implements OnDestroy {
                                 // firstAccountRefresh = false;
                                 // increase the account sequence
                                 newAccountSequence = newAccountSequence + 1;
-                                console.log('newAccountSequence', newAccountSequence);
                                 this.logger.debug('### CasinocoinService -> newAccountSequence: ' + newAccountSequence);
                                 const newKeyPair: LokiKey = cscCrypto.generateKeyPair(newAccountSequence);
                                 this.logger.debug('### CasinocoinService -> check AccountID: ' + newKeyPair.accountID);
                                 // check if new key pair AccountID exists on the ledger
                                 try {
+                                    console.log('cscAPI::', this.cscAPI);
                                     const accountResult = await this.cscAPI.getAccountInfo(newKeyPair.accountID);
                                     this.logger.debug('### CasinocoinService -> Account: ' + JSON.stringify(accountResult));
                                     // save key to wallet

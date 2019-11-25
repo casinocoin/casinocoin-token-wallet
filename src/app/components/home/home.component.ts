@@ -334,7 +334,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     try {
       await this.casinocoinService.regenerateAccounts(password);
     } catch (error) {
-      console.log('error');
       this.errorPass = true;
       setTimeout(() => {
         this.errorPass = false;
