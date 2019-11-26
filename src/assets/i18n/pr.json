@@ -16,7 +16,9 @@
             "IMPORT-KEY-ADD": "Add account for secret to this wallet (recovery NOT possible!)",
             "ACCOUNT-SECRET": "Account Secret",
             "WALLET-PASSWORD": "Current Wallet Password",
-            "OK": "Ok"
+            "OK": "Ok",
+            "FIAT-VAL": "Fiat value",
+            "TOOLS": "Tools"
         },
         "LOGIN": {
             "TITLE": "Open Wallet",

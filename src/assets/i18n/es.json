@@ -16,7 +16,9 @@
             "IMPORT-KEY-ADD": "Agregue una cuenta para el secreto de esta billetera (¡NO es posible la recuperación!)",
             "ACCOUNT-SECRET": "Cuenta secreta",
             "WALLET-PASSWORD": "Contraseña actual de la Billetera",
-            "OK": "Ok"
+            "OK": "Ok",
+            "FIAT-VAL": "Valor fiduciario",
+            "TOOLS": "Herramientas"
         },
         "LOGIN": {
             "TITLE": "Abrir Billetera",
@@ -105,10 +107,13 @@
           "NOT-ENOUGH-CSC": "No hay suficientes CSC para realizar una transacción.",
           "EDIT-LABEL": "Editar etiqueta de cuenta",
           "ACCOUNT-LABEL": "Etiqueta de cuenta",
-          "SAVE": "Guardar"
+          "SAVE": "Guardar",
+          "SEL-ACC": "Seleccione una cuenta de CSC "
         },
         "HISTORY": {
-          "TITLE": "Historial de transacciones"
+          "TITLE": "Historial de transacciones",
+          "SEL-DAT": "Seleccione la Fecha",
+          "SEL-TOK": "Seleccione el Token"
         },
         "EXCHANGES": {
           "COININFO": "Información de la moneda",
@@ -140,8 +145,28 @@
           "WALLET-LANG": "Idioma de la Billetera",
           "WALLET-UUID": "UUID de la Billetera",
           "WALLET-CREAT-DATE":"fecha de creación",
-          "FIAT-VAL-CUR": "Moneda de valor fiduciario",
-          "SHOW-DESK-NOT": "Mostrar notificaciones de escritorio"
+          "FIAT-VAL-CUR": "Valor monena fiduciario",
+          "SHOW-DESK-NOT": "Mostrar notificaciones de escritorio",
+          "SETTINGS": "Ajustes"
+        },
+        "SUPPORT": {
+          "SUPPORT": "Soporte",
+          "SUP-SUB": "Si tiene algún problema con la billetera de CasinoCoin, hay varias formas de contactar al equipo",
+          "REF-DISC": "Chat en vivo con la comunidad y la fundación",
+          "REF-GIT": "Informar un error en el",
+          "PRO-SIT": "Sitio del proyecto CasinoCoin",
+          "REF-FAQ1": "Ir a",
+          "REF-FAQ2": "al sitio web. La respuesta ya puede estar allí",
+          "EMAIL": "Correo Electronico",
+          "EMA-RE1": "Escríbanos a",
+          "EMA-RE2": "y un agente de soporte se pondrá en contacto con usted",
+          "REF-REEDIT": "Únase a nuestro subreddit oficial y publique su pregunta",
+          "SOCIAL-MED": "Redes sociales",
+          "SOCIAL-RE1": "Me gusta en",
+          "SOCIAL-RE2": "y síguenos en",
+          "BITC-TLK": "Comparta sus comentarios e ideas sobre cuál es el último @casinocoin",
+          "HERE": "Aqui"
+  
         }
     }
 }

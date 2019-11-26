@@ -123,7 +123,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   subscriptionWatchItem: Subscription;
 
   public selectLanguage: any;
-  public languages: Array<object>;
+  public languages: Array<{name, value}>;
+  public languageSystem: {name, value};
 
   constructor( private logger: LogService,
                private electron: ElectronService,
@@ -331,6 +332,16 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.display = false;
       }
     });
+    this.getSystemLanguage();
+  }
+
+  getSystemLanguage() {
+    const lg = this.electron.remote.app.getLocale();
+    const ln = lg[0] + lg[1];
+    this.languageSystem = this.languages.find(item => item.value === ln);
+    if (this.languageSystem) {
+      this.changeLanguage(this.languageSystem.value);
+    } else { this.changeLanguage('en'); this.languageSystem = {name: 'English', value: 'en'}; }
   }
 
   ngOnDestroy() {
@@ -339,8 +350,12 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.electron.ipcRenderer.removeAllListeners('action');
   }
 
-  changeLanguage() {
-    this.translate.use(this.selectLanguage.value);
+  changeLanguage(language: string) {
+    try {
+      this.translate.use(language);
+    } catch (error) {
+      console.log(error.statusText);
+    }
   }
 
   async onRefresh(password) {

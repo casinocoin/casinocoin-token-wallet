@@ -16,7 +16,9 @@
           "IMPORT-KEY-ADD": "Add account for secret to this wallet (recovery NOT possible!)",
           "ACCOUNT-SECRET": "Account Secret",
           "WALLET-PASSWORD": "Current Wallet Password",
-          "OK": "Ok"
+          "OK": "Ok",
+          "FIAT-VAL": "Fiat value",
+          "TOOLS": "Tools"
       },
       "LOGIN": {
           "TITLE": "Open Wallet",
@@ -105,10 +107,13 @@
         "NOT-ENOUGH-CSC": "Not enough CSC to create a transaction.",
         "EDIT-LABEL": "Edit Account Label",
         "ACCOUNT-LABEL": "Account Label",
-        "SAVE": "Save"
+        "SAVE": "Save",
+        "SEL-ACC": "Select CasinoCoin Account"
       },
       "HISTORY": {
-        "TITLE": "Transaction History"
+        "TITLE": "Transaction History",
+        "SEL-DAT": "Select Date",
+        "SEL-TOK": "Select Token"
       },
       "EXCHANGES": {
         "COININFO": "Coin Information",
@@ -141,7 +146,26 @@
         "WALLET-UUID": "Wallet UUID",
         "WALLET-CREAT-DATE":"Wallet Creation date",
         "FIAT-VAL-CUR": "Fiat value currency",
-        "SHOW-DESK-NOT": "Show desktop notifications"
+        "SHOW-DESK-NOT": "Show desktop notifications",
+        "SETTINGS": "Settings"
+      },
+      "SUPPORT": {
+        "SUPPORT": "Support",
+        "SUP-SUB": "If you experience any issues with the CasinoCoin wallet, there are multiple ways to contact the team",
+        "REF-DISC": "Live chat with the community and foundation",
+        "REF-GIT": "Report an error or bug on the",
+        "PRO-SIT": "CasinoCoin project site",
+        "REF-FAQ1": "Go to the",
+        "REF-FAQ2": "on the website. The answer may already be there",
+        "EMAIL": "Email",
+        "EMA-RE1": "Write to us at",
+        "EMA-RE2": "and a support agent will get back to you",
+        "REF-REEDIT": "Join our official subreddit and post your question,",
+        "SOCIAL-MED": "Social Media",
+        "SOCIAL-RE1": "Like us on",
+        "SOCIAL-RE2": "and follow us on",
+        "BITC-TLK": "Share your comments and ideas on whats latest @casinocoin,",
+        "HERE": "Here"
       }
   }
 }

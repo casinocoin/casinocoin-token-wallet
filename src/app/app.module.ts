@@ -80,6 +80,7 @@ import {ListboxModule} from 'primeng/listbox';
 import {ProgressBarModule} from 'primeng/progressbar';
 import { MatListModule, MatSidenavModule, MatTooltipModule, MatButtonModule } from '@angular/material';
 import { QRCodeModule } from 'angularx-qrcode';
+import {CardModule} from 'primeng/card';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient) {
@@ -136,7 +137,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     TieredMenuModule, MatTooltipModule, MatButtonModule,
     InputTextareaModule, ProgressSpinnerModule, InputTextModule,
     TableModule, ListboxModule, RadioButtonModule, ProgressBarModule,
-    QRCodeModule
+    QRCodeModule, CardModule
   ],
   providers: [
     AuthGuard,

@@ -159,7 +159,7 @@
         <div class="ui-inputgroup">
             <span class="ui-inputgroup-addon" style="box-sizing: content-box; width: 50px;"><i class="icon icon-id"></i></span>
             <p-dropdown [style]="{'width':'370px','padding-top':'2px','padding-bottom':'2px'}" [options]="cscAccounts" [(ngModel)]="selectedCSCAccount"
-                        (onChange)="getCSCAccountInfo()" placeholder="Select CasinoCoin Account ..." appendTo="body"
+                        (onChange)="getCSCAccountInfo()" placeholder="{{'PAGES.TOKENLIST.SEL-ACC' | translate}} ..." appendTo="body"
                         autofocus #accountDropdown></p-dropdown>
         </div>
     </div>
