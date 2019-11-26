@@ -142,7 +142,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.languages = [
                   {name: 'English', value: 'en'},
                   {name: 'Portuguese', value: 'po'},
-                  {name: 'French', value: 'fr'},
                   {name: 'Español', value: 'es'},
                   {name: 'German', value: 'gr'},
                 ];
@@ -339,9 +338,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     const lg = this.electron.remote.app.getLocale();
     const ln = lg[0] + lg[1];
     this.languageSystem = this.languages.find(item => item.value === ln);
-    if (this.languageSystem) {
-      this.changeLanguage(this.languageSystem.value);
-    } else { this.changeLanguage('en'); this.languageSystem = {name: 'English', value: 'en'}; }
+    if (!this.languageSystem) { this.languageSystem = {name: 'English', value: 'en'}; }
   }
 
   ngOnDestroy() {

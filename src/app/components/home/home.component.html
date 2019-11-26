@@ -283,43 +283,41 @@
 
 <p-dialog [(visible)]="showSignMessageDialog" [width]="725" [height]="500" [closable]="true" [modal]="true"
           appendTo="body">
-    <p-header><span><i class="icon csc-dialog-icon icon-chip"></i>Sign Message</span></p-header>
+    <p-header><span><i class="icon csc-dialog-icon icon-chip"></i>{{ 'PAGES.HOME.SIGN-MSS' | translate }}</span></p-header>
     <div class="ui-g ui-fluid">
         <div class="ui-g-12">
-            <p>Please select the account you want to sign the message with.
-                Then enter the message to sign and the wallet password.
-                Using the generated Public Key and Signature your signed message can be verified.</p>
+            <p>{{ 'PAGES.HOME.INDICATIONS' | translate }}.</p>
         </div>
     </div>
     <div class="ui-g ui-fluid">
-        <div class="ui-g-2 bold-value">Account</div>
+        <div class="ui-g-2 bold-value">{{ 'PAGES.HOME.ACCOUNT' | translate }}</div>
         <div class="ui-g-10">
             <div class="ui-inputgroup">
                 <span class="ui-inputgroup-addon" style="box-sizing: content-box;"><i class="icon icon-id"></i></span>
                 <p-dropdown [style]="{'width':'100%'}" [options]="accounts" [(ngModel)]="selectedAccount"
-                            placeholder="Select Account ..." #accountDropdown autofocus></p-dropdown>
+                            placeholder="{{ 'PAGES.HOME.SEL-ACC' | translate }}..." #accountDropdown autofocus></p-dropdown>
             </div>
         </div>
-        <div class="ui-g-2 bold-value">Message</div>
+        <div class="ui-g-2 bold-value">{{ 'PAGES.HOME.MESSAGE' | translate }}</div>
         <div class="ui-g-10">
             <textarea [rows]="5" [cols]="60" [(ngModel)]="msgToSign" pInputTextarea></textarea>
         </div>
-        <div class="ui-g-2 bold-value">Password</div>
+        <div class="ui-g-2 bold-value">{{ 'PAGES.HOME.PASSWORD' | translate }}</div>
         <div class="ui-g-10">
             <div class="ui-inputgroup">
                 <span class="ui-inputgroup-addon" style="box-sizing: content-box;"><i class="icon icon-key"></i></span>
-                <input type="password" pInputText placeholder="Wallet Password" style="width: 100%; padding-left: 5px;"
+                <input type="password" pInputText placeholder="{{ 'PAGES.HOME.PASSWORD' | translate }}" style="width: 100%; padding-left: 5px;"
                        [(ngModel)]="walletPassword" (keyup.enter)="signMessage()" #passwordInput>
                 <button pButton type="button" (click)="signMessage()" label="Sign" class="sign-button"></button>
                 <button pButton type="button" (click)="resetSigning()" label="Reset"></button>
             </div>
         </div>
-        <div class="ui-g-2 bold-value">Public Key</div>
+        <div class="ui-g-2 bold-value">{{ 'PAGES.HOME.PUB-KEY' | translate }}</div>
         <div class="ui-g-10" (contextmenu)="saveCopyValue('signPubKey')">
             <textarea [rows]="2" [cols]="60" style="resize: none;" [ngModel]="signPubKey" pInputTextarea
                       readonly></textarea>
         </div>
-        <div class="ui-g-2 bold-value">Signature</div>
+        <div class="ui-g-2 bold-value">{{ 'PAGES.HOME.SIGNATURE' | translate }}</div>
         <div class="ui-g-10" (contextmenu)="saveCopyValue('signSignature')">
             <textarea [rows]="3" [cols]="60" style="resize: none;" [ngModel]="signSignature" pInputTextarea
                       readonly></textarea>
@@ -329,27 +327,27 @@
 
 <p-dialog [(visible)]="showVerifyMessageDialog" [width]="720" [height]="500" [closable]="true" [modal]="true"
           appendTo="body">
-    <p-header><span><i class="icon csc-dialog-icon icon-chip"></i>Verify Message</span></p-header>
+    <p-header><span><i class="icon csc-dialog-icon icon-chip"></i>{{ 'PAGES.HOME.VER-MSG' | translate }}</span></p-header>
     <div class="ui-g ui-fluid">
         <div class="ui-g-12">
-            <p>Please enter the message, public key and signature you want to verify.</p>
+            <p>{{ 'PAGES.HOME.MSG-INST' | translate }}.</p>
         </div>
     </div>
     <div class="ui-g ui-fluid">
-        <div class="ui-g-2 bold-value">Message</div>
+        <div class="ui-g-2 bold-value">{{ 'PAGES.HOME.MESSAGE' | translate }}</div>
         <div class="ui-g-10">
             <textarea [rows]="5" [cols]="60" style="resize: none;" [(ngModel)]="msgToVerify" pInputTextarea></textarea>
         </div>
-        <div class="ui-g-2 bold-value">Public Key</div>
+        <div class="ui-g-2 bold-value">{{ 'PAGES.HOME.PUB-KEY' | translate }}</div>
         <div class="ui-g-10">
             <textarea [rows]="2" [cols]="60" style="resize: none;" [(ngModel)]="verifyPubKey" pInputTextarea></textarea>
         </div>
-        <div class="ui-g-2 bold-value">Signature</div>
+        <div class="ui-g-2 bold-value">{{ 'PAGES.HOME.SIGNATURE' | translate }}</div>
         <div class="ui-g-10">
             <textarea [rows]="3" [cols]="60" style="resize: none;" [(ngModel)]="verifySignature"
                       pInputTextarea></textarea>
         </div>
-        <div class="ui-g-2 bold-value">Result</div>
+        <div class="ui-g-2 bold-value">{{ 'PAGES.HOME.VERIFY' | translate }}</div>
         <div class="ui-g-10">
             <i *ngIf="verificationResult && verificationFinished" class="fa fa-check verify-true"></i>
             <i *ngIf="!verificationResult && verificationFinished" class="fa fa-times verify-false"></i>
@@ -360,28 +358,28 @@
     </div>
 </p-dialog>
 
-<p-dialog header="Refresh Wallet" [(visible)]="display" [modal]="true" [responsive]="true" [style]="{width: '350px', minWidth: '200px'}" [minY]="70" 
+<p-dialog header="{{ 'PAGES.TOOLS.REF-WAL' | translate }}" [(visible)]="display" [modal]="true" [responsive]="true" [style]="{width: '350px', minWidth: '200px'}" [minY]="70" 
         [maximizable]="true" [baseZIndex]="10000">
-        <h3 class="first">Password</h3>
+        <h3 class="first">{{ 'PAGES.TOOLS.PASSWORD' | translate }}</h3>
         <div class="ui-inputgroup">
             <span class="ui-inputgroup-addon"><i class="pi pi-key" style="line-height: 1.25;"></i></span>
             <input pPassword type="password" id="password" name="password" #password autofocus (keyup.enter)="onRefresh(password.value); password.value = null"/>
         </div>
+        <p style="color: brown; float: left;" *ngIf="errorPass" >{{ 'PAGES.TOOLS.RECH-PASS' | translate }}</p>
         <p-footer class=" d-flex">
-            <p style="color: brown; float: left;" *ngIf="errorPass" >Incorrect Password !!</p>
-            <button type="button" pButton icon="pi pi-check" (click)="onRefresh(password.value); password.value = null" label="Yes"></button>
-            <button type="button" pButton icon="pi pi-close" (click)="display=false" label="No" class="ui-button-secondary"></button>
+            <button type="button" pButton icon="pi pi-check" (click)="onRefresh(password.value); password.value = null" label="{{ 'PAGES.HOME.CONFIRM' | translate }}"></button>
+            <button type="button" pButton icon="pi pi-close" (click)="display=false" label="{{ 'PAGES.HOME.CANCEL' | translate }}" class="ui-button-secondary"></button>
         </p-footer>
 </p-dialog>
 
 <p-dialog  [(visible)]="refreshWallet" [responsive]="true" [style]="{width: '350px', minWidth: '200px'}">
         <p-header style="color: rgb(255, 255, 255);">
-                Wait for the wallet to refresh
+                {{ 'PAGES.TOOLS.WAIT-REF' | translate }}
         </p-header>
     <div class="ui-g-12">
         <div class="" style=" display: flex; justify-content: center; align-items: center;">
             <i class="pi pi-spin pi-spinner" style="font-size: 5em; color: brown" ></i>
-            <h1 style="color: brown;">Refreshing</h1>
+            <h1 style="color: brown;">{{ 'PAGES.TOOLS.REFRESHING' | translate }}</h1>
         </div>
     </div>        
 </p-dialog>

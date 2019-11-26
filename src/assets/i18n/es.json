@@ -18,7 +18,20 @@
             "WALLET-PASSWORD": "Contraseña actual de la Billetera",
             "OK": "Ok",
             "FIAT-VAL": "Valor fiduciario",
-            "TOOLS": "Herramientas"
+            "TOOLS": "Herramientas",
+            "SIGN-MSS": "Firmar mensaje",
+            "INDICATIONS": "Seleccione la cuenta con la que desea firmar el mensaje. Luego ingrese el mensaje para firmar y la contraseña de la billetera. Con la clave pública y la firma generadas, se puede verificar su mensaje firmado.",
+            "ACCOUNT" : "Cuenta",
+            "SEL-ACC": "Seleccione una Cuenta",
+            "MESSAGE": "Mensaje",
+            "PASSWORD": "Contraseña",
+            "PUB-KEY": "Llave publica",
+            "SIGNATURE": "Firma",
+            "VER-MSG": "Verificar Mensaje",
+            "MSG-INST": "Ingrese el mensaje, la clave pública y la firma que desea verificar",
+            "VERIFY": "Resultado",
+            "CONFIRM": "Confirmar",
+            "CANCEL": "Cancelar"
         },
         "LOGIN": {
             "TITLE": "Abrir Billetera",
@@ -113,7 +126,8 @@
         "HISTORY": {
           "TITLE": "Historial de transacciones",
           "SEL-DAT": "Seleccione la Fecha",
-          "SEL-TOK": "Seleccione el Token"
+          "SEL-TOK": "Seleccione el Token",
+          "NOT-TX": "No hay transacciones"
         },
         "EXCHANGES": {
           "COININFO": "Información de la moneda",
@@ -166,7 +180,13 @@
           "SOCIAL-RE2": "y síguenos en",
           "BITC-TLK": "Comparta sus comentarios e ideas sobre cuál es el último @casinocoin",
           "HERE": "Aqui"
-  
+        },
+        "TOOLS": {
+          "REF-WAL": "Actualizar Billetera",
+          "PASSWORD": "Contraseña",
+          "RECH-PASS" : "Contraseña incorrecta",
+          "WAIT-REF" : "Espera a que la billetera se actualice",
+          "REFRESHING" : "Actualizando"
         }
     }
 }

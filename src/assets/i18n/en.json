@@ -18,7 +18,20 @@
           "WALLET-PASSWORD": "Current Wallet Password",
           "OK": "Ok",
           "FIAT-VAL": "Fiat value",
-          "TOOLS": "Tools"
+          "TOOLS": "Tools",
+          "SIGN-MSS": "Sign Message",
+          "INDICATIONS": "Please select the account you want to sign the message with. Then enter the message to sign and the wallet password. Using the generated Public Key and Signature your signed message can be verified.",
+          "ACCOUNT" : "Account",
+          "SEL-ACC": "Select Account",
+          "MESSAGE": "Message",
+          "PASSWORD": "Password",
+          "PUB-KEY": "Public Key",
+          "SIGNATURE": "Signature",
+          "VER-MSG": "Verify Message",
+          "MSG-INST": "Please enter the message, public key and signature you want to verify",
+          "VERIFY": "Result",
+          "CONFIRM": "Confirm",
+          "CANCEL": "Cancel"
       },
       "LOGIN": {
           "TITLE": "Open Wallet",
@@ -113,7 +126,8 @@
       "HISTORY": {
         "TITLE": "Transaction History",
         "SEL-DAT": "Select Date",
-        "SEL-TOK": "Select Token"
+        "SEL-TOK": "Select Token",
+        "NOT-TX": "There are no transactions"
       },
       "EXCHANGES": {
         "COININFO": "Coin Information",
@@ -166,6 +180,13 @@
         "SOCIAL-RE2": "and follow us on",
         "BITC-TLK": "Share your comments and ideas on whats latest @casinocoin,",
         "HERE": "Here"
+      },
+      "TOOLS": {
+        "REF-WAL": "Refresh Wallet",
+        "PASSWORD": "Password",
+        "RECH-PASS" : "Incorrect Password",
+        "WAIT-REF" : "Wait for the wallet to refresh",
+        "REFRESHING" : "Refreshing"
       }
   }
 }
