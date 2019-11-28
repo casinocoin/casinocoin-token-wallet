@@ -1,3 +1,5 @@
+import { en, es } from './../../../assets/lang-calendar';
+import { DatePipe } from '@angular/common';
 import { CSCAmountPipe } from './../../app-pipes.module';
 import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -42,7 +44,8 @@ export class HistoryComponent implements OnInit, AfterViewInit {
     private cscAmountPipe: CSCAmountPipe,
     private router: Router,
     private route: ActivatedRoute,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private datePipe: DatePipe
   ) { }
 
   public selectedAccount: any;
@@ -57,6 +60,8 @@ export class HistoryComponent implements OnInit, AfterViewInit {
   public cscAccounts;
   public tx_context_menu: ElectronMenu;
   public currentTX: LokiTransaction;
+  public datesTx;
+  public language;
 
   ngOnInit() {
     this.logger.debug('### History ngOnInit() ###');
@@ -74,6 +79,9 @@ export class HistoryComponent implements OnInit, AfterViewInit {
     });
     // define Transaction Context menu
     this.translate.stream('PAGES.ELECTRON.COPY-ACC').subscribe((translated: string) => {
+      const lang = this.translate.getBrowserLang();
+      if (lang === 'en') { this.language = en; }
+      if (lang === 'es') { this.language = es; }
       const tx_context_menu_template = [
         { label: this.translate.instant('PAGES.ELECTRON.COPY-FACC'),
           click(menuItem, browserWindow, event) {
@@ -135,6 +143,7 @@ export class HistoryComponent implements OnInit, AfterViewInit {
     });
     this.tempTransactions = this.transactions;
     this.processTempTx();
+    this.getDays();
     this.logger.debug('### History ngOnInit() - transactions: ' + JSON.stringify(this.transactions));
   }
 
@@ -142,14 +151,32 @@ export class HistoryComponent implements OnInit, AfterViewInit {
     this.tokenTransactions = Object.values(this.tempTransactions.reduce((prev, next) => Object.assign(prev, {[next.currency]: next}), {}));
   }
 
-  filterByDate() {
-    const dateFilter = this.selectedDate.toISOString().split('T')[0];
-    this.tempTransactions = this.transactions.filter( transaction => {
-      const dateTimestamp = CSCUtil.casinocoinTimeToISO8601(transaction.timestamp);
-      const dateTimeString = dateTimestamp.toString().toString().split('T')[0];
-      if (dateTimeString  === dateFilter) {
-        return transaction; }
+  getDays() {
+    let val;
+    const days = this.transactions.map((item) => {
+      const dateTimestamp = CSCUtil.casinocoinToUnixTimestamp(item.timestamp);
+      const day = this.datePipe.transform(dateTimestamp, 'd');
+      return Number(day);
     });
+    const datesTx  = Array.from(new Set(days));
+    datesTx.map(element => {
+      val = !val ? `date.day === ${element} ` : val + `|| date.day === ${element} `;
+    });
+    this.datesTx = datesTx;
+  }
+
+  filterByDate(date: string) {
+    if (!date) {
+      this.tempTransactions = this.transactions;
+    } else {
+      this.tempTransactions = this.transactions.filter( transaction => {
+        const dateTimestamp = CSCUtil.casinocoinToUnixTimestamp(transaction.timestamp);
+        const dateFull = this.datePipe.transform(dateTimestamp, 'M/d/yyyy');
+        if (dateFull  === date) {
+          return transaction;
+        }
+      });
+    }
     this.selectedAccount = null;
     this.selectedToken = null;
   }

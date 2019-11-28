@@ -8,7 +8,23 @@
             (ngModelChange)="filterByAccount(selectedAccount ? selectedAccount : null)"></p-dropdown>
     </div>
     <div class="ui-g-12 ui-md-3 ">
-        <p-calendar [(ngModel)]="selectedDate"  [showIcon]="true" placeholder="{{ 'PAGES.HISTORY.SEL-DAT' | translate }}" (ngModelChange)="filterByDate()"></p-calendar>
+        <p-calendar
+            dataType = "string"
+            dateFormat = "mm/dd/yy"
+            [showTransitionOptions]="'200ms'" 
+            [hideTransitionOptions]="'300ms'"
+            [(ngModel)]="selectedDate" 
+            [locale]="language"
+            [showIcon]="true" 
+            placeholder="{{ 'PAGES.HISTORY.SEL-DAT' | translate }}" 
+            (ngModelChange)="filterByDate(selectedDate)">
+            <ng-template pTemplate="date" let-date>
+                <span 
+                    [ngStyle]="{backgroundColor: (date.day === datesTx[0] || date.day === datesTx[1] || date.day === datesTx[2] || date.day === datesTx[3]) ? '#06D788' : 'inherit'}" 
+                    style="border-radius:50%;padding: .25em;width: 1.75em; height:1.75em; display:block;">{{date.day}}
+                </span>
+            </ng-template>
+        </p-calendar>
     </div>
     <div class="ui-g-12 ui-md-3 ui-inputgroup">
         <span class="ui-inputgroup-addon" style="box-sizing: content-box; width: 50px;"><i class="pi pi-th-large"></i></span>
@@ -37,15 +53,15 @@
                     <td style="width:20px;"><i [ngClass]="getDirectionIconClasses(rowData)"></i></td>
                     <td style="width:25px;"><img  [src]="rowData.ImageBase64" width="25" height="25" alt="icon" /></td>
                     <td style="width:70px;">
-                        <span class="text-large">{{rowData.timestamp | cscDate : 'dd'}}</span>
-                        <span class="text-small-bottom">{{rowData.timestamp | cscDate : 'MMM' | uppercase}}</span>
-                        <span class="text-large">{{rowData.timestamp | cscDate : 'HH'}}</span>
-                        <span class="text-small-top" >{{rowData.timestamp | cscDate : ':mm:ss'}}</span>
+                        <span class="text-large">{{rowData.timestamp | cscDate : 'dd' }}</span>
+                        <span class="text-small-bottom">{{rowData.timestamp | cscDate : 'MMM' | uppercase }}</span>
+                        <span class="text-large">{{rowData.timestamp | cscDate : 'HH' }}</span>
+                        <span class="text-small-top" >{{rowData.timestamp | cscDate : ':mm:ss' }}</span>
                     </td>
                     <td style="width:175px;">
                         <span class="text-small">
-                            <p class="item-p"><span class="item-label">from: </span><span class="item-value"> {{ rowData.accountID }}</span></p>
-                            <p class="item-p"><span class="item-label">to: </span><span class="item-value"> {{ rowData.destination }}</span></p>
+                            <p class="item-p"><span class="item-label">{{ 'PAGES.HISTORY.FROM' | translate }}: </span><span class="item-value"> {{ rowData.accountID }}</span></p>
+                            <p class="item-p"><span class="item-label">{{ 'PAGES.HISTORY.TO' | translate }}: </span><span class="item-value"> {{ rowData.destination }}</span></p>
                             <p class="item-p" *ngIf="getDescription(rowData) != null"><span class="item-label">message: </span><span class="item-value"> {{ getDescription(rowData) }}</span></p>
                             <p class="item-p" *ngIf="rowData.destinationTag"><span class="item-label">tag: </span><span class="item-value"> {{ rowData.destinationTag }}</span></p>
                             <p class="item-p" *ngIf="rowData.invoiceID"><span class="item-label">invoice: </span><span class="item-value"> {{ rowData.invoiceID }}</span></p>
@@ -53,8 +69,8 @@
                     </td>
                     <td style="width:50px;">
                         <div [matTooltip]="getStatusTooltipText(rowData)">
-                            <p class="item-p"><span class="item-label">status: </span><i [ngClass]="getStatusIconClasses(rowData)"></i></p>
-                            <p class="item-p"><span class="item-label">ledger: </span><span class="item-value"> {{ rowData.inLedger }}</span></p>
+                            <p class="item-p"><span class="item-label">{{ 'PAGES.HISTORY.STATUS' | translate }}: </span><i [ngClass]="getStatusIconClasses(rowData)"></i></p>
+                            <p class="item-p"><span class="item-label">{{ 'PAGES.HISTORY.LEDGER' | translate }}: </span><span class="item-value"> {{ rowData.inLedger }}</span></p>
                         </div>
                     </td>
                     <td style="width:75px;">

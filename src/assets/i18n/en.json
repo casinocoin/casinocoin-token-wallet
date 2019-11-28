@@ -127,7 +127,11 @@
         "TITLE": "Transaction History",
         "SEL-DAT": "Select Date",
         "SEL-TOK": "Select Token",
-        "NOT-TX": "There are no transactions"
+        "NOT-TX": "There are no transactions",
+        "FROM": "from",
+        "TO": "to",
+        "STATUS": "status",
+        "LEDGER": "ledger"
       },
       "EXCHANGES": {
         "COININFO": "Coin Information",
