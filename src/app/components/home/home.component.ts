@@ -1,3 +1,4 @@
+import { languages } from './../../../assets/languages';
 import { Component, OnInit, OnDestroy, NgZone, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { ElectronService } from '../../providers/electron.service';
@@ -139,12 +140,7 @@ export class HomeComponent implements OnInit, OnDestroy {
                private datePipe: DatePipe,
                private _ngZone: NgZone,
                private currencyPipe: CurrencyPipe ) {
-    this.languages = [
-                  {name: 'English', value: 'en'},
-                  {name: 'Portuguese', value: 'po'},
-                  {name: 'Español', value: 'es'},
-                  {name: 'German', value: 'gr'},
-                ];
+    this.languages = languages;
     this.logger.debug('### INIT Home');
     this.applicationVersion = this.electron.remote.app.getVersion();
     this.network = this.sessionStorageService.get(AppConstants.KEY_CURRENT_WALLET).network;
@@ -196,147 +192,149 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.setWalletUIDisconnected();
       }
     });
-    // define Connection context menu
-    const connect_context_menu_template = [
-      { label: 'Connect to Network',
-        click(menuItem, browserWindow, event) {
-            browserWindow.webContents.send('connect-context-menu-event', 'connect'); }, visible: true
-        },
-        { label: 'Disconnect from Network',
+
+    this.translate.stream('PAGES.ELECTRON.CON-NET').subscribe((translated: string) => {
+      const connect_context_menu_template = [
+        { label: this.translate.instant('PAGES.ELECTRON.CON-NET'),
           click(menuItem, browserWindow, event) {
-              browserWindow.webContents.send('connect-context-menu-event', 'disconnect'); }, visible: false
+              browserWindow.webContents.send('connect-context-menu-event', 'connect'); }, visible: true
+          },
+          { label: this.translate.instant('PAGES.ELECTRON.DIS-NET'),
+            click(menuItem, browserWindow, event) {
+                browserWindow.webContents.send('connect-context-menu-event', 'disconnect'); }, visible: false
+          },
+          { label: this.translate.instant('PAGES.ELECTRON.SER-INF'),
+            click(menuItem, browserWindow, event) {
+                browserWindow.webContents.send('connect-context-menu-event', 'server-info'); }, visible: false
+          }
+        ];
+      this.connection_context_menu = this.electron.remote.Menu.buildFromTemplate(connect_context_menu_template);
+      // define Tools context menu
+      const tools_context_menu_template = [
+        { label: this.translate.instant('PAGES.ELECTRON.CRE-WLLT'), click(menuItem, browserWindow, event) {
+            browserWindow.webContents.send('context-menu-event', 'create-new-wallet');
+          }
         },
-        { label: 'Server Information',
+        { label: this.translate.instant('PAGES.ELECTRON.REFSH-WLLT'), click(menuItem, browserWindow, event) {
+            browserWindow.webContents.send('context-menu-event', 'refresh-wallet');
+          }
+        },
+        { label: this.translate.instant('PAGES.ELECTRON.CHNG-WLLT'), click(menuItem, browserWindow, event) {
+            browserWindow.webContents.send('context-menu-event', 'close-wallet');
+          }
+        },
+        { label: this.translate.instant('PAGES.ELECTRON.GNT-WLLT'),
           click(menuItem, browserWindow, event) {
-              browserWindow.webContents.send('connect-context-menu-event', 'server-info'); }, visible: false
+            browserWindow.webContents.send('context-menu-event', 'paper-wallet');
+          }, enabled: true
+        },
+        { label: this.translate.instant('PAGES.ELECTRON.IMP-KEY'),
+          click(menuItem, browserWindow, event) {
+            browserWindow.webContents.send('context-menu-event', 'import-priv-key');
+          }
         }
       ];
-    this.connection_context_menu = this.electron.remote.Menu.buildFromTemplate(connect_context_menu_template);
-    // define Tools context menu
-    const tools_context_menu_template = [
-      { label: 'Create New Wallet', click(menuItem, browserWindow, event) {
-          browserWindow.webContents.send('context-menu-event', 'create-new-wallet');
-        }
-      },
-      { label: 'Refresh Wallet', click(menuItem, browserWindow, event) {
-          browserWindow.webContents.send('context-menu-event', 'refresh-wallet');
-        }
-      },
-      { label: 'Change Wallet', click(menuItem, browserWindow, event) {
-          browserWindow.webContents.send('context-menu-event', 'close-wallet');
-        }
-      },
-      { label: 'Generate Paper Wallet',
-        click(menuItem, browserWindow, event) {
-          browserWindow.webContents.send('context-menu-event', 'paper-wallet');
-        }, enabled: true
-      },
-      { label: 'Import Private Key',
-        click(menuItem, browserWindow, event) {
-          browserWindow.webContents.send('context-menu-event', 'import-priv-key');
-        }
-      }
-    ];
-    this.tools_context_menu = this.electron.remote.Menu.buildFromTemplate(tools_context_menu_template);
-    // message signing submenu
-    const messageSigningMenu = { label: 'Message Signing', submenu: [
-        { label: 'Sign Message',
-          click(menuItem, browserWindow, event) {
-            browserWindow.webContents.send('context-menu-event', 'sign-message');
-          }, enabled: true
-        },
-        { label: 'Verify Message',
-          click(menuItem, browserWindow, event) {
-            browserWindow.webContents.send('context-menu-event', 'verify-message');
-          }, enabled: true
-        }
-    ]};
-    this.tools_context_menu.append(new this.electron.remote.MenuItem(messageSigningMenu));
-    // define Copy context menu
-    const copy_context_menu_template = [
-      { label: 'Copy',
-        click(menuItem, browserWindow, event) {
-          browserWindow.webContents.send('copy-context-menu-event', 'copy');
-        }
-      }
-    ];
-    this.copy_context_menu = this.electron.remote.Menu.buildFromTemplate(copy_context_menu_template);
-    // listen to connect context menu events
-    this.electron.ipcRenderer.on('connect-context-menu-event', (event, arg) => {
-      this.logger.debug('### connect-context-menu-event: ' + arg);
-      this._ngZone.run(() => {
-        if (arg === 'connect') {
-          this.onConnect();
-        } else if (arg === 'disconnect') {
-          this.onDisconnect();
-        } else if (arg === 'server-info') {
-          this.onServerInfo();
-        }
-      });
-    });
-    // listen to tools context menu events
-    this.electron.ipcRenderer.on('context-menu-event', (event, arg) => {
-      this.logger.debug('### HOME Menu Event: ' + arg);
-      this._ngZone.run(() => {
-        if (arg === 'import-priv-key') {
-          this.onPrivateKeyImport();
-        } else if (arg === 'create-new-wallet') {
-          this.onCreatNewWallet();
-        } else if (arg === 'refresh-wallet') {
-          this.showDialog();
-        } else if (arg === 'close-wallet') {
-          this.onCloseWallet();
-        } else if (arg === 'paper-wallet') {
-          this.onPaperWallet();
-        } else if (arg === 'sign-message') {
-          this.onShowSignMessage();
-        } else if (arg === 'verify-message') {
-          this.onShowVerifyMessage();
-        } else {
-          this.logger.debug('### Context menu not implemented: ' + arg);
-        }
-      });
-    });
-    // listen to copy context menu events
-    this.electron.ipcRenderer.on('copy-context-menu-event', (event, arg) => {
-      this._ngZone.run(() => {
-        if (arg === 'copy') {
-          this.copyValueToClipboard();
-        }
-      });
-    });
-    this.electron.ipcRenderer.on('update-message', (event, arg) => {
-      this.logger.info('### HOME Received Auto Update Message: ' + arg);
-    });
-    // load wallet settings
-    this.walletSettings = this.localStorageService.get(AppConstants.KEY_WALLET_SETTINGS);
-    if (this.walletSettings == null) {
-      // settings do not exist yet so create
-      this.walletSettings = {fiatCurrency: 'USD', showNotifications: false};
-      this.localStorageService.set(AppConstants.KEY_WALLET_SETTINGS, this.walletSettings);
-    }
-    this.notifications.push({label: 'True', value: true});
-    this.notifications.push({label: 'False', value: false});
-    // load fiat currencies and update market value
-    this.fiatCurrencies = this.marketService.getFiatCurrencies();
-    this.updateMarketService(this.walletSettings.fiatCurrency);
+      this.tools_context_menu = this.electron.remote.Menu.buildFromTemplate(tools_context_menu_template);
+      // message signing submenu
+      const messageSigningMenu = { label: this.translate.instant('PAGES.ELECTRON.MSG-SIGN') , submenu: [
+          { label: this.translate.instant('PAGES.ELECTRON.SIGN-MSG'),
+            click(menuItem, browserWindow, event) {
+              browserWindow.webContents.send('context-menu-event', 'sign-message');
+            }, enabled: true
+          },
+          { label: this.translate.instant('PAGES.ELECTRON.VER-MSG'),
+            click(menuItem, browserWindow, event) {
+              browserWindow.webContents.send('context-menu-event', 'verify-message');
+            }, enabled: true
+          }
+      ]};
 
-    this.subscriptionWatchItem = this.casinocoinService.eventSubject.subscribe( value => {
-      if (value === 'hiddenRefreshing') {
-        this.router.navigate(['home/tokenlist']);
-        this.refreshWallet = false;
+      this.tools_context_menu.append(new this.electron.remote.MenuItem(messageSigningMenu));
+      // define Copy context menu
+      const copy_context_menu_template = [
+        { label: this.translate.instant('PAGES.ELECTRON.COPY'),
+          click(menuItem, browserWindow, event) {
+            browserWindow.webContents.send('copy-context-menu-event', 'copy');
+          }
+        }
+      ];
+      this.copy_context_menu = this.electron.remote.Menu.buildFromTemplate(copy_context_menu_template);
+      // listen to connect context menu events
+      this.electron.ipcRenderer.on('connect-context-menu-event', (event, arg) => {
+        this.logger.debug('### connect-context-menu-event: ' + arg);
+        this._ngZone.run(() => {
+          if (arg === 'connect') {
+            this.onConnect();
+          } else if (arg === 'disconnect') {
+            this.onDisconnect();
+          } else if (arg === 'server-info') {
+            this.onServerInfo();
+          }
+        });
+      });
+      // listen to tools context menu events
+      this.electron.ipcRenderer.on('context-menu-event', (event, arg) => {
+        this.logger.debug('### HOME Menu Event: ' + arg);
+        this._ngZone.run(() => {
+          if (arg === 'import-priv-key') {
+            this.onPrivateKeyImport();
+          } else if (arg === 'create-new-wallet') {
+            this.onCreatNewWallet();
+          } else if (arg === 'refresh-wallet') {
+            this.showDialog();
+          } else if (arg === 'close-wallet') {
+            this.onCloseWallet();
+          } else if (arg === 'paper-wallet') {
+            this.onPaperWallet();
+          } else if (arg === 'sign-message') {
+            this.onShowSignMessage();
+          } else if (arg === 'verify-message') {
+            this.onShowVerifyMessage();
+          } else {
+            this.logger.debug('### Context menu not implemented: ' + arg);
+          }
+        });
+      });
+      // listen to copy context menu events
+      this.electron.ipcRenderer.on('copy-context-menu-event', (event, arg) => {
+        this._ngZone.run(() => {
+          if (arg === 'copy') {
+            this.copyValueToClipboard();
+          }
+        });
+      });
+      this.electron.ipcRenderer.on('update-message', (event, arg) => {
+        this.logger.info('### HOME Received Auto Update Message: ' + arg);
+      });
+      // load wallet settings
+      this.walletSettings = this.localStorageService.get(AppConstants.KEY_WALLET_SETTINGS);
+      if (this.walletSettings == null) {
+        // settings do not exist yet so create
+        this.walletSettings = {fiatCurrency: 'USD', showNotifications: false};
+        this.localStorageService.set(AppConstants.KEY_WALLET_SETTINGS, this.walletSettings);
       }
-      if (value === 'showDialog') {
-        this.refreshWallet = !this.refreshWallet;
-        this.display = false;
-      }
+      this.notifications.push({label: 'True', value: true});
+      this.notifications.push({label: 'False', value: false});
+      // load fiat currencies and update market value
+      this.fiatCurrencies = this.marketService.getFiatCurrencies();
+      this.updateMarketService(this.walletSettings.fiatCurrency);
+
+      this.subscriptionWatchItem = this.casinocoinService.eventSubject.subscribe( value => {
+        if (value === 'hiddenRefreshing') {
+          this.router.navigate(['home/tokenlist']);
+          this.refreshWallet = false;
+        }
+        if (value === 'showDialog') {
+          this.refreshWallet = true;
+          this.display = false;
+        }
+      });
     });
     this.getSystemLanguage();
   }
 
   getSystemLanguage() {
-    const lg = this.electron.remote.app.getLocale();
-    const ln = lg[0] + lg[1];
+    const ln = this.translate.getDefaultLang();
     this.languageSystem = this.languages.find(item => item.value === ln);
     if (!this.languageSystem) { this.languageSystem = {name: 'English', value: 'en'}; }
   }

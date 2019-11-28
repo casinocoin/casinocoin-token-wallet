@@ -1,3 +1,4 @@
+import { languages } from './../assets/languages';
 import { Component } from '@angular/core';
 import { ElectronService } from './providers/electron.service';
 import { LogService } from './providers/log.service';
@@ -18,12 +19,7 @@ export class AppComponent {
                private translate: TranslateService,
                private logger: LogService ) {
 
-     this.languages = [
-                  {name: 'English', value: 'en'},
-                  {name: 'Portuguese', value: 'po'},
-                  {name: 'Español', value: 'es'},
-                  {name: 'German', value: 'gr'},
-                ];
+     this.languages = languages;
     // translate.setDefaultLang('en');
     this.logger.debug('### AppConfig: ' + JSON.stringify(AppConfig));
 
@@ -43,5 +39,5 @@ export class AppComponent {
     if (this.languageSystem) {
       this.translate.setDefaultLang(this.languageSystem.value);
     } else { this.translate.setDefaultLang('en'); this.languageSystem = {name: 'English', value: 'en'}; }
-  } 
+  }
 }

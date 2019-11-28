@@ -12,6 +12,7 @@ import Big from 'big.js';
 import { LokiTransaction } from '../../domains/lokijs';
 import { Menu as ElectronMenu, MenuItem as ElectronMenuItem } from 'electron';
 import { AppConfig } from '../../../environments/environment';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-history',
@@ -33,13 +34,16 @@ import { AppConfig } from '../../../environments/environment';
 })
 export class HistoryComponent implements OnInit, AfterViewInit {
 
-  constructor(private logger: LogService,
-              private casinocoinService: CasinocoinService,
-              private walletService: WalletService,
-              private electronService: ElectronService,
-              private cscAmountPipe: CSCAmountPipe,
-              private router: Router,
-              private route: ActivatedRoute) { }
+  constructor (
+    private logger: LogService,
+    private casinocoinService: CasinocoinService,
+    private walletService: WalletService,
+    private electronService: ElectronService,
+    private cscAmountPipe: CSCAmountPipe,
+    private router: Router,
+    private route: ActivatedRoute,
+    private translate: TranslateService
+  ) { }
 
   public selectedAccount: any;
   public selectedToken: any;
@@ -69,38 +73,40 @@ export class HistoryComponent implements OnInit, AfterViewInit {
       }
     });
     // define Transaction Context menu
-    const tx_context_menu_template = [
-      { label: 'Copy From Account',
-        click(menuItem, browserWindow, event) {
-          browserWindow.webContents.send('tx-context-menu-event', 'copy-from'); }
-      },
-      { label: 'Copy To Account',
-        click(menuItem, browserWindow, event) {
-            browserWindow.webContents.send('tx-context-menu-event', 'copy-to'); }
-      },
-      { label: 'Copy Transaction ID',
+    this.translate.stream('PAGES.ELECTRON.COPY-ACC').subscribe((translated: string) => {
+      const tx_context_menu_template = [
+        { label: this.translate.instant('PAGES.ELECTRON.COPY-FACC'),
           click(menuItem, browserWindow, event) {
-              browserWindow.webContents.send('tx-context-menu-event', 'copy-txid'); }
-      },
-      { label: 'Show in Block Explorer',
+            browserWindow.webContents.send('tx-context-menu-event', 'copy-from'); }
+        },
+        { label: this.translate.instant('PAGES.ELECTRON.COPY-TACC'),
           click(menuItem, browserWindow, event) {
-              browserWindow.webContents.send('tx-context-menu-event', 'show-explorer'); }
-      }
-    ];
-    this.tx_context_menu = this.electronService.remote.Menu.buildFromTemplate(tx_context_menu_template);
-    // listen to connection context menu events
-    this.electronService.ipcRenderer.on('tx-context-menu-event', (event, arg) => {
-      if (arg === 'copy-to') {
-        this.electronService.clipboard.writeText(this.currentTX.destination);
-      } else if (arg === 'copy-from') {
-        this.electronService.clipboard.writeText(this.currentTX.accountID);
-      } else if (arg === 'copy-txid') {
-        this.electronService.clipboard.writeText(this.currentTX.txID);
-      } else if (arg === 'show-explorer') {
-        this.showTransactionDetails();
-      } else {
-        this.logger.debug('### Context menu not implemented: ' + arg);
-      }
+              browserWindow.webContents.send('tx-context-menu-event', 'copy-to'); }
+        },
+        { label: this.translate.instant('PAGES.ELECTRON.COPY-TX'),
+            click(menuItem, browserWindow, event) {
+                browserWindow.webContents.send('tx-context-menu-event', 'copy-txid'); }
+        },
+        { label: this.translate.instant('PAGES.ELECTRON.SHOW-EXP'),
+            click(menuItem, browserWindow, event) {
+                browserWindow.webContents.send('tx-context-menu-event', 'show-explorer'); }
+        }
+      ];
+      this.tx_context_menu = this.electronService.remote.Menu.buildFromTemplate(tx_context_menu_template);
+      // listen to connection context menu events
+      this.electronService.ipcRenderer.on('tx-context-menu-event', (event, arg) => {
+        if (arg === 'copy-to') {
+          this.electronService.clipboard.writeText(this.currentTX.destination);
+        } else if (arg === 'copy-from') {
+          this.electronService.clipboard.writeText(this.currentTX.accountID);
+        } else if (arg === 'copy-txid') {
+          this.electronService.clipboard.writeText(this.currentTX.txID);
+        } else if (arg === 'show-explorer') {
+          this.showTransactionDetails();
+        } else {
+          this.logger.debug('### Context menu not implemented: ' + arg);
+        }
+      });
     });
     this.casinocoinService.validatedTxSubject.subscribe( txHash => {
       if (txHash) {

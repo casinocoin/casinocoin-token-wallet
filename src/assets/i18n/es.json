@@ -187,6 +187,28 @@
           "RECH-PASS" : "Contraseña incorrecta",
           "WAIT-REF" : "Espera a que la billetera se actualice",
           "REFRESHING" : "Actualizando"
+        },
+        "ELECTRON": {
+          "CON-NET":"Conectarse a la red",
+          "DIS-NET": "Desconectarse de la red",
+          "SER-INF": "Información del servidor",
+          "CRE-WLLT": "Crear nueva billetera",
+          "REFSH-WLLT": "Actualizar billetera",
+          "CHNG-WLLT": "Cambiar de billetera",
+          "GNT-WLLT": "Generar billetera de papel",
+          "IMP-KEY": "Importar clave privada",
+          "MSG-SIGN":"Firma de mensaje",
+          "SIGN-MSG": "Firmar mensaje",
+          "VER-MSG": "Verificar mensaje",
+          "COPY": "Copiar",
+          "COPY-ACC": "Copiar cuenta",
+          "SHOW-EXP": "Mostrar en el Explorador de bloques",
+          "EDIT-LBL": "Editar etiqueta",
+          "REC-QRC": "Recibir código QR",
+          "SHOW-ACC": "Mostrar secreto de cuenta",
+          "COPY-FACC": "Copiar desde la cuenta",
+          "COPY-TACC": "Copiar a cuenta",
+          "COPY-TX": "Copiar ID de transacción"
         }
     }
 }

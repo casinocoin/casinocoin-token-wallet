@@ -187,6 +187,28 @@
         "RECH-PASS" : "Incorrect Password",
         "WAIT-REF" : "Wait for the wallet to refresh",
         "REFRESHING" : "Refreshing"
+      },
+      "ELECTRON": {
+        "CON-NET":"Connect to Network",
+        "DIS-NET": "Disconnect from Network",
+        "SER-INF": "Server Information",
+        "CRE-WLLT": "Create New Wallet",
+        "REFSH-WLLT": "Refresh Wallet",
+        "CHNG-WLLT": "Change Wallet",
+        "GNT-WLLT": "Generate Paper Wallet",
+        "IMP-KEY": "Import Private Key",
+        "MSG-SIGN":"Message Signing",
+        "SIGN-MSG": "Sign Message",
+        "VER-MSG": "Verify Message",
+        "COPY": "Copy",
+        "COPY-ACC": "Copy Account",
+        "SHOW-EXP": "Show in Block Explorer",
+        "EDIT-LBL": "Edit Label",
+        "REC-QRC": "Receive QRCode",
+        "SHOW-ACC": "Show Account Secret",
+        "COPY-FACC": "Copy From Account",
+        "COPY-TACC": "Copy To Account",
+        "COPY-TX": "Copy Transaction ID"
       }
   }
 }

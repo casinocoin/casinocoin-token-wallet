@@ -19,6 +19,7 @@ import Big from 'big.js';
 import { NotificationService } from '../../providers/notification.service';
 import { SelectItem } from 'primeng/primeng';
 import { CSCAmountPipe } from '../../app-pipes.module';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-tokenlist',
@@ -88,6 +89,7 @@ export class TokenlistComponent implements OnInit {
   accountLabel = '';
 
   constructor(private logger: LogService,
+              private translate: TranslateService,
               private casinocoinService: CasinocoinService,
               private sessionStorageService: SessionStorageService,
               private walletService: WalletService,
@@ -158,47 +160,49 @@ export class TokenlistComponent implements OnInit {
     this.showLedgerDialog = false;
     this.signAndSubmitIcon = 'pi pi-check';
     // define Transaction Context menu
-    const token_context_menu_template = [
-      { label: 'Copy Account',
-        click(menuItem, browserWindow, event) {
-          browserWindow.webContents.send('token-context-menu-event', 'copy-account'); }
-      },
-      { label: 'Show in Block Explorer',
-        click(menuItem, browserWindow, event) {
-            browserWindow.webContents.send('token-context-menu-event', 'show-explorer'); }
-      },
-      { label: 'Edit Label',
-        click(menuItem, browserWindow, event) {
-          browserWindow.webContents.send('token-context-menu-event', 'edit-account-label'); }
-      },
-      { label: 'Receive QRCode',
-        click(menuItem, browserWindow, event) {
-          browserWindow.webContents.send('token-context-menu-event', 'receive-qrcode');
+    this.translate.stream('PAGES.ELECTRON.COPY-ACC').subscribe((translated: string) => {
+      const token_context_menu_template = [
+        { label: this.translate.instant('PAGES.ELECTRON.COPY-ACC'),
+          click(menuItem, browserWindow, event) {
+            browserWindow.webContents.send('token-context-menu-event', 'copy-account'); }
+        },
+        { label: this.translate.instant('PAGES.ELECTRON.SHOW-EXP'),
+          click(menuItem, browserWindow, event) {
+              browserWindow.webContents.send('token-context-menu-event', 'show-explorer'); }
+        },
+        { label: this.translate.instant('PAGES.ELECTRON.EDIT-LBL'),
+          click(menuItem, browserWindow, event) {
+            browserWindow.webContents.send('token-context-menu-event', 'edit-account-label'); }
+        },
+        { label: this.translate.instant('PAGES.ELECTRON.REC-QRC'),
+          click(menuItem, browserWindow, event) {
+            browserWindow.webContents.send('token-context-menu-event', 'receive-qrcode');
+          }
+        },
+        { label: this.translate.instant('PAGES.ELECTRON.SHOW-ACC'),
+          click(menuItem, browserWindow, event) {
+            browserWindow.webContents.send('token-context-menu-event', 'show-secret');
+          }
         }
-      },
-      { label: 'Show Account Secret',
-        click(menuItem, browserWindow, event) {
-          browserWindow.webContents.send('token-context-menu-event', 'show-secret');
-        }
-      }
-    ];
-    this.token_context_menu = this.electronService.remote.Menu.buildFromTemplate(token_context_menu_template);
-    // listen to connection context menu events
-    this.electronService.ipcRenderer.on('token-context-menu-event', (event, arg) => {
-      this._ngZone.run(() => {
-        if (arg === 'copy-account') {
-            this.electronService.clipboard.writeText(this.walletService.selectedTableAccount.AccountID);
-        } else if (arg === 'edit-account-label') {
-          this.doShowEditAccountLabel();
-        } else if (arg === 'show-explorer') {
-          this.showAccountOnExplorer(this.walletService.selectedTableAccount.AccountID);
-        } else if (arg === 'receive-qrcode') {
-          this.doShowReceiveQRCode();
-        } else if (arg === 'show-secret') {
-          this.doShowAccountSecretDialog();
-        } else {
-          this.logger.debug('### Context menu not implemented: ' + arg);
-        }
+      ];
+      this.token_context_menu = this.electronService.remote.Menu.buildFromTemplate(token_context_menu_template);
+      // listen to connection context menu events
+      this.electronService.ipcRenderer.on('token-context-menu-event', (event, arg) => {
+        this._ngZone.run(() => {
+          if (arg === 'copy-account') {
+              this.electronService.clipboard.writeText(this.walletService.selectedTableAccount.AccountID);
+          } else if (arg === 'edit-account-label') {
+            this.doShowEditAccountLabel();
+          } else if (arg === 'show-explorer') {
+            this.showAccountOnExplorer(this.walletService.selectedTableAccount.AccountID);
+          } else if (arg === 'receive-qrcode') {
+            this.doShowReceiveQRCode();
+          } else if (arg === 'show-secret') {
+            this.doShowAccountSecretDialog();
+          } else {
+            this.logger.debug('### Context menu not implemented: ' + arg);
+          }
+        });
       });
     });
 
