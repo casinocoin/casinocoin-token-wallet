@@ -31,7 +31,9 @@
           "MSG-INST": "Please enter the message, public key and signature you want to verify",
           "VERIFY": "Result",
           "CONFIRM": "Confirm",
-          "CANCEL": "Cancel"
+          "CANCEL": "Cancel",
+          "WALL-VER": "Wallet Version",
+          "NETWORK": "Network"
       },
       "LOGIN": {
           "TITLE": "Open Wallet",

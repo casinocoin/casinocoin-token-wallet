@@ -38,7 +38,6 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   walletSettings: WalletSettings = {showNotifications: true, fiatCurrency: 'USD'};
   fiatCurrencies: SelectItem[] = [];
-  notifications: SelectItem[] = [];
   selectedFiatCurrency: string;
   currentWalletObject: WalletDefinition;
   active_menu_item: string;
@@ -313,8 +312,6 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.walletSettings = {fiatCurrency: 'USD', showNotifications: false};
         this.localStorageService.set(AppConstants.KEY_WALLET_SETTINGS, this.walletSettings);
       }
-      this.notifications.push({label: 'True', value: true});
-      this.notifications.push({label: 'False', value: false});
       // load fiat currencies and update market value
       this.fiatCurrencies = this.marketService.getFiatCurrencies();
       this.updateMarketService(this.walletSettings.fiatCurrency);
@@ -345,9 +342,9 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.electron.ipcRenderer.removeAllListeners('action');
   }
 
-  changeLanguage(language: string) {
+  changeLanguage(language: {name , value}) {
     try {
-      this.translate.use(language);
+      this.translate.use(language.value);
     } catch (error) {
       console.log(error.statusText);
     }
@@ -541,6 +538,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   updateShowNotification(event) {
+    this.walletSettings.showNotifications = event;
     this.localStorageService.set(AppConstants.KEY_WALLET_SETTINGS, this.walletSettings);
   }
 

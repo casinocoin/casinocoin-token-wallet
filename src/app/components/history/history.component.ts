@@ -79,9 +79,13 @@ export class HistoryComponent implements OnInit, AfterViewInit {
     });
     // define Transaction Context menu
     this.translate.stream('PAGES.ELECTRON.COPY-ACC').subscribe((translated: string) => {
-      const lang = this.translate.getBrowserLang();
-      if (lang === 'en') { this.language = en; }
-      if (lang === 'es') { this.language = es; }
+      const lang = this.translate.currentLang;
+      if (!lang) {
+        this.language = en;
+      } else {
+        if (lang === 'en') { this.language = en; }
+        if (lang === 'es') { this.language = es; }
+      }
       const tx_context_menu_template = [
         { label: this.translate.instant('PAGES.ELECTRON.COPY-FACC'),
           click(menuItem, browserWindow, event) {

@@ -12,7 +12,7 @@
                                     <div class="ui-g-3">
                                         <i class="icon icon-transactions menu-icon"></i>
                                     </div>
-                                    <div class="ui-g-9 menu-text">{{ 'PAGES.HOME.WALLET' | translate }}</div>
+                                    <div class="ui-g-9 menu-text" style="cursor: pointer;">{{ 'PAGES.HOME.WALLET' | translate }}</div>
                                 </div>
                             </mat-list-item>
                             <mat-list-item (click)="onHistory()" class="menu-item" 
@@ -21,7 +21,7 @@
                                     <div class="ui-g-3">
                                         <i class="pi pi-align-justify menu-icon"></i>
                                     </div>
-                                    <div class="ui-g-9 menu-text">{{ 'PAGES.HOME.HISTORY' | translate }}</div>
+                                    <div class="ui-g-9 menu-text" style="cursor: pointer;">{{ 'PAGES.HOME.HISTORY' | translate }}</div>
                                 </div>
                             </mat-list-item>
                             <mat-list-item (click)="onExchanges()" class="menu-item" 
@@ -30,7 +30,7 @@
                                     <div class="ui-g-3">
                                         <i class="icon icon-exchange menu-icon"></i>
                                     </div>
-                                    <div class="ui-g-9 menu-text">{{ 'PAGES.HOME.EXCHANGES' | translate }}</div>
+                                    <div class="ui-g-9 menu-text" style="cursor: pointer;">{{ 'PAGES.HOME.EXCHANGES' | translate }}</div>
                                 </div>
                             </mat-list-item>
                             
@@ -67,7 +67,7 @@
                                     <div class="ui-g-3">
                                         <i class="icon icon-question menu-icon"></i>
                                     </div>
-                                    <div class="ui-g-9 menu-text">{{ 'PAGES.HOME.SUPPORT' | translate }}</div>
+                                    <div class="ui-g-9 menu-text" style="cursor: pointer;">{{ 'PAGES.HOME.SUPPORT' | translate }}</div>
                                 </div>
                             </mat-list-item>
                             <mat-list-item (click)="onExit()" class="menu-item"
@@ -76,15 +76,15 @@
                                     <div class="ui-g-3">
                                         <i class="pi pi-power-off menu-icon"></i>
                                     </div>
-                                    <div class="ui-g-9 menu-text">{{ 'PAGES.HOME.EXIT' | translate }}</div>
+                                    <div class="ui-g-9 menu-text" style="cursor: pointer;">{{ 'PAGES.HOME.EXIT' | translate }}</div>
                                 </div>
                             </mat-list-item>
                         </mat-list>
                     </div>
                 </div>
                 <div id="wallet-version">
-                    Wallet Version: {{applicationVersion}}<br>
-                    Network: {{serverVersion}} ({{network}})
+                    {{ 'PAGES.HOME.WALL-VER' | translate }}: {{applicationVersion}}<br>
+                    {{ 'PAGES.HOME.NETWORK' | translate }}: {{serverVersion}} ({{network}})
                 </div>
             </mat-sidenav>
             <!-- primary content -->
@@ -137,7 +137,7 @@
                     <p-dropdown 
                         [options]="languages" 
                         [(ngModel)]="languageSystem" 
-                        (ngModelChange)="changeLanguage(languageSystem.value)"
+                        (ngModelChange)="changeLanguage($event)"
                         appendTo="body"
                         optionLabel="name">
                     </p-dropdown>
@@ -157,14 +157,14 @@
                             autofocus #fiatCurrenciesDrodown></p-dropdown>
                 </div>
                 <div class="ui-g-4">{{'PAGES.SETTINGS.SHOW-DESK-NOT' | translate}}</div><div class="ui-g-8 bold-value">
-                        <p-dropdown
-                        [style]="{'width':'100%'}"
-                        [options]="notifications"
-                        [(ngModel)]="walletSettings.showNotifications"
-                        (ngModelChange)="updateShowNotification($event)"
-                        appendTo="body"
-                        autofocus #notificationsDrowdown></p-dropdown>
+                        <p-checkbox 
+                            [(ngModel)]="checked"
+                            (ngModelChange)="updateShowNotification($event)" 
+                            [(ngModel)]="walletSettings.showNotifications" 
+                            binary="true">
+                        </p-checkbox>
                 </div>
+                
             </div>
         </div>
         <div class="ui-g-1"></div>

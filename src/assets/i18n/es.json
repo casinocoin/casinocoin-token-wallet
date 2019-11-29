@@ -31,7 +31,9 @@
             "MSG-INST": "Ingrese el mensaje, la clave pública y la firma que desea verificar",
             "VERIFY": "Resultado",
             "CONFIRM": "Confirmar",
-            "CANCEL": "Cancelar"
+            "CANCEL": "Cancelar",
+            "WALL-VER": "Versión Billetera",
+            "NETWORK": "Red"
         },
         "LOGIN": {
             "TITLE": "Abrir Billetera",
