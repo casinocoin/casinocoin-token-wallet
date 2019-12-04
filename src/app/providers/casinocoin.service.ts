@@ -625,7 +625,6 @@ export class CasinocoinService implements OnDestroy {
                                 this.logger.debug('### CasinocoinService -> check AccountID: ' + newKeyPair.accountID);
                                 // check if new key pair AccountID exists on the ledger
                                 try {
-                                    console.log('cscAPI::', this.cscAPI);
                                     const accountResult = await this.cscAPI.getAccountInfo(newKeyPair.accountID);
                                     this.logger.debug('### CasinocoinService -> Account: ' + JSON.stringify(accountResult));
                                     // save key to wallet

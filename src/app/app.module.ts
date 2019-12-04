@@ -26,6 +26,7 @@ import { WebviewDirective } from './directives/webview.directive';
 import { DatePipe, DecimalPipe, CurrencyPipe } from '@angular/common';
 import { CSCDatePipe, CSCAmountPipe, ToNumberPipe } from './app-pipes.module';
 
+
 // Components
 import { AppComponent } from './app.component';
 import { HomeComponent } from './components/home/home.component';
@@ -81,6 +82,10 @@ import {ProgressBarModule} from 'primeng/progressbar';
 import { MatListModule, MatSidenavModule, MatTooltipModule, MatButtonModule } from '@angular/material';
 import { QRCodeModule } from 'angularx-qrcode';
 import {CardModule} from 'primeng/card';
+import { InputSwitchModule } from 'primeng/primeng';
+import {FieldsetModule} from 'primeng/fieldset';
+import {ConfirmDialogModule} from 'primeng/confirmdialog';
+import {OrderListModule} from 'primeng/orderlist';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient) {
@@ -137,7 +142,8 @@ export function HttpLoaderFactory(http: HttpClient) {
     TieredMenuModule, MatTooltipModule, MatButtonModule,
     InputTextareaModule, ProgressSpinnerModule, InputTextModule,
     TableModule, ListboxModule, RadioButtonModule, ProgressBarModule,
-    QRCodeModule, CardModule
+    QRCodeModule, CardModule, InputSwitchModule, FieldsetModule,
+    ConfirmDialogModule, OrderListModule
   ],
   providers: [
     AuthGuard,

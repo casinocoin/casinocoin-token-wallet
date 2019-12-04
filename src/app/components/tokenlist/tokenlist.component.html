@@ -42,43 +42,25 @@
                 <tr>
                     <td [attr.colspan]="columns">
                         <div *ngIf="rowData.Token === 'CSC' && rowData.Activated === false" translate="PAGES.TOKENLIST.ACTIVATE-CSC" [translateParams]="translateParams"></div>
-                        <!--
-                        <div *ngIf="rowData.Token !== 'CSC' && rowData.Activated === false && canActivateAccount()">
-                            <form [formGroup]="activateForm" (ngSubmit)="onActivateAccount(activateForm.value)">
-                                <div class="ui-g ui-fluid" style="padding-top: 15px;">
-                                    <div class="ui-g-3">
-                                        <span class="ui-float-label">
-                                            <input id="float-input-password" formControlName="password" type="password"  style="width: 100%;" pInputText required> 
-                                            <label for="float-input-password">{{'PAGES.TOKENLIST.PASSWORD' | translate }}</label>
-                                        </span>
-                                    </div>
-                                    <div class="ui-g-2">
-                                        <button pButton type="submit" label="{{'PAGES.TOKENLIST.ACTIVATE'|translate}}" [disabled]="!activateForm.valid" icon="fa fa-toggle-on" iconPos="right" style="margin-top: 10px; padding: 5px;"></button>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                        <div *ngIf="rowData.Token !== 'CSC' && rowData.Activated === false && !canActivateAccount()" translate="PAGES.TOKENLIST.FUND-CSC-TO-ACTIVATE" [translateParams]="translateParams"></div>
-                        -->
+
                         <div *ngIf="rowData.Activated === true" (click)="onExpandedRowClicked(rowData)">
                             <form [formGroup]="sendForm" (ngSubmit)="onSendFormSubmit(sendForm.value)">
                                 <fieldset [disabled]="getSendFormDisabled(rowData)">
                                 <div *ngIf="getSendFormDisabled(rowData)">{{'PAGES.TOKENLIST.NOT-ENOUGH-CSC' | translate }}</div>
                                 <div class="ui-g ui-fluid" style="padding-top: 15px;">
-                                    <div class="ui-g-2">
+                                    <div class="ui-g-2 ui-inputgroup">
                                         <span class="ui-float-label">
                                             <input id="float-input-amount" formControlName="amount" type="text"  style="width: 100%;" pInputText required> 
                                             <label for="float-input-amount">{{'PAGES.TOKENLIST.AMOUNT' | translate }}</label>
                                         </span>
+                                        <button pButton type="button" style="margin-top: 10px; margin-bottom: 10px;" (click)="doSendAll(rowData)" label="{{'PAGES.TOKENLIST.SEND-ALL'|translate}}"></button>
                                     </div>
-                                    <div class="ui-g-1">
-                                        <button pButton type="button" style="margin-top: 10px; padding: 2px;" (click)="doSendAll(rowData)" label="{{'PAGES.TOKENLIST.SEND-ALL'|translate}}"></button>
-                                    </div>
-                                    <div class="ui-g-5">
-                                        <span class="ui-float-label">
+                                    <div class="ui-g-5 ui-inputgroup">
+                                        <span class="ui-float-label" style="width: 100%;">
                                             <input id="float-input-accountid" formControlName="accountid" type="text"  style="width: 100%;" pInputText required> 
                                             <label for="float-input-accountid">{{'PAGES.TOKENLIST.ACCOUNTID' | translate }}</label>
                                         </span>
+                                        <button pButton type="button" style="margin-top: 10px; padding: 2px; font-size: 1.3em; margin-bottom: 10px; " icon="pi pi-users"  (click)="getAllAddress()"></button>
                                     </div>
                                     <div class="ui-g-2">
                                         <span class="ui-float-label">
@@ -91,7 +73,7 @@
                                     </div>
                                 </div>
                                 <div class="ui-g ui-fluid" style="padding-top: 10px;">
-                                    <div class="ui-g-3">
+                                    <div class="ui-g-2">
                                         <span class="text-small" style="margin: 1em;">
                                             <p class="item-p"><span class="item-label">{{'PAGES.TOKENLIST.FEES' | translate }}: </span><span class="item-value"> {{ fees }} CSC</span></p>
                                             <p class="item-p"><span class="item-label">{{'PAGES.TOKENLIST.RESERVED' | translate }}: </span><span class="item-value"> {{ getTotalReserved(rowData) | number : '1.2-2' }} CSC</span></p>
@@ -99,6 +81,9 @@
                                             <p class="item-p"><span class="item-label">{{'PAGES.TOKENLIST.AVAILABLE' | translate }}: </span><span class="item-value"> {{ availableBalanceCSC() | cscAmount : true : true }}</span></p>
                                             -->
                                         </span>
+                                    </div>
+                                    <div class="ui-g-1">
+                                        <p class="item-p"><span class="item-label">Save in AdressBook:</span></p> <p-inputSwitch [ngModelOptions]="{standalone: true}"  [(ngModel)]="saveAddresssBook"></p-inputSwitch>
                                     </div>
                                     <div class="ui-g-3">
                                         <span class="ui-float-label">
@@ -188,6 +173,7 @@
         Error: {{error_message}}
     </p-footer>
 </p-dialog>
+
 <p-dialog class="dialog-header" [(visible)]="showAddCSCDialog" [width]="400" [height]="260" (onHide)="onHideCSCDialog()"
           [closable]="true" [modal]="true" appendTo="body">
     <p-header>
@@ -207,6 +193,7 @@
         Error: {{error_message}}
     </p-footer>
 </p-dialog>
+
 <p-dialog class="dialog-header" [(visible)]="showErrorDialog" [width]="400" [height]="240" 
           [closable]="true" [modal]="true" appendTo="body">
     <p-header>
@@ -220,6 +207,7 @@
                 iconPos="left" label="{{'PAGES.TOKENLIST.ERROR-OK'|translate}}"></button>
     </div>
 </p-dialog>
+
 <p-dialog [(visible)]="showReceiveQRCodeDialog" [width]="375" [height]="540" [closable]="true" [modal]="true" appendTo="body">
     <p-header><span><i class="icon csc-dialog-icon icon-chip"></i>Receive CasinoCoin</span></p-header>
     <div class="qrcode">
@@ -250,6 +238,7 @@
         </div>
     </div>
 </p-dialog>
+
 <p-dialog [(visible)]="showSecretDialog" [width]="375" [height]="275" [closable]="true" [modal]="true" appendTo="body" (onHide)="onHideSecretDialog()">
     <p-header><span><i class="icon csc-dialog-icon icon-chip"></i>{{'PAGES.TOKENLIST.SHOW-SECRET' | translate }}</span></p-header>
     <p>{{'PAGES.TOKENLIST.ADD-NEW-CSC-PASSWORD' | translate }}:</p>
@@ -268,6 +257,7 @@
                 iconPos="left" label="{{'PAGES.TOKENLIST.SHOW-SECRET'|translate}}" [disabled]="(walletPassword == null || walletPassword.length === 0)"></button>
     </div>
 </p-dialog>
+
 <p-dialog [(visible)]="showEditAccountLabel" [width]="375" [height]="200" [closable]="true" [modal]="true" appendTo="body">
     <p-header><span><i class="icon csc-dialog-icon icon-chip"></i>{{'PAGES.TOKENLIST.EDIT-LABEL' | translate }}</span></p-header>
     <div>
@@ -281,3 +271,42 @@
                 iconPos="left" label="{{'PAGES.TOKENLIST.SAVE'|translate}}"></button>
     </div>
 </p-dialog>
+
+<p-dialog header="Adress Book" [(visible)]="showAddresssBook" [modal]="true" appendTo="body" [responsive]="true" [style]="{width: '700px', minWidth: '500px'}" [minY]="70" >
+        <div *ngIf="!addressBook || addressBook.length === 0" class="ui-g-12" style=" display: flex; justify-content: center; align-items: center;">
+            <div class="">
+                <h2 style="color: brown;">There are Not Contacts</h2>
+                <hr style="color: brown;">
+            </div>
+        </div>
+        <p-fieldset legend="Select Address ">
+            <p-orderList [value]="addressBook" [listStyle]="{'height':'250px'}"
+                filter="filter" filterBy="accountID" filterPlaceholder="Filter by Account" dragdrop="true">
+                <ng-template let-account pTemplate="item">
+                    <div class="ui-g" class="ui-helper-clearfix"  style="cursor: pointer;">
+                        <div class="ui-g-2" (click)="acingData(account)" style=" text-align: center;">
+                            <i  style="font-size: 3em; margin-top: 0.1em; color: brown; cursor: pointer;" class="pi pi-user"></i>
+                        </div>
+                        <div class="ui-g-8" (click)="acingData(account)">
+                            Name:<strong style="font-size: 1.3em; cursor: pointer; margin-bottom: 3px;" > {{account.label}}</strong>
+                            <div style="font-size:14px;"><strong style="font-size: 1.1em; cursor: pointer;">{{account.accountID}}</strong></div>
+                        </div>
+                        <div class="ui-g-2" (click)="deleteAccountAddress(account)" style="cursor: pointer;  text-align: center;">
+                            <i  style="font-size: 3em; margin-top: 0.1em; color: brown;" class="pi pi-times-circle"></i>
+                            <label style="font-size: 12px;"> Delete</label>
+                        </div>
+                    </div>
+                </ng-template>
+            </p-orderList>
+        </p-fieldset>
+</p-dialog>
+
+<p-confirmDialog #cd [style]="{width: '50vw'}" appendTo="body">
+    <p-footer>
+        <button type="button" pButton icon="pi pi-check" label="Yes" (click)="cd.accept()"></button>
+        <button type="button" pButton icon="pi pi-times" label="No" (click)="cd.reject()"></button>
+    </p-footer>
+</p-confirmDialog>
+
+<p-messages [value]="messages"></p-messages>
+

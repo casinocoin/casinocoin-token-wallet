@@ -175,7 +175,7 @@ export class HistoryComponent implements OnInit, AfterViewInit {
     } else {
       this.tempTransactions = this.transactions.filter( transaction => {
         const dateTimestamp = CSCUtil.casinocoinToUnixTimestamp(transaction.timestamp);
-        const dateFull = this.datePipe.transform(dateTimestamp, 'M/d/yyyy');
+        const dateFull = this.datePipe.transform(dateTimestamp, 'M/dd/yyyy');
         if (dateFull  === date) {
           return transaction;
         }

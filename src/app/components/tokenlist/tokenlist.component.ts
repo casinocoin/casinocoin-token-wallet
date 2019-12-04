@@ -1,3 +1,5 @@
+import { LokiAddress } from './../../domains/lokijs';
+import { ConfirmationService } from 'primeng/api';
 import { Component, OnInit, AfterViewInit, ViewChild, Renderer2, NgZone } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { timer } from 'rxjs';
@@ -25,6 +27,7 @@ import { TranslateService } from '@ngx-translate/core';
   selector: 'app-tokenlist',
   templateUrl: './tokenlist.component.html',
   styleUrls: ['./tokenlist.component.scss'],
+  providers: [ConfirmationService],
   animations: [
     trigger('rowExpansionTrigger', [
         state('void', style({
@@ -87,8 +90,14 @@ export class TokenlistComponent implements OnInit {
 
   showEditAccountLabel = false;
   accountLabel = '';
+  addressBook;
+  showAddresssBook = false;
+  saveAddresssBook = false;
+  messages;
 
-  constructor(private logger: LogService,
+  constructor(
+              private confirmationService: ConfirmationService,
+              private logger: LogService,
               private translate: TranslateService,
               private casinocoinService: CasinocoinService,
               private sessionStorageService: SessionStorageService,
@@ -635,7 +644,41 @@ export class TokenlistComponent implements OnInit {
     });
   }
 
+  getAllAddress() {
+    this.addressBook = this.walletService.getAllAddresses();
+    this.showAddresssBook = true;
+  }
+
+  deleteAccountAddress(data: LokiAddress) {
+    this.walletService.removeAddress(data.accountID);
+    this.addressBook = this.walletService.getAllAddresses();
+  }
+
+  acingData(data: LokiAddress) {
+    this.sendForm.patchValue({'accountid': data.accountID, 'description': data.label, 'destinationtag': data.destinationTag  });
+    console.log(this.sendForm);
+    this.showAddresssBook = false;
+  }
+
   onSendFormSubmit(value) {
+    this.translate.stream('PAGES.ELECTRON.COPY-ACC').subscribe((translated: string) => {
+      this.confirmationService.confirm({
+          message: `Are you sure that you want send: ${value.amount} to Account: ${value.accountid}`,
+          header: 'Send Confirmation',
+          icon: 'pi pi-exclamation-triangle',
+          accept: () => {
+            // this.messages = [{severity: 'success', summary: 'Confirmed', detail: 'You have accepted'}];
+            console.log('saveAddresssBook', this.saveAddresssBook);
+            this.sendTx(value);
+          },
+          reject: () => {
+            // this.messages = [{severity: 'info', summary: 'Rejected', detail: 'You have rejected'}];
+          }
+      });
+    });
+  }
+
+  sendTx(value) {
     this.logger.debug('### onSendFormSubmit: ' + JSON.stringify(value));
     // check password
     const walletObject: WalletDefinition = this.sessionStorageService.get(AppConstants.KEY_CURRENT_WALLET);
@@ -643,6 +686,21 @@ export class TokenlistComponent implements OnInit {
       // check the destination account id
       if (this.casinocoinService.cscAPI.isValidAddress(value.accountid.trim())) {
         if (!isNaN(value.amount)) {
+          if (this.saveAddresssBook) {
+            // Find account in loki db
+            const findAccount = this.walletService.getAddress(value.accountid);
+            if (!findAccount) {
+              // create addressbook entry
+              this.walletService.addAddress({
+                destinationTag: value.destinationtag,
+                accountID: value.accountid,
+                label: value.description,
+                owner: false
+              });
+            } else {
+              console.log('Your contact is actualized ');
+            }
+          }
           // get the account secret for the CSC account
           const accountKey = this.walletService.getKey(this.currentToken.AccountID);
           this.logger.debug('### send accountID: ' + JSON.stringify(this.currentToken));

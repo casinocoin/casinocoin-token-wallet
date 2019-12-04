@@ -157,12 +157,10 @@
                             autofocus #fiatCurrenciesDrodown></p-dropdown>
                 </div>
                 <div class="ui-g-4">{{'PAGES.SETTINGS.SHOW-DESK-NOT' | translate}}</div><div class="ui-g-8 bold-value">
-                        <p-checkbox 
-                            [(ngModel)]="checked"
-                            (ngModelChange)="updateShowNotification($event)" 
-                            [(ngModel)]="walletSettings.showNotifications" 
-                            binary="true">
-                        </p-checkbox>
+                    <p-inputSwitch
+                        (ngModelChange)="updateShowNotification($event)" 
+                        [(ngModel)]="walletSettings.showNotifications">
+                    </p-inputSwitch>
                 </div>
                 
             </div>

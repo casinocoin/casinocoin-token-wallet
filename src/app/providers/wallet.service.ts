@@ -36,6 +36,7 @@ export class WalletService {
 
   private accounts;
   private transactions;
+  private addressbook;
   private keys;
 
   public isWalletOpen = false;
@@ -94,6 +95,8 @@ export class WalletService {
         this.transactions = collection;
       } else if (collection.name === 'keys') {
         this.keys = collection;
+      } else if (collection.name === 'addressbook') {
+        this.addressbook = collection;
       }
       this.isWalletOpen = true;
     });
@@ -112,6 +115,7 @@ export class WalletService {
       collectionSubject.next(walletDB.addCollection('accounts', {unique: ['pk']}));
       collectionSubject.next(walletDB.addCollection('transactions', {unique: ['txID']}));
       collectionSubject.next(walletDB.addCollection('keys', {unique: ['accountID']}));
+      collectionSubject.next(walletDB.addCollection('addressbook', {unique: ['accountID']}));
       createSubject.next(AppConstants.KEY_FINISHED);
     }
     this.walletDB = walletDB;
@@ -149,6 +153,8 @@ export class WalletService {
           this.transactions = collection;
         } else if (collection.name === 'keys') {
           this.keys = collection;
+        } else if (collection.name === 'addressbook') {
+          this.addressbook = collection;
         }
         this.isWalletOpen = true;
       } else {
@@ -157,22 +163,29 @@ export class WalletService {
       }
     });
 
+    const openCollections = (result) => {
+      collectionSubject.next(walletDB.getCollection('accounts'));
+      collectionSubject.next(walletDB.getCollection('transactions'));
+      collectionSubject.next(walletDB.getCollection('keys'));
+      if (!walletDB.getCollection('addressbook')) {
+        console.log('Creating new Collection addressbook');
+        collectionSubject.next(walletDB.addCollection('addressbook', {unique: ['accountID']}));
+      } else {
+        collectionSubject.next(walletDB.getCollection('addressbook'));
+      }
+      if (!openError) {
+        openSubject.next(AppConstants.KEY_LOADED);
+      }
+    };
+
     this.lokiAdapter = new LokiIndexedAdapter('casinocoin');
     const walletDB = new loki(walletLocation,
       { adapter: this.lokiAdapter,
         autoload: true,
-        autoloadCallback: function openCollections(result) {
-          collectionSubject.next(walletDB.getCollection('accounts'));
-          collectionSubject.next(walletDB.getCollection('transactions'));
-          collectionSubject.next(walletDB.getCollection('keys'));
-          if (!openError) {
-            openSubject.next(AppConstants.KEY_LOADED);
-          }
-        },
+        autoloadCallback: openCollections,
         autosave: true,
         autosaveInterval: 5000
     });
-
     this.walletDB = walletDB;
     return this.openWalletSubject.asObservable();
   }
@@ -188,6 +201,7 @@ export class WalletService {
     this.accounts = null;
     this.transactions = null;
     this.keys = null;
+    this.addressbook = null;
     // set wallet open to false
     this.isWalletOpen = false;
     // reset wallet object
@@ -201,6 +215,7 @@ export class WalletService {
     this.accounts.clear();
     this.transactions.clear();
     this.keys.clear();
+    this.addressbook.clear();
   }
 
   // encrypt secret key
@@ -224,6 +239,46 @@ export class WalletService {
   // #########################################
   // Accounts Collection
   // #########################################
+
+  addAddress(newAddress: LokiTypes.LokiAddress): LokiTypes.LokiAddress {
+    console.log(newAddress);
+    const insertedAddress = this.addressbook.insert(newAddress);
+    return insertedAddress;
+  }
+
+  getAddress(accountID: string): LokiTypes.LokiAddress {
+    if (this.isWalletOpen) {
+      if (this.addressbook.count() > 0) {
+        return this.addressbook.findOne({'accountID': {'$eq': accountID}});
+      } else {
+        return null;
+      }
+    } else {
+      return null;
+    }
+  }
+
+  getAllAddresses(): Array<LokiTypes.LokiAddress> {
+    if (this.isWalletOpen) {
+      if (!this.addressbook) {
+        return null;
+      } else {
+        return this.addressbook.find();
+      }
+    } else {
+      return null;
+    }
+
+  }
+
+  updateAddress(address: LokiTypes.LokiAddress) {
+    this.addressbook.update(address);
+  }
+
+  removeAddress(accountID: string) {
+    this.addressbook.findAndRemove({accountID: accountID});
+  }
+
   addAccount(newAccount: LokiTypes.LokiAccount): LokiTypes.LokiAccount {
     const insertAccount = this.accounts.insert(newAccount);
     return insertAccount;
