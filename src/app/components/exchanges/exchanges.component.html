@@ -12,37 +12,39 @@
             <div class="ui-g-3 item-label">{{'PAGES.EXCHANGES.24H-VOLUME' | translate}}</div>
             <div class="ui-g-9 coin-info-value">{{marketVolumeUSD}}</div>
         </div>
-        <p class="form-text-header">{{'PAGES.EXCHANGES.EXCHANGES' | translate}}</p>
-        <div class="ui-g-12" style="margin-top: 9px;">
-            <p-contextMenu #cm class="hide-context-menu"></p-contextMenu>
-            <p-table [value]="exchanges" scrollable="true" scrollHeight="50vh"
-                    [contextMenu]="cm" (onContextMenuSelect)="onExchangeContextMenu($event)">
-                <ng-template pTemplate="body" let-rowData>
-                    <p-card>
-                        <tr (click)="onExchangeRowClick(rowData)" [pContextMenuRow]="rowData" >
-                            <td style="width: 300px; margin-right: 3em">
-                                <a href="#" class="link-cursor" (click)="visitExchange(rowData)" matTooltip="{{'PAGES.EXCHANGES.CLICK-VISIT' | translate}}">
-                                    <img [src]="rowData.imageBase64" [style]="{'width':'200px', 'margin-right':'3em'}"/>
-                                </a>
-                            </td>
-                            <td style="width: 500px; margin-left: 30px;" >
-                                <p-card>
-                                    <span>
-                                        <p class="item-p"><span class="item-label">{{'PAGES.EXCHANGES.BUY' | translate}}: </span><span class="item-value"> {{ rowData.buy | number : '1.1-8'}}</span></p>
-                                        <p class="item-p"><span class="item-label">{{'PAGES.EXCHANGES.SELL' | translate}}: </span><span class="item-value"> {{ rowData.sell | number : '1.1-8'}}</span></p>
-                                        <p class="item-p"><span class="item-label">{{'PAGES.EXCHANGES.LAST' | translate}}: </span><span class="item-value"> {{ rowData.last | number : '1.1-8'}}</span></p>
-                                        <p class="item-p"><span class="item-label">{{'PAGES.EXCHANGES.VOLUME' | translate}}: </span><span class="item-value"> {{ rowData.volume24H | number : '1.1-2'}}</span></p>
-                                        <p class="item-p"><span class="item-label">{{'PAGES.EXCHANGES.LAST-UPDATE' | translate}}: </span><span class="item-value"> {{ rowData.lastUpdateDate| date : 'yyyy-MM-dd HH:mm:ss' }}</span></p>
-                                    </span>
-                                </p-card>
-                            </td>
-                        </tr>
-                    </p-card>
-                </ng-template>
-                <ng-template pTemplate="emptymessage">
-                    <p>{{'PAGES.EXCHANGES.NO-EXCHANGES' | translate}}</p>
-                </ng-template>
-            </p-table>
-        </div>
     </p-card>
+    <div style="margin-top: 5px;">
+        <p-card>
+            <p class="form-text-header">{{'PAGES.EXCHANGES.EXCHANGES' | translate}}</p>
+            <hr>
+                <p-table [value]="exchanges" scrollable="true" scrollHeight="50vh"
+                        [contextMenu]="cm" (onContextMenuSelect)="onExchangeContextMenu($event)">
+                    <ng-template pTemplate="body" let-rowData style="margin-top: 2px;">
+                        <p-card>
+                            <tr (click)="onExchangeRowClick(rowData)" [pContextMenuRow]="rowData" >
+                                <td style="width: 300px; margin-right: 3em">
+                                    <a href="#" class="link-cursor" (click)="visitExchange(rowData)" matTooltip="{{'PAGES.EXCHANGES.CLICK-VISIT' | translate}}">
+                                        <img [src]="rowData.imageBase64" [style]="{'width':'200px', 'margin-right':'3em'}"/>
+                                    </a>
+                                </td>
+                                <td style="width: 500px; margin-left: 30px;" >
+                                    <p-card>
+                                        <span>
+                                            <p class="item-p"><span class="item-label">{{'PAGES.EXCHANGES.BUY' | translate}}: </span><span class="item-value"> {{ rowData.buy | number : '1.1-8'}}</span></p>
+                                            <p class="item-p"><span class="item-label">{{'PAGES.EXCHANGES.SELL' | translate}}: </span><span class="item-value"> {{ rowData.sell | number : '1.1-8'}}</span></p>
+                                            <p class="item-p"><span class="item-label">{{'PAGES.EXCHANGES.LAST' | translate}}: </span><span class="item-value"> {{ rowData.last | number : '1.1-8'}}</span></p>
+                                            <p class="item-p"><span class="item-label">{{'PAGES.EXCHANGES.VOLUME' | translate}}: </span><span class="item-value"> {{ rowData.volume24H | number : '1.1-2'}}</span></p>
+                                            <p class="item-p"><span class="item-label">{{'PAGES.EXCHANGES.LAST-UPDATE' | translate}}: </span><span class="item-value"> {{ rowData.lastUpdateDate| date : 'yyyy-MM-dd HH:mm:ss' }}</span></p>
+                                        </span>
+                                    </p-card>
+                                </td>
+                            </tr>
+                        </p-card>
+                    </ng-template>
+                    <ng-template pTemplate="emptymessage">
+                        <p>{{'PAGES.EXCHANGES.NO-EXCHANGES' | translate}}</p>
+                    </ng-template>
+                </p-table>
+        </p-card>
+    </div>   
 </div>

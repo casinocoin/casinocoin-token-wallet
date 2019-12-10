@@ -272,29 +272,29 @@
     </div>
 </p-dialog>
 
-<p-dialog header="Adress Book" [(visible)]="showAddresssBook" [modal]="true" appendTo="body" [responsive]="true" [style]="{width: '700px', minWidth: '500px'}" [minY]="70" >
+<p-dialog header="{{'PAGES.TOKENLIST.ADDRESS-BOOK'|translate}}" [(visible)]="showAddresssBook" [modal]="true" appendTo="body" [responsive]="true" [style]="{width: '700px', minWidth: '500px'}" [minY]="70" >
         <div *ngIf="!addressBook || addressBook.length === 0" class="ui-g-12" style=" display: flex; justify-content: center; align-items: center;">
             <div class="">
-                <h2 style="color: #bf0a0a;">There are Not Contacts</h2>
+                <h2 style="color: #bf0a0a;">{{'PAGES.TOKENLIST.NOT-CONT'|translate}}</h2>
                 <hr style="color: #bf0a0a;">
             </div>
         </div>
-        <p-fieldset legend="Select Address" *ngIf="addressBook">
+        <p-fieldset legend="{{'PAGES.TOKENLIST.SEL-ADD'|translate}}" *ngIf="addressBook">
             <p-orderList [value]="addressBook" [listStyle]="{'height':'250px'}"
-                filter="filter" filterBy="accountID" filterPlaceholder="Filter by Account" dragdrop="true">
+                filter="filter" filterBy="accountID" filterPlaceholder="{{'PAGES.TOKENLIST.FIL-ACC'|translate}}" dragdrop="true">
                 <ng-template let-account pTemplate="item">
                     <div class="ui-g" class="ui-helper-clearfix" >
                         <div class="ui-g-2" (click)="acingData(account)" style=" text-align: center;">
                             <i  style="font-size: 3em; margin-top: 0.1em; color: #bf0a0a; cursor: pointer;" class="pi pi-user"></i>
                         </div>
                         <div class="ui-g-8" style="color: black;" (click)="acingData(account)">
-                            Name:<strong style="font-size: 1.3em; cursor: pointer; margin-bottom: 3px;" > {{account.label}}</strong>
+                           {{'PAGES.TOKENLIST.NAME'|translate}}:<strong style="font-size: 1.3em; cursor: pointer; margin-bottom: 3px;" > {{account.label}}</strong>
                             <div style="font-size:14px;"><strong style="font-size: 1.1em; cursor: pointer;">{{account.accountID}}</strong></div>
                         </div>
                         <div class="ui-g-2" (click)="deleteAccountAddress(account)" style=" text-align: center;">
                             <i style="font-size: 3em; margin-top: 0.1em; color: #bf0a0a; cursor: pointer;" 
                             class="pi pi-times-circle" ></i>
-                            <label style="font-size: 12px; color:black;"> Delete</label>
+                            <label style="font-size: 12px; color:black;"> {{'PAGES.TOKENLIST.DELETE'|translate}}</label>
                         </div>
                     </div>
                 </ng-template>

@@ -3,7 +3,7 @@
     <hr>
     <div class="ui-g-12 ui-md-6 ui-inputgroup">
         <span class="ui-inputgroup-addon" style="box-sizing: content-box; width: 50px; "><i class="icon icon-id"></i></span>
-        <p-dropdown [options]="cscAccounts" [style]="{'width':'370px','padding-top':'2px', 'padding-bottom':'2px','border-radius': '0px 10px 10px 0px'}" 
+        <p-dropdown [options]="cscAccounts" [style]="{'width':'370px', 'border-radius': '0px 13px 13px 0px'}" 
             [(ngModel)]="selectedAccount" placeholder="{{'PAGES.TOKENLIST.SEL-ACC' | translate}} ..." name="accountID" [showClear]="true" 
             (ngModelChange)="filterByAccount(selectedAccount ? selectedAccount : null)"></p-dropdown>
     </div>
@@ -28,7 +28,7 @@
     </div>
     <div class="ui-g-12 ui-md-3 ui-inputgroup">
         <span class="ui-inputgroup-addon" style="box-sizing: content-box; width: 50px;"><i class="pi pi-th-large"></i></span>
-        <p-dropdown [options]="tokenTransactions" [style]="{'padding-top':'2px','padding-bottom':'2px', 'border-radius': '0px 10px 10px 0px'}" [(ngModel)]="selectedToken" 
+        <p-dropdown [options]="tokenTransactions" [style]="{'border-radius': '0px 13px 13px 0px'}" [(ngModel)]="selectedToken" 
             placeholder="{{ 'PAGES.HISTORY.SEL-TOK' | translate }}" optionLabel="currency" name="currency" [showClear]="true" 
             (ngModelChange)="filterByToken(selectedToken ? selectedToken.currency : null)">
             <ng-template let-item pTemplate="selectedItem">

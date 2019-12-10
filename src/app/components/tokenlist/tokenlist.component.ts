@@ -44,56 +44,56 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class TokenlistComponent implements OnInit {
 
-  columnCount: number;
-  tokenlist: Array<TokenType>;
-  ledgers: LedgerStreamMessages[] = [];
-  receipient: string;
-  description: string;
-  amount: string;
-  fees: string;
-  accountReserve: string;
-  reserveIncrement: string;
-  walletPassword: string;
-  showPasswordDialog: boolean;
-  showLedgerDialog: boolean;
-  showAddTokenDialog: boolean;
-  showAddCSCDialog: boolean;
-  signAndSubmitIcon: string;
-  token_context_menu: ElectronMenu;
-  translateParams = {accountReserve: '10'};
-  cscBalance: string;
-  canActivateToken: boolean;
-  currentToken: TokenType;
-  sendForm: FormGroup;
-  activateForm: FormGroup;
-  mainCSCAccountID: string;
-  availableTokenlist: Array<TokenType> = [];
-  addToken: TokenType;
-  addIcon = 'fa fa-plus';
-  footer_visible = false;
-  error_message: string;
-  cscAccounts: SelectItem[] = [];
-  selectedCSCAccount: string;
-  addTokenAccountSelected: boolean;
-  showErrorDialog = false;
+  public columnCount: number;
+  public tokenlist: Array<TokenType>;
+  public ledgers: LedgerStreamMessages[] = [];
+  public receipient: string;
+  public description: string;
+  public amount: string;
+  public fees: string;
+  public accountReserve: string;
+  public reserveIncrement: string;
+  public walletPassword: string;
+  public showPasswordDialog: boolean;
+  public showLedgerDialog: boolean;
+  public showAddTokenDialog: boolean;
+  public showAddCSCDialog: boolean;
+  public signAndSubmitIcon: string;
+  public token_context_menu: ElectronMenu;
+  public translateParams = {accountReserve: '10'};
+  public cscBalance: string;
+  public canActivateToken: boolean;
+  public currentToken: TokenType;
+  public sendForm: FormGroup;
+  public activateForm: FormGroup;
+  public mainCSCAccountID: string;
+  public availableTokenlist: Array<TokenType> = [];
+  public addToken: TokenType;
+  public addIcon = 'fa fa-plus';
+  public footer_visible = false;
+  public error_message: string;
+  public cscAccounts: SelectItem[] = [];
+  public selectedCSCAccount: string;
+  public addTokenAccountSelected: boolean;
+  public showErrorDialog = false;
 
   public cscReceiveURI: string = null;
-  showReceiveQRCodeDialog = false;
-  sendAmount: string;
-  destinationTag: number;
-  label: string;
-  copyIcon = 'fa fa-copy';
+  public showReceiveQRCodeDialog = false;
+  public sendAmount: string;
+  public destinationTag: number;
+  public label: string;
+  public copyIcon = 'fa fa-copy';
 
-  showSecretDialog = false;
-  showSecret = false;
-  accountSecret: string;
+  public showSecretDialog = false;
+  public showSecret = false;
+  public accountSecret: string;
 
-  showEditAccountLabel = false;
-  accountLabel = '';
-  addressBook;
-  showAddresssBook = false;
-  saveAddresssBook = false;
-  messages;
+  public showEditAccountLabel = false;
+  public accountLabel = '';
+  public addressBook = null;
+  public showAddresssBook = false;
+  public saveAddresssBook = false;
+  public messages;
 
   constructor(
               private confirmationService: ConfirmationService,
@@ -646,6 +646,7 @@ export class TokenlistComponent implements OnInit {
 
   getAllAddress() {
     this.addressBook = this.walletService.getAllAddresses();
+    if (this.addressBook.length === 0) { this.addressBook = null; }
     this.showAddresssBook = true;
   }
 

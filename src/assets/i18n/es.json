@@ -118,12 +118,18 @@
           "SHOW-SECRET-TITLE": "Mostrar secreto de cuenta",
           "SHOW-SECRET": "Mostrar secreto",
           "RESERVED": "Reservado",
-          "SEND-ALL": "Todos",
+          "SEND-ALL": "Todo",
           "NOT-ENOUGH-CSC": "No hay suficientes CSC para realizar una transacción.",
           "EDIT-LABEL": "Editar etiqueta de cuenta",
           "ACCOUNT-LABEL": "Etiqueta de cuenta",
           "SAVE": "Guardar",
-          "SEL-ACC": "Seleccione una cuenta de CSC "
+          "SEL-ACC": "Seleccione una cuenta de CSC ",
+          "ADDRESS-BOOK": "Directorio",
+          "NOT-CONT":"No tiene contactos",
+          "SEL-ADD":"Seleccione una dirección",
+          "FIL-ACC":"Filtrar por cuenta",
+          "NAME":"Nombre",
+          "DELETE": "Eliminar"
         },
         "HISTORY": {
           "TITLE": "Historial de transacciones",
@@ -167,7 +173,8 @@
           "WALLET-CREAT-DATE":"fecha de creación",
           "FIAT-VAL-CUR": "Valor monena fiduciario",
           "SHOW-DESK-NOT": "Mostrar notificaciones de escritorio",
-          "SETTINGS": "Ajustes"
+          "SETTINGS": "Ajustes",
+          "SAVE": "Guardar"
         },
         "SUPPORT": {
           "SUPPORT": "Soporte",

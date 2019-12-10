@@ -44,7 +44,7 @@
 }
 
 .ui-state-default {
-  border: 1px solid #bf0a0a;
+  border: 2px solid #bf0a0a;
   background-color: #bf0a0a;
   color: #ffffff;
 }
@@ -62,8 +62,8 @@
 }
 
 .ui-state-highlight {
-  border-color: #327e04;
-  background-color: #e4a1b0;
+  border-color: #bf0a0a;
+  background-color: #df8094;
   color: #ffffff;
 }
 .ui-state-highlight a {
@@ -71,7 +71,7 @@
 }
 
 .ui-state-focus {
-  border-color: #e8e1b5;
+  border-color: #bf0a0a;
   background-color: #bcb9ae;
   color: #363636;
 }
@@ -107,16 +107,16 @@
 }
 
 .ui-inputtext:enabled:hover {
-  border-color: #e8e1b5;
+  border-color: #bf0a0a;
 }
 
 .ui-inputtext.ui-state-focus,
 .ui-inputtext:focus {
   outline: 0 none;
-  border-color: #e8e1b5;
-  -moz-box-shadow: 0px 0px 5px #e8e1b5;
-  -webkit-box-shadow: 0px 0px 5px #e8e1b5;
-  box-shadow: 0px 0px 5px #e8e1b5;
+  border-color: #bf0a0a;
+  -moz-box-shadow: 0px 0px 5px #bf0a0a;
+  -webkit-box-shadow: 0px 0px 5px #bf0a0a;
+  box-shadow: 0px 0px 5px #bf0a0a;
 }
 
 .ui-inputgroup .ui-inputgroup-addon {
@@ -163,11 +163,11 @@
 .ui-button:enabled:hover,
 .ui-fileupload-choose:not(.ui-state-disabled):hover {
   outline: 0 none;
-  border-color: #bf0a0a;
-  background-color: #070606;
-  color: #bf0a0a;
-  text-shadow: 1px 0 0 #fff, -1px 0 0 #fff, 0 1px 0 #fff, 0 -1px 0 #fff, .5px .5px #fff, -.5px -.5px 0 #fff, .5px .5px 0 #fff, -.5px .5px 0 #fff;
+  border-color: #312626;
+  background-color: #312626;
+  color: #ffffff;
 }
+/* text-shadow: 1px 0 0 #fff, -1px 0 0 #fff, 0 1px 0 #fff, 0 -1px 0 #fff, .5px .5px #fff, -.5px -.5px 0 #fff, .5px .5px 0 #fff, -.5px .5px 0 #fff; */
 .ui-button:focus a,
 .ui-button:enabled:hover a,
 .ui-fileupload-choose:not(.ui-state-disabled):hover a {
@@ -204,16 +204,17 @@
 }
 
 .ui-dropdown:not(.ui-state-disabled):hover {
-  border-color: #e8e1b5;
+  border-color: #bf0a0a;
   background-color: #bcb9ae;
   color: #363636;
 }
 .ui-dropdown:not(.ui-state-disabled):hover a {
   color: #363636;
+  border-color: #bf0a0a;
 }
 
 .ui-dropdown-panel .ui-dropdown-item:not(.ui-state-highlight):not(.ui-state-disabled):hover {
-  border-color: #e8e1b5;
+  border-color: #bf0a0a;
   background-color: #bcb9ae;
   color: #363636;
 }
@@ -890,4 +891,19 @@ p-togglebutton.ng-dirty.ng-invalid .ui-button {
 
 .ng-start-inserted {
   color: #bf0a0a;
+}
+
+.ui-dialog-titlebar {
+    background: #000000;
+    color: whitesmoke;
+}
+
+.ui-fieldset-legend {
+    background: inherit;
+    border-color: #969696;
+    color: black;
+}
+
+.ui-dropdown {
+  border-radius: 0px 13px 13px 0px;
 }

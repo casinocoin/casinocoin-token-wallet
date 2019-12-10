@@ -125,7 +125,7 @@
     </div>
 </div>
 
-<p-dialog class="dialog-header" [(visible)]="showSettingsDialog" [width]="640" [height]="400" [closable]="true"
+<p-dialog class="dialog-header" [(visible)]="showSettingsDialog" [width]="600" [closable]="true"
           [modal]="true" appendTo="body">
     <p-header><span><i class="icon csc-dialog-icon icon-chip"></i>{{'PAGES.SETTINGS.SETTINGS' | translate}}</span></p-header>
     <div class="ui-g ui-fluid">
@@ -168,7 +168,7 @@
         <div class="ui-g-1"></div>
     </div>
     <div style="text-align: right;">
-        <button pButton type="button" (click)="onSettingsSave()" icon="icon icon-save" iconPos="right" label="Save"
+        <button pButton type="button" (click)="onSettingsSave()" icon="icon icon-save" iconPos="right" label="{{'PAGES.SETTINGS.SAVE' | translate}}"
                 *ngIf="true"
                 style="width: 115px;"></button>
     </div>

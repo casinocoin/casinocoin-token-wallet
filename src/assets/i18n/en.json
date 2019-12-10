@@ -123,7 +123,13 @@
         "EDIT-LABEL": "Edit Account Label",
         "ACCOUNT-LABEL": "Account Label",
         "SAVE": "Save",
-        "SEL-ACC": "Select CasinoCoin Account"
+        "SEL-ACC": "Select CasinoCoin Account",
+        "ADDRESS-BOOK":"address book",
+        "NOT-CONT":"There are Not Contacts",
+        "SEL-ADD":"Select Address",
+        "FIL-ACC":"Filter by Account",
+        "NAME":"Name",
+        "DELETE": "Delete"
       },
       "HISTORY": {
         "TITLE": "Transaction History",
@@ -167,7 +173,8 @@
         "WALLET-CREAT-DATE":"Wallet Creation date",
         "FIAT-VAL-CUR": "Fiat value currency",
         "SHOW-DESK-NOT": "Show desktop notifications",
-        "SETTINGS": "Settings"
+        "SETTINGS": "Settings",
+        "SAVE": "Save"
       },
       "SUPPORT": {
         "SUPPORT": "Support",
