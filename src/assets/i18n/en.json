@@ -129,7 +129,8 @@
         "SEL-ADD":"Select Address",
         "FIL-ACC":"Filter by Account",
         "NAME":"Name",
-        "DELETE": "Delete"
+        "DELETE": "Delete",
+        "TOTAL-TOKEN": "Total Token"
       },
       "HISTORY": {
         "TITLE": "Transaction History",
@@ -139,7 +140,8 @@
         "FROM": "from",
         "TO": "to",
         "STATUS": "status",
-        "LEDGER": "ledger"
+        "LEDGER": "ledger",
+        "TOTAL-TX": "Total Transactions"
       },
       "EXCHANGES": {
         "COININFO": "Coin Information",

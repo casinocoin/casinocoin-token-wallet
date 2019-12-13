@@ -76,6 +76,9 @@ export class TokenlistComponent implements OnInit {
   public selectedCSCAccount: string;
   public addTokenAccountSelected: boolean;
   public showErrorDialog = false;
+  public tempTokenList: Array<TokenType> = [];
+  public selectedToken;
+  public filterToken;
 
   public cscReceiveURI: string = null;
   public showReceiveQRCodeDialog = false;
@@ -146,6 +149,8 @@ export class TokenlistComponent implements OnInit {
             this.casinocoinService.refreshAccountTokenList().subscribe(finished => {
               if (finished) {
                 this.tokenlist = this.casinocoinService.tokenlist;
+                this.tempTokenList = this.casinocoinService.tokenlist;
+                this.filterTokenList();
                 this.logger.debug('### TokenList: ' + JSON.stringify(this.tokenlist));
                 // remove password from session if its still there
                 this.sessionStorageService.remove(AppConstants.KEY_WALLET_PASSWORD);
@@ -254,6 +259,18 @@ export class TokenlistComponent implements OnInit {
         this.cscBalance = account.balance;
       }
     });
+  }
+
+  filterTokenList() {
+    this.filterToken = Object.values(this.tokenlist.reduce((prev, next) => Object.assign(prev, {[next.Token]: next}), {}));
+  }
+
+  filterByToken(token: TokenType) {
+    if (!token) {
+      this.tempTokenList = this.tokenlist;
+    } else {
+      this.tempTokenList = this.tokenlist.filter( transaction => transaction.Token === token.Token);
+    }
   }
 
   showTokenContextMenu(event) {

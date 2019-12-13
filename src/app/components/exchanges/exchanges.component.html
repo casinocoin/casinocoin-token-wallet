@@ -16,7 +16,6 @@
     <div style="margin-top: 5px;">
         <p-card>
             <p class="form-text-header">{{'PAGES.EXCHANGES.EXCHANGES' | translate}}</p>
-            <hr>
                 <p-table [value]="exchanges" scrollable="true" scrollHeight="50vh"
                         [contextMenu]="cm" (onContextMenuSelect)="onExchangeContextMenu($event)">
                     <ng-template pTemplate="body" let-rowData style="margin-top: 2px;">

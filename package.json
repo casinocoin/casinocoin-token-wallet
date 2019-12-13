@@ -89,6 +89,7 @@
     "lz-string": "1.4.4",
     "ngx-logger": "3.3.12",
     "ngx-store": "2.1.0",
+    "npm": "^6.13.4",
     "primeicons": "1.0.0",
     "primeng": "7.1.0",
     "winston": "3.2.1"

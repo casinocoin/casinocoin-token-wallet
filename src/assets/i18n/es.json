@@ -129,7 +129,8 @@
           "SEL-ADD":"Seleccione una dirección",
           "FIL-ACC":"Filtrar por cuenta",
           "NAME":"Nombre",
-          "DELETE": "Eliminar"
+          "DELETE": "Eliminar",
+          "TOTAL-TOKEN": "Total Token"
         },
         "HISTORY": {
           "TITLE": "Historial de transacciones",
@@ -174,7 +175,8 @@
           "FIAT-VAL-CUR": "Valor monena fiduciario",
           "SHOW-DESK-NOT": "Mostrar notificaciones de escritorio",
           "SETTINGS": "Ajustes",
-          "SAVE": "Guardar"
+          "SAVE": "Guardar",
+          "TOTAL-TX": "Total Transacciones"
         },
         "SUPPORT": {
           "SUPPORT": "Soporte",
