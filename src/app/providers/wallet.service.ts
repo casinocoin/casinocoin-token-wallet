@@ -22,6 +22,7 @@ import * as LokiTypes from '../domains/lokijs';
 import { LokiKey } from '../domains/lokijs';
 import { WalletSetup } from '../domains/csc-types';
 import { sequence } from '@angular/animations';
+import { DatePipe } from '@angular/common';
 
 // const lfsa = require('../../../node_modules/lokijs/src/loki-fs-structured-adapter.js');
 // import  LokiIndexedAdapter = require('../../../node_modules/lokijs/src/loki-indexed-adapter.js');
@@ -55,6 +56,7 @@ export class WalletService {
   private cscOfflineAPI = new CasinocoinAPI();
 
   constructor(private logger: LogService,
+              private datePipe: DatePipe,
               private localStorageService: LocalStorageService,
               private sessionStorageService: SessionStorageService,
               private electron: ElectronService,
@@ -451,6 +453,22 @@ export class WalletService {
     return this.transactions.chain().find().simplesort('timestamp', true).data();
   }
 
+  countAccountsPerAccount(account) {
+    console.log(account);
+     return this.transactions.find({ 'accountID': account }).length;
+  }
+
+  countAccountsPerDate(date: string) {
+    const cscDate = CSCUtil.iso8601ToCasinocoinTime(date);
+    console.log('dateToUnix', cscDate);
+    return this.transactions.find({ 'timestamp': cscDate }).length;
+  }
+
+  countAccountsPerToken(token) {
+    console.log(token);
+    return this.transactions.find({ 'currency': token }).length;
+  }
+
   getTransactionsLazy(offset: number, limit: number): Array<LokiTypes.LokiTransaction> {
     // return all transactions sorted by descending timestamp for offset and limit
     return this.transactions.chain().find()
@@ -459,6 +477,35 @@ export class WalletService {
                                     .limit(limit)
                                     .data();
   }
+
+  getTransactionsLazyAccount(offset: number, limit: number, account): Array<LokiTypes.LokiTransaction> {
+    return this.transactions.chain().find({'accountID': account})
+                                    .simplesort('timestamp', true)
+                                    .offset(offset)
+                                    .limit(limit)
+                                    .data();
+  }
+
+  getTransactionsLazyCurrency(offset: number, limit: number, currency): Array<LokiTypes.LokiTransaction> {
+    return this.transactions.chain().find({ 'currency': currency })
+                                    .simplesort('timestamp', true)
+                                    .offset(offset)
+                                    .limit(limit)
+                                    .data();
+  }
+
+   getTransactionsLazyDate(offset: number, limit: number, date): Array<LokiTypes.LokiTransaction> {
+    const cscDate = CSCUtil.casinocoinTimeToISO8601(date);
+    // const dateTimestamp1 = CSCUtil.casinocoinToUnixTimestamp(cscDate);
+    const dateTimestamp = this.datePipe.transform(628749799, 'M/dd/yyyy hh:ss');
+    console.log('dateTimestamp', dateTimestamp);
+    return this.transactions.chain().find({'timestamp': cscDate})
+                                    .simplesort('timestamp', true)
+                                    .offset(offset)
+                                    .limit(limit)
+                                    .data();
+  }
+
 
   getUnvalidatedTransactions(): Array<LokiTypes.LokiTransaction> {
     return this.transactions.find({ validated: false });

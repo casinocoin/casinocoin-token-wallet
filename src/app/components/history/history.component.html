@@ -1,16 +1,22 @@
 <div class="ui-g form-container">
-    <p class="form-text-header">{{ 'PAGES.HISTORY.TITLE' | translate }}</p>
+    <div class="ui-g">
+        <div class="ui-g-6">
+            <p class="form-text-header">{{ 'PAGES.HISTORY.TITLE' | translate }}</p>
+        </div>
+        <div class="ui-g-6" style="margin-top: 20px; padding: 0em; ">
+            <p style="float:right; margin-right: 12px;"> <u><b>{{ 'PAGES.HISTORY.TOTAL-TX' | translate }}</b></u>: <span style="font-size: xx-large; font-family: monospace; color: brown;">{{filterTransactions }}</span> </p> 
+        </div>
+    </div>
     <hr>
     <div class="ui-g-12 ui-md-6 ui-inputgroup">
         <span class="ui-inputgroup-addon" style="box-sizing: content-box; width: 50px; "><i class="icon icon-id"></i></span>
         <p-dropdown [options]="cscAccounts" [style]="{'width':'370px', 'border-radius': '0px 13px 13px 0px'}" 
             [(ngModel)]="selectedAccount" placeholder="{{'PAGES.TOKENLIST.SEL-ACC' | translate}} ..." name="accountID" [showClear]="true" 
-            (ngModelChange)="filterByAccount(selectedAccount ? selectedAccount : null)"></p-dropdown>
+            (ngModelChange)="filterByAccount(selectedAccount ? selectedAccount : null)">
+        </p-dropdown>
     </div>
     <div class="ui-g-12 ui-md-3 ">
         <p-calendar
-            dataType = "string"
-            dateFormat = "mm/dd/yy"
             [showTransitionOptions]="'200ms'" 
             [hideTransitionOptions]="'300ms'"
             [(ngModel)]="selectedDate" 
@@ -46,12 +52,15 @@
 
     <div class="ui-g-12">
         <p-contextMenu #cm class="hide-context-menu"></p-contextMenu>
-        <p-table [value]="tempTransactions" scrollable="true" scrollHeight="70vh" [contextMenu]="cm" selectionMode="single"
-            responsive="true" styleClass="borderless" (onContextMenuSelect)="showTxContextMenu($event)" [(selection)]="currentTX" contextMenuSelectionMode="joint" #dtTX>
+        <p-table [value]="tempTransactions" scrollable="true" scrollHeight="76vh" 
+            responsive="true" styleClass="borderless" (onContextMenuSelect)="showTxContextMenu($event)" [(selection)]="currentTX" contextMenuSelectionMode="joint" #dtTX
+            [lazy]="true" (onLazyLoad)="loadDataOnScroll($event)" [rows]="40" [totalRecords]="filterTransactions"
+            [virtualScroll]="true" [virtualRowHeight]="60"
+            >
             <ng-template pTemplate="body" let-rowData>
                 <tr [pContextMenuRow]="rowData">
                     <td style="width:20px;"><i [ngClass]="getDirectionIconClasses(rowData)"></i></td>
-                    <td style="width:25px;"><img  [src]="rowData.ImageBase64" width="25" height="25" alt="icon" /></td>
+                    <td style="width:25px;"><img  [src]="getTokenURL(rowData)" width="25" height="25" alt="icon" /></td>
                     <td style="width:70px;">
                         <span class="text-large">{{rowData.timestamp | cscDate : 'dd' }}</span>
                         <span class="text-small-bottom">{{rowData.timestamp | cscDate : 'MMM' | uppercase }}</span>
@@ -78,11 +87,19 @@
                     </td>
                 </tr>
             </ng-template>
-            <ng-template pTemplate="emptymessage">
-                <div *ngIf="!tokenlist" class="ui-g-12" style=" display: flex; justify-content: center; align-items: center;">
-                    <h2>{{ 'PAGES.HISTORY.NOT-TX' | translate }}</h2> <i class="pi pi-exclamation-triangle" style="font-size: 3em; color: brown"></i>
-                </div>
+
+            <ng-template pTemplate="loadingbody" let-columns="columns">
+                <tr style="height:34px">
+                    <td *ngFor="let col of columns">
+                        <div class="loading-text"></div>
+                    </td>
+                </tr>
             </ng-template>
-        </p-table>
+        </p-table> 
+        <div>
+            <div *ngIf="filterTransactions === 0" class="ui-g-12" style=" display: flex; justify-content: center; align-items: center;">
+                <h2>{{ 'PAGES.HISTORY.NOT-TX' | translate }}</h2> <i class="pi pi-exclamation-triangle" style="font-size: 3em; color: brown"></i>
+            </div>
+        </div>
     </div>
 </div>

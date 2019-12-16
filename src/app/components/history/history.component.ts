@@ -62,6 +62,9 @@ export class HistoryComponent implements OnInit, AfterViewInit {
   public currentTX: LokiTransaction;
   public datesTx;
   public language;
+  public loading: boolean;
+  public filterCase = 'ALL';
+  public filterTransactions = 0;
 
   ngOnInit() {
     this.logger.debug('### History ngOnInit() ###');
@@ -130,30 +133,14 @@ export class HistoryComponent implements OnInit, AfterViewInit {
   init() {
     // get all transactions
     this.transactions = this.walletService.getAllTransactions();
+    console.log(this.transactions);
+    this.filterTransactions = this.transactions.length;
     this.accountsTransactions = this.transactions;
-    this.transactions = this.transactions.map(element => {
-      if (element.currency === 'CSC') {
-        const ImageCSC = this.casinocoinService.getImageCSC();
-        return {...element, ImageBase64: ImageCSC };
-      } else {
-        const token = this.casinocoinService.getTokenInfo(element.currency);
-        if (!token) {
-         this.router.navigate(['home/tokenlist']);
-         return;
-        } else {
-          return {...element, ImageBase64: token.IconImage };
-        }
-      }
-    });
-    this.tempTransactions = this.transactions;
-    this.processTempTx();
     this.getDays();
     this.logger.debug('### History ngOnInit() - transactions: ' + JSON.stringify(this.transactions));
+    this.tokenTransactions = Object.values(this.walletService.getAllAccounts().reduce((prev, next) => Object.assign(prev, { [next.currency]: next }), {}));
   }
 
-  processTempTx() {
-    this.tokenTransactions = Object.values(this.tempTransactions.reduce((prev, next) => Object.assign(prev, {[next.currency]: next}), {}));
-  }
 
   getDays() {
     let val;
@@ -169,37 +156,80 @@ export class HistoryComponent implements OnInit, AfterViewInit {
     this.datesTx = datesTx;
   }
 
-  filterByDate(date: string) {
-    if (!date) {
-      this.tempTransactions = this.transactions;
-    } else {
-      this.tempTransactions = this.transactions.filter( transaction => {
-        const dateTimestamp = CSCUtil.casinocoinToUnixTimestamp(transaction.timestamp);
-        const dateFull = this.datePipe.transform(dateTimestamp, 'M/dd/yyyy');
-        if (dateFull  === date) {
-          return transaction;
-        }
-      });
+  loadDataOnScroll(event) {
+    console.log(event);
+    console.log('filterCase:', this.filterCase);
+    if (this.filterCase === 'ALL') {
+      this.loading = true;
+      const tx = this.walletService.getTransactionsLazy(event.first, event.rows);
+      this.tempTransactions = tx;
+      if (tx) { this.loading = false; }
     }
-    this.selectedAccount = null;
-    this.selectedToken = null;
+
+    if (this.filterCase === 'ACCOUNT') {
+      this.loading = true;
+      const tx = this.walletService.getTransactionsLazyAccount(event.first, event.rows, this.selectedAccount);
+      this.tempTransactions = tx;
+      if (tx) { this.loading = false; }
+    }
+
+    if (this.filterCase === 'DATE') {
+      this.loading = true;
+      const tx = this.walletService.getTransactionsLazyDate(event.first, event.rows, this.selectedDate);
+      this.tempTransactions = tx;
+      if (tx) { this.loading = false; }
+    }
+
+    if (this.filterCase === 'TOKEN') {
+      this.loading = true;
+      console.log('this.selectedToken', this.selectedToken.currency);
+      const tx = this.walletService.getTransactionsLazyCurrency(event.first, event.rows, this.selectedToken.currency);
+      this.tempTransactions = tx;
+      if (tx) { this.loading = false; }
+    }
   }
 
   filterByAccount(account) {
+    this.filterCase = 'ACCOUNT';
+    this.filterTransactions = this.walletService.countAccountsPerAccount(account);
     if (!account) {
-      this.tempTransactions = this.transactions;
+      this.filterCase = 'ALL';
+      this.filterTransactions = this.transactions.length;
+      this.tempTransactions = this.walletService.getTransactionsLazy(0, 100);
     } else {
-      this.tempTransactions = this.transactions.filter( transaction => transaction.accountID === account);
+      this.tempTransactions = this.walletService.getTransactionsLazyAccount(0, 80, account);
       this.selectedDate = null;
       this.selectedToken = null;
     }
   }
 
-  filterByToken(token) {
-    if (!token) {
-      this.tempTransactions = this.transactions;
+  filterByDate(date) {
+    console.log(date);
+    console.log(this.filterTransactions);
+    this.filterCase = 'DATE';
+    this.filterTransactions = this.walletService.countAccountsPerDate(date);
+    if (!date) {
+      this.filterCase = 'ALL';
+      this.filterTransactions = this.transactions.length;
+      this.tempTransactions = this.walletService.getTransactionsLazy(0, 100);
     } else {
-      this.tempTransactions = this.transactions.filter( transaction => transaction.currency === token);
+      this.tempTransactions = this.walletService.getTransactionsLazyDate(0, 80, date);
+        // const dateFull = this.datePipe.transform(dateTimestamp, 'M/dd/yyyy');
+      this.selectedAccount = null;
+      this.selectedToken = null;
+    }
+  }
+
+
+  filterByToken(token) {
+    this.filterCase = 'TOKEN';
+    this.filterTransactions = this.walletService.countAccountsPerToken(token);
+    if (!token) {
+      this.filterCase = 'ALL';
+      this.filterTransactions = this.transactions.length;
+      this.tempTransactions = this.walletService.getTransactionsLazy(0, 100);
+    } else {
+      this.tempTransactions = this.walletService.getTransactionsLazyCurrency(0, 80, token);
       this.selectedAccount = null;
       this.selectedDate = null;
     }
