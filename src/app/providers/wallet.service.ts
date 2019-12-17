@@ -113,7 +113,6 @@ export class WalletService {
     });
 
     function createCollections() {
-      console.log('### WalletService - createCollections');
       collectionSubject.next(walletDB.addCollection('accounts', {unique: ['pk']}));
       collectionSubject.next(walletDB.addCollection('transactions', {unique: ['txID']}));
       collectionSubject.next(walletDB.addCollection('keys', {unique: ['accountID']}));
@@ -170,7 +169,6 @@ export class WalletService {
       collectionSubject.next(walletDB.getCollection('transactions'));
       collectionSubject.next(walletDB.getCollection('keys'));
       if (!walletDB.getCollection('addressbook')) {
-        console.log('Creating new Collection addressbook');
         collectionSubject.next(walletDB.addCollection('addressbook', {unique: ['accountID']}));
       } else {
         collectionSubject.next(walletDB.getCollection('addressbook'));
@@ -243,7 +241,6 @@ export class WalletService {
   // #########################################
 
   addAddress(newAddress: LokiTypes.LokiAddress): LokiTypes.LokiAddress {
-    console.log(newAddress);
     const insertedAddress = this.addressbook.insert(newAddress);
     return insertedAddress;
   }
@@ -454,18 +451,16 @@ export class WalletService {
   }
 
   countAccountsPerAccount(account) {
-    console.log(account);
      return this.transactions.find({ 'accountID': account }).length;
   }
 
-  countAccountsPerDate(date: string) {
-    const cscDate = CSCUtil.iso8601ToCasinocoinTime(date);
-    console.log('dateToUnix', cscDate);
-    return this.transactions.find({ 'timestamp': cscDate }).length;
+  countAccountsPerDate(date) {
+    const isoStringDate = new Date(date).toISOString();
+    const dateUTC = CSCUtil.iso8601ToCasinocoinTime(isoStringDate) - 18000;
+    return this.transactions.find({ timestamp: { '$between': [dateUTC, dateUTC + 86399] } }).length;
   }
 
   countAccountsPerToken(token) {
-    console.log(token);
     return this.transactions.find({ 'currency': token }).length;
   }
 
@@ -494,12 +489,13 @@ export class WalletService {
                                     .data();
   }
 
-   getTransactionsLazyDate(offset: number, limit: number, date): Array<LokiTypes.LokiTransaction> {
-    const cscDate = CSCUtil.casinocoinTimeToISO8601(date);
-    // const dateTimestamp1 = CSCUtil.casinocoinToUnixTimestamp(cscDate);
-    const dateTimestamp = this.datePipe.transform(628749799, 'M/dd/yyyy hh:ss');
-    console.log('dateTimestamp', dateTimestamp);
-    return this.transactions.chain().find({'timestamp': cscDate})
+  getTransactionsLazyDate(offset: number, limit: number, date): Array<LokiTypes.LokiTransaction> {
+    const isoStringDate = new Date(date).toISOString();
+    const dateUTC = CSCUtil.iso8601ToCasinocoinTime(isoStringDate) - 18000;
+    // const dateTimestampTT = CSCUtil.casinocoinTimeToISO8601(dateUTC);
+    // const dateTimestampT2 = CSCUtil.casinocoinTimeToISO8601(dateUTC + 86399);
+    // const dateTimestamp = this.datePipe.transform(628749799, 'M/dd/yyyy hh:ss');
+    return this.transactions.chain().find({ timestamp: { '$between': [dateUTC, dateUTC + 86399] }})
                                     .simplesort('timestamp', true)
                                     .offset(offset)
                                     .limit(limit)

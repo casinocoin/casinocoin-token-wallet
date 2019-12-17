@@ -54,10 +54,9 @@ export class HistoryComponent implements OnInit, AfterViewInit {
   public transactions: Array<LokiTransaction> = [];
   public tempTransactions = [];
   public dateTransactions = [];
-  public accountsTransactions = [];
   public tokenTransactions = [];
   public cscsBase64;
-  public cscAccounts;
+  public cscAccounts = [];
   public tx_context_menu: ElectronMenu;
   public currentTX: LokiTransaction;
   public datesTx;
@@ -65,13 +64,13 @@ export class HistoryComponent implements OnInit, AfterViewInit {
   public loading: boolean;
   public filterCase = 'ALL';
   public filterTransactions = 0;
+  public virtualRowHeight = 60;
 
   ngOnInit() {
     this.logger.debug('### History ngOnInit() ###');
     this.walletService.openWalletSubject.subscribe( result => {
       if (result === AppConstants.KEY_LOADED) {
         this.init();
-        this.cscAccounts = [];
         this.walletService.getAllAccounts().forEach( element => {
           if (element.currency === 'CSC' && new Big(element.balance) > 0  && element.accountSequence >= 0) {
             const accountLabel = element.accountID.substring(0, 20) + '...' + ' [Balance: ' + this.cscAmountPipe.transform(element.balance, false, true) + ']';
@@ -123,6 +122,7 @@ export class HistoryComponent implements OnInit, AfterViewInit {
         }
       });
     });
+    // subscribe to CHANGE Tx
     this.casinocoinService.validatedTxSubject.subscribe( txHash => {
       if (txHash) {
         this.init();
@@ -133,9 +133,8 @@ export class HistoryComponent implements OnInit, AfterViewInit {
   init() {
     // get all transactions
     this.transactions = this.walletService.getAllTransactions();
-    console.log(this.transactions);
     this.filterTransactions = this.transactions.length;
-    this.accountsTransactions = this.transactions;
+    this.tempTransactions = this.walletService.getTransactionsLazy(0, 100);
     this.getDays();
     this.logger.debug('### History ngOnInit() - transactions: ' + JSON.stringify(this.transactions));
     this.tokenTransactions = Object.values(this.walletService.getAllAccounts().reduce((prev, next) => Object.assign(prev, { [next.currency]: next }), {}));
@@ -156,9 +155,17 @@ export class HistoryComponent implements OnInit, AfterViewInit {
     this.datesTx = datesTx;
   }
 
+  // set VirtualRowHeight of P-calendar
+  setVirtualRowHeight() {
+    if (this.filterTransactions < 50) {
+      this.virtualRowHeight = 100;
+    } else {
+      this.virtualRowHeight = 60;
+    }
+  }
+
   loadDataOnScroll(event) {
-    console.log(event);
-    console.log('filterCase:', this.filterCase);
+    this.logger.debug('### Context loadDataOnScroll: ' + JSON.stringify(event) );
     if (this.filterCase === 'ALL') {
       this.loading = true;
       const tx = this.walletService.getTransactionsLazy(event.first, event.rows);
@@ -182,7 +189,6 @@ export class HistoryComponent implements OnInit, AfterViewInit {
 
     if (this.filterCase === 'TOKEN') {
       this.loading = true;
-      console.log('this.selectedToken', this.selectedToken.currency);
       const tx = this.walletService.getTransactionsLazyCurrency(event.first, event.rows, this.selectedToken.currency);
       this.tempTransactions = tx;
       if (tx) { this.loading = false; }
@@ -194,9 +200,11 @@ export class HistoryComponent implements OnInit, AfterViewInit {
     this.filterTransactions = this.walletService.countAccountsPerAccount(account);
     if (!account) {
       this.filterCase = 'ALL';
+      this.virtualRowHeight = 65;
       this.filterTransactions = this.transactions.length;
       this.tempTransactions = this.walletService.getTransactionsLazy(0, 100);
     } else {
+      this.setVirtualRowHeight();
       this.tempTransactions = this.walletService.getTransactionsLazyAccount(0, 80, account);
       this.selectedDate = null;
       this.selectedToken = null;
@@ -204,17 +212,16 @@ export class HistoryComponent implements OnInit, AfterViewInit {
   }
 
   filterByDate(date) {
-    console.log(date);
-    console.log(this.filterTransactions);
     this.filterCase = 'DATE';
     this.filterTransactions = this.walletService.countAccountsPerDate(date);
     if (!date) {
       this.filterCase = 'ALL';
+      this.virtualRowHeight = 65;
       this.filterTransactions = this.transactions.length;
       this.tempTransactions = this.walletService.getTransactionsLazy(0, 100);
     } else {
+      this.setVirtualRowHeight();
       this.tempTransactions = this.walletService.getTransactionsLazyDate(0, 80, date);
-        // const dateFull = this.datePipe.transform(dateTimestamp, 'M/dd/yyyy');
       this.selectedAccount = null;
       this.selectedToken = null;
     }
@@ -226,9 +233,11 @@ export class HistoryComponent implements OnInit, AfterViewInit {
     this.filterTransactions = this.walletService.countAccountsPerToken(token);
     if (!token) {
       this.filterCase = 'ALL';
+      this.virtualRowHeight = 65;
       this.filterTransactions = this.transactions.length;
       this.tempTransactions = this.walletService.getTransactionsLazy(0, 100);
     } else {
+      this.setVirtualRowHeight();
       this.tempTransactions = this.walletService.getTransactionsLazyCurrency(0, 80, token);
       this.selectedAccount = null;
       this.selectedDate = null;

@@ -22,6 +22,7 @@
             [(ngModel)]="selectedDate" 
             [locale]="language"
             [showIcon]="true" 
+            dataType = "string"
             placeholder="{{ 'PAGES.HISTORY.SEL-DAT' | translate }}" 
             (ngModelChange)="filterByDate(selectedDate)">
             <ng-template pTemplate="date" let-date>
@@ -52,10 +53,10 @@
 
     <div class="ui-g-12">
         <p-contextMenu #cm class="hide-context-menu"></p-contextMenu>
-        <p-table [value]="tempTransactions" scrollable="true" scrollHeight="76vh" 
+        <p-table [value]="tempTransactions" scrollable="true" scrollHeight="70vh" 
             responsive="true" styleClass="borderless" (onContextMenuSelect)="showTxContextMenu($event)" [(selection)]="currentTX" contextMenuSelectionMode="joint" #dtTX
-            [lazy]="true" (onLazyLoad)="loadDataOnScroll($event)" [rows]="40" [totalRecords]="filterTransactions"
-            [virtualScroll]="true" [virtualRowHeight]="60"
+            [lazy]="true" (onLazyLoad)="loadDataOnScroll($event)" [rows]="50" [totalRecords]="filterTransactions"
+            [virtualScroll]="true" [virtualRowHeight]="virtualRowHeight"
             >
             <ng-template pTemplate="body" let-rowData>
                 <tr [pContextMenuRow]="rowData">
@@ -84,14 +85,6 @@
                     </td>
                     <td style="width:75px;">
                         <span class="text-medium" #amountColText>{{ getTXTextColor(amountColText,rowData) }}{{rowData.amount | cscAmount : false : true}} {{rowData.currency}}</span>
-                    </td>
-                </tr>
-            </ng-template>
-
-            <ng-template pTemplate="loadingbody" let-columns="columns">
-                <tr style="height:34px">
-                    <td *ngFor="let col of columns">
-                        <div class="loading-text"></div>
                     </td>
                 </tr>
             </ng-template>
