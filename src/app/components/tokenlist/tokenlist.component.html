@@ -1,5 +1,14 @@
 <div class="ui-g form-container">
-    <p class="form-text-header">{{ 'PAGES.TOKENLIST.TITLE' | translate }}</p>
+    <p-fieldset>
+        <p-header style="background-color: azure;">
+            <p class="form-text-header" style=" margin: 10px;">{{ 'PAGES.TOKENLIST.TITLE' | translate }}</p>
+        </p-header>
+        <div class="ui-g-12" style="padding: 0em;">
+            <div style="padding-top: 0em; float: right;">
+                 <p style="float:right; margin-right: 30px; margin: 0px; margin-top: 0px; margin-bottom: 0px;"> <b>{{ 'PAGES.TOKENLIST.TOTAL-TOKEN' | translate }}</b>: <span style="font-size: xx-large; font-family: monospace; color: brown;">{{tempTokenList.length}}</span> </p> 
+            </div>
+        </div>
+        <hr>
     <div class="ui-g-12">
         <button pButton type="button" style="margin: 5px;" (click)="doShowLedgers()" icon="icon icon-list-numbered" iconPos="left" 
             label="{{'PAGES.TOKENLIST.SHOW-LEDGERS'|translate}}">
@@ -11,7 +20,7 @@
             label="{{'PAGES.TOKENLIST.SHOW-ADD-TOKEN'|translate}}" [disabled]="!canActivateAccount()">
         </button>
         <div class="ui-g-12 ui-md-3 ui-inputgroup" style="float:right;">
-            <span class="ui-inputgroup-addon" style="box-sizing: content-box; width: 50px;"><i class="pi pi-th-large"></i></span>
+            <span class="ui-inputgroup-addon" style="box-sizing: content-box; width: 50px; float:right;"><i class="pi pi-th-large"></i></span>
             <p-dropdown [options]="filterToken" [style]="{'border-radius': '0px 13px 13px 0px'}" [(ngModel)]="selectedToken" 
                 placeholder="{{ 'PAGES.HISTORY.SEL-TOK' | translate }}" optionLabel="Token" name="Token" [showClear]="true" 
                 (ngModelChange)="filterByToken(selectedToken ? selectedToken : null)">
@@ -27,7 +36,6 @@
                 </ng-template>
             </p-dropdown>
         </div>
-        <p style="float:right; margin-right: 12px; margin: 5px;"> <u><b>{{ 'PAGES.TOKENLIST.TOTAL-TOKEN' | translate }}</b></u>: <span style="font-size: xx-large; font-family: monospace; color: brown;">{{tempTokenList.length}}</span> </p> 
     </div>
     <div *ngIf="!tokenlist" class="ui-g-12" style=" display: flex; justify-content: center; align-items: center;">
         <div class="">
@@ -127,6 +135,7 @@
             </ng-template>
         </p-table>
     </div>
+    </p-fieldset>
 </div>
 <p-dialog class="dialog-header" [(visible)]="showLedgerDialog" [width]="500" [height]="425" 
     [closable]="true" [modal]="true" appendTo="body">

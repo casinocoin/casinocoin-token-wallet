@@ -130,7 +130,7 @@
         "FIL-ACC":"Filter by Account",
         "NAME":"Name",
         "DELETE": "Delete",
-        "TOTAL-TOKEN": "Total Token"
+        "TOTAL-TOKEN": "Total Accounts"
       },
       "HISTORY": {
         "TITLE": "Transaction History",

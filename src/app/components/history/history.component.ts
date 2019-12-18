@@ -155,6 +155,10 @@ export class HistoryComponent implements OnInit, AfterViewInit {
     this.datesTx = datesTx;
   }
 
+  scroll(table) {
+    const body = table.containerViewChild.nativeElement.getElementsByClassName('ui-table-scrollable-body')[0];
+    body.scrollTop = 0;
+  }
   // set VirtualRowHeight of P-calendar
   setVirtualRowHeight() {
     if (this.filterTransactions < 50) {

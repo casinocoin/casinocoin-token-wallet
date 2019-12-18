@@ -130,7 +130,7 @@
           "FIL-ACC":"Filtrar por cuenta",
           "NAME":"Nombre",
           "DELETE": "Eliminar",
-          "TOTAL-TOKEN": "Total Token"
+          "TOTAL-TOKEN": "Total Cuentas"
         },
         "HISTORY": {
           "TITLE": "Historial de transacciones",
@@ -140,7 +140,8 @@
           "FROM": "desde",
           "TO": "a",
           "STATUS": "estado",
-          "LEDGER": "ledger"
+          "LEDGER": "ledger",
+          "TOTAL-TX": "Total Transacciones"
         },
         "EXCHANGES": {
           "COININFO": "Información de la moneda",

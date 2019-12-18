@@ -18,8 +18,8 @@
 }
 
 .ui-widget-content {
-  border: 1px solid #dfd9c3;
-  background-color: #f5f3e5;
+  border: 1px solid #d1caca;
+  background-color: #fafafa;
   color: #312e25;
 }
 .ui-widget-content a {
@@ -108,6 +108,7 @@
 
 .ui-inputtext:enabled:hover {
   border-color: #bf0a0a;
+  color: #433f38;
 }
 
 .ui-inputtext.ui-state-focus,
@@ -651,11 +652,11 @@
   color: #433f38;
 }
 .ui-table .ui-table-tbody > tr {
-  background-color: #f5f3e5;
+  background-color: #fafafa;
   color: #312e25;
 }
 .ui-table .ui-table-tbody > tr > td {
-  border: 1px solid #dfd9c3;
+  border: 1.5px solid #efcaca;
   background-color: inherit;
 }
 .ui-table .ui-table-tbody > tr.ui-state-highlight {
@@ -880,7 +881,7 @@ p-togglebutton.ng-dirty.ng-invalid .ui-button {
 .ui-corner-all {
   -moz-border-radius: 6px;
   -webkit-border-radius: 6px;
-  border-radius: 6px;
+  border-radius: 13px;
 }
 
 .ui-paginator .ui-paginator-page.ui-state-active {
@@ -894,7 +895,7 @@ p-togglebutton.ng-dirty.ng-invalid .ui-button {
 }
 
 .ui-dialog-titlebar {
-    background: #000000;
+    background: #363636;
     color: whitesmoke;
 }
 
@@ -904,6 +905,24 @@ p-togglebutton.ng-dirty.ng-invalid .ui-button {
     color: black;
 }
 
-.ui-dropdown {
-  border-radius: 0px 13px 13px 0px;
+.ui-dropdown .ui-dropdown-clear-icon {
+  color: #ff1000;
+    background-color: white;
+}
+
+.i-inputswitch-checked {
+  color: whitesmoke;
+}
+
+.ui-dialog .ui-dialog-titlebar-icon span {
+  color: whitesmoke;
+  cursor: pointer;
+}
+
+.ui-dropdown  {
+  border-radius: 8px 13px 13px 8px;
+}
+
+.ui-fieldset .ui-fieldset-legend  {
+    padding: 0em 2em;
 }

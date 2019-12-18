@@ -1,98 +1,100 @@
 <div class="ui-g form-container">
-    <div class="ui-g">
-        <div class="ui-g-6">
-            <p class="form-text-header">{{ 'PAGES.HISTORY.TITLE' | translate }}</p>
-        </div>
-        <div class="ui-g-6" style="margin-top: 20px; padding: 0em; ">
-            <p style="float:right; margin-right: 12px;"> <u><b>{{ 'PAGES.HISTORY.TOTAL-TX' | translate }}</b></u>: <span style="font-size: xx-large; font-family: monospace; color: brown;">{{filterTransactions }}</span> </p> 
-        </div>
-    </div>
-    <hr>
-    <div class="ui-g-12 ui-md-6 ui-inputgroup">
-        <span class="ui-inputgroup-addon" style="box-sizing: content-box; width: 50px; "><i class="icon icon-id"></i></span>
-        <p-dropdown [options]="cscAccounts" [style]="{'width':'370px', 'border-radius': '0px 13px 13px 0px'}" 
-            [(ngModel)]="selectedAccount" placeholder="{{'PAGES.TOKENLIST.SEL-ACC' | translate}} ..." name="accountID" [showClear]="true" 
-            (ngModelChange)="filterByAccount(selectedAccount ? selectedAccount : null)">
-        </p-dropdown>
-    </div>
-    <div class="ui-g-12 ui-md-3 ">
-        <p-calendar
-            [showTransitionOptions]="'200ms'" 
-            [hideTransitionOptions]="'300ms'"
-            [(ngModel)]="selectedDate" 
-            [locale]="language"
-            [showIcon]="true" 
-            dataType = "string"
-            placeholder="{{ 'PAGES.HISTORY.SEL-DAT' | translate }}" 
-            (ngModelChange)="filterByDate(selectedDate)">
-            <ng-template pTemplate="date" let-date>
-                <span 
-                    [ngStyle]="{backgroundColor: (date.day === datesTx[0] || date.day === datesTx[1] || date.day === datesTx[2] || date.day === datesTx[3]) ? '#06D788' : 'inherit'}" 
-                    style="border-radius:50%;padding: .25em;width: 1.75em; height:1.75em; display:block;">{{date.day}}
-                </span>
-            </ng-template>
-        </p-calendar>
-    </div>
-    <div class="ui-g-12 ui-md-3 ui-inputgroup">
-        <span class="ui-inputgroup-addon" style="box-sizing: content-box; width: 50px;"><i class="pi pi-th-large"></i></span>
-        <p-dropdown [options]="tokenTransactions" [style]="{'border-radius': '0px 13px 13px 0px'}" [(ngModel)]="selectedToken" 
-            placeholder="{{ 'PAGES.HISTORY.SEL-TOK' | translate }}" optionLabel="currency" name="currency" [showClear]="true" 
-            (ngModelChange)="filterByToken(selectedToken ? selectedToken.currency : null)">
-            <ng-template let-item pTemplate="selectedItem">
-                <img [src]="getTokenURL(item.value)" style="width:16px;vertical-align:middle" alt="icon" />
-                <span style="vertical-align:middle; margin-left: .5em">{{item.label}}</span>
-            </ng-template>
-            <ng-template let-item pTemplate="item">
-                <div class="ui-helper-clearfix" style="position: relative;height: 25px;">
-                    <img [src]="getTokenURL(item.value)" style="width:24px;position:absolute;top:1px;left:5px" alt="icon" />
-                    <div style="font-size:14px;float:right;margin-top:4px">{{item.label}}</div>
-                </div>
-            </ng-template>
-        </p-dropdown>
-    </div>
-
-    <div class="ui-g-12">
-        <p-contextMenu #cm class="hide-context-menu"></p-contextMenu>
-        <p-table [value]="tempTransactions" scrollable="true" scrollHeight="70vh" 
-            responsive="true" styleClass="borderless" (onContextMenuSelect)="showTxContextMenu($event)" [(selection)]="currentTX" contextMenuSelectionMode="joint" #dtTX
-            [lazy]="true" (onLazyLoad)="loadDataOnScroll($event)" [rows]="50" [totalRecords]="filterTransactions"
-            [virtualScroll]="true" [virtualRowHeight]="virtualRowHeight"
-            >
-            <ng-template pTemplate="body" let-rowData>
-                <tr [pContextMenuRow]="rowData">
-                    <td style="width:20px;"><i [ngClass]="getDirectionIconClasses(rowData)"></i></td>
-                    <td style="width:25px;"><img  [src]="getTokenURL(rowData)" width="25" height="25" alt="icon" /></td>
-                    <td style="width:70px;">
-                        <span class="text-large">{{rowData.timestamp | cscDate : 'dd' }}</span>
-                        <span class="text-small-bottom">{{rowData.timestamp | cscDate : 'MMM' | uppercase }}</span>
-                        <span class="text-large">{{rowData.timestamp | cscDate : 'HH' }}</span>
-                        <span class="text-small-top" >{{rowData.timestamp | cscDate : ':mm:ss' }}</span>
-                    </td>
-                    <td style="width:175px;">
-                        <span class="text-small">
-                            <p class="item-p"><span class="item-label">{{ 'PAGES.HISTORY.FROM' | translate }}: </span><span class="item-value"> {{ rowData.accountID }}</span></p>
-                            <p class="item-p"><span class="item-label">{{ 'PAGES.HISTORY.TO' | translate }}: </span><span class="item-value"> {{ rowData.destination }}</span></p>
-                            <p class="item-p" *ngIf="getDescription(rowData) != null"><span class="item-label">message: </span><span class="item-value"> {{ getDescription(rowData) }}</span></p>
-                            <p class="item-p" *ngIf="rowData.destinationTag"><span class="item-label">tag: </span><span class="item-value"> {{ rowData.destinationTag }}</span></p>
-                            <p class="item-p" *ngIf="rowData.invoiceID"><span class="item-label">invoice: </span><span class="item-value"> {{ rowData.invoiceID }}</span></p>
-                        </span>
-                    </td>
-                    <td style="width:50px;">
-                        <div [matTooltip]="getStatusTooltipText(rowData)">
-                            <p class="item-p"><span class="item-label">{{ 'PAGES.HISTORY.STATUS' | translate }}: </span><i [ngClass]="getStatusIconClasses(rowData)"></i></p>
-                            <p class="item-p"><span class="item-label">{{ 'PAGES.HISTORY.LEDGER' | translate }}: </span><span class="item-value"> {{ rowData.inLedger }}</span></p>
-                        </div>
-                    </td>
-                    <td style="width:75px;">
-                        <span class="text-medium" #amountColText>{{ getTXTextColor(amountColText,rowData) }}{{rowData.amount | cscAmount : false : true}} {{rowData.currency}}</span>
-                    </td>
-                </tr>
-            </ng-template>
-        </p-table> 
-        <div>
-            <div *ngIf="filterTransactions === 0" class="ui-g-12" style=" display: flex; justify-content: center; align-items: center;">
-                <h2>{{ 'PAGES.HISTORY.NOT-TX' | translate }}</h2> <i class="pi pi-exclamation-triangle" style="font-size: 3em; color: brown"></i>
+    <p-fieldset>
+        <p-header style="background-color: azure;">
+            <p class="form-text-header" style=" margin: 10px;">{{ 'PAGES.HISTORY.TITLE' | translate }}</p>
+        </p-header>
+        <div class="ui-g-12" style="padding: 0em;">
+            <div style="padding-top: 0em; float: right;">
+                <p style="margin-right: 12px; margin: 0px;"> <b>{{ 'PAGES.HISTORY.TOTAL-TX' | translate }}</b>: <span style="font-size: xx-large; font-family: monospace; color: brown;">{{filterTransactions }}</span> </p> 
             </div>
         </div>
-    </div>
+        <hr>
+        <div class="ui-g-12 ui-md-6 ui-inputgroup">
+            <span class="ui-inputgroup-addon" style="box-sizing: content-box; width: 50px; "><i class="icon icon-id"></i></span>
+            <p-dropdown [options]="cscAccounts" [style]="{'width':'370px', 'border-radius': '0px 13px 13px 0px'}" 
+                [(ngModel)]="selectedAccount" placeholder="{{'PAGES.TOKENLIST.SEL-ACC' | translate}} ..." name="accountID" [showClear]="true" 
+                (ngModelChange)="scroll(dtTX); filterByAccount(selectedAccount ? selectedAccount : null)">
+            </p-dropdown>
+        </div>
+        <div class="ui-g-12 ui-md-3 ">
+            <p-calendar
+                [showTransitionOptions]="'200ms'" 
+                [hideTransitionOptions]="'300ms'"
+                [(ngModel)]="selectedDate" 
+                [locale]="language"
+                [showIcon]="true" 
+                dataType = "string"
+                placeholder="{{ 'PAGES.HISTORY.SEL-DAT' | translate }}" 
+                (ngModelChange)="filterByDate(selectedDate)">
+                <ng-template pTemplate="date" let-date>
+                    <span 
+                        [ngStyle]="{backgroundColor: (date.day === datesTx[0] || date.day === datesTx[1] || date.day === datesTx[2] || date.day === datesTx[3]) ? '#06D788' : 'inherit'}" 
+                        style="border-radius:50%;padding: .25em;width: 1.75em; height:1.75em; display:block;">{{date.day}}
+                    </span>
+                </ng-template>
+            </p-calendar>
+        </div>
+        <div class="ui-g-12 ui-md-3 ui-inputgroup">
+            <span class="ui-inputgroup-addon" style="box-sizing: content-box; width: 50px;"><i class="pi pi-th-large"></i></span>
+            <p-dropdown [options]="tokenTransactions" [style]="{'border-radius': '0px 13px 13px 0px'}" [(ngModel)]="selectedToken" 
+                placeholder="{{ 'PAGES.HISTORY.SEL-TOK' | translate }}" optionLabel="currency" name="currency" [showClear]="true" 
+                (ngModelChange)="scroll(dtTX); filterByToken(selectedToken ? selectedToken.currency : null)">
+                <ng-template let-item pTemplate="selectedItem">
+                    <img [src]="getTokenURL(item.value)" style="width:16px;vertical-align:middle" alt="icon" />
+                    <span style="vertical-align:middle; margin-left: .5em">{{item.label}}</span>
+                </ng-template>
+                <ng-template let-item pTemplate="item">
+                    <div class="ui-helper-clearfix" style="position: relative;height: 25px;">
+                        <img [src]="getTokenURL(item.value)" style="width:24px;position:absolute;top:1px;left:5px" alt="icon" />
+                        <div style="font-size:14px;float:right;margin-top:4px">{{item.label}}</div>
+                    </div>
+                </ng-template>
+            </p-dropdown>
+        </div>
+
+        <div class="ui-g-12">
+            <p-contextMenu #cm class="hide-context-menu"></p-contextMenu>
+            <p-table [value]="tempTransactions" scrollable="true" scrollHeight="70vh" 
+                responsive="true" styleClass="borderless" (onContextMenuSelect)="showTxContextMenu($event)" [(selection)]="currentTX" contextMenuSelectionMode="joint" #dtTX
+                [lazy]="true" (onLazyLoad)="loadDataOnScroll($event)" [rows]="50" [totalRecords]="filterTransactions"
+                [virtualScroll]="true" [virtualRowHeight]="virtualRowHeight"
+                >
+                <ng-template pTemplate="body" let-rowData>
+                    <tr [pContextMenuRow]="rowData">
+                        <td style="width:20px;"><i [ngClass]="getDirectionIconClasses(rowData)"></i></td>
+                        <td style="width:25px;"><img  [src]="getTokenURL(rowData)" width="25" height="25" alt="icon" /></td>
+                        <td style="width:70px;">
+                            <span class="text-large">{{rowData.timestamp | cscDate : 'dd' }}</span>
+                            <span class="text-small-bottom">{{rowData.timestamp | cscDate : 'MMM' | uppercase }}</span>
+                            <span class="text-large">{{rowData.timestamp | cscDate : 'HH' }}</span>
+                            <span class="text-small-top" >{{rowData.timestamp | cscDate : ':mm:ss' }}</span>
+                        </td>
+                        <td style="width:175px;">
+                            <span class="text-small">
+                                <p class="item-p"><span class="item-label">{{ 'PAGES.HISTORY.FROM' | translate }}: </span><span class="item-value"> {{ rowData.accountID }}</span></p>
+                                <p class="item-p"><span class="item-label">{{ 'PAGES.HISTORY.TO' | translate }}: </span><span class="item-value"> {{ rowData.destination }}</span></p>
+                                <p class="item-p" *ngIf="getDescription(rowData) != null"><span class="item-label">message: </span><span class="item-value"> {{ getDescription(rowData) }}</span></p>
+                                <p class="item-p" *ngIf="rowData.destinationTag"><span class="item-label">tag: </span><span class="item-value"> {{ rowData.destinationTag }}</span></p>
+                                <p class="item-p" *ngIf="rowData.invoiceID"><span class="item-label">invoice: </span><span class="item-value"> {{ rowData.invoiceID }}</span></p>
+                            </span>
+                        </td>
+                        <td style="width:50px;">
+                            <div [matTooltip]="getStatusTooltipText(rowData)">
+                                <p class="item-p"><span class="item-label">{{ 'PAGES.HISTORY.STATUS' | translate }}: </span><i [ngClass]="getStatusIconClasses(rowData)"></i></p>
+                                <p class="item-p"><span class="item-label">{{ 'PAGES.HISTORY.LEDGER' | translate }}: </span><span class="item-value"> {{ rowData.inLedger }}</span></p>
+                            </div>
+                        </td>
+                        <td style="width:75px;">
+                            <span class="text-medium" #amountColText>{{ getTXTextColor(amountColText,rowData) }}{{rowData.amount | cscAmount : false : true}} {{rowData.currency}}</span>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table> 
+            <div>
+                <div *ngIf="filterTransactions === 0" class="ui-g-12" style=" display: flex; justify-content: center; align-items: center;">
+                    <h2>{{ 'PAGES.HISTORY.NOT-TX' | translate }}</h2> <i class="pi pi-exclamation-triangle" style="font-size: 3em; color: brown"></i>
+                </div>
+            </div>
+        </div>
+    </p-fieldset>
 </div>

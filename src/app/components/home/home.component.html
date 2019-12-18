@@ -133,8 +133,9 @@
         <div class="ui-g-10">
             <div class="ui-g">
                 <div class="ui-g-4">{{'PAGES.SETTINGS.WALLET-LANG' | translate}}</div>
-                <div class="ui-g-8 bold-value">
+                <div class="ui-g-8 bold-value" style="border-radius: 13px 13px 13px 13px;">
                     <p-dropdown 
+                        [ngStyle]="{'border-radius': '13px 13px 13px 13px'}"
                         [options]="languages" 
                         [(ngModel)]="languageSystem" 
                         (ngModelChange)="changeLanguage($event)"
