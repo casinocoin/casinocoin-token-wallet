@@ -230,17 +230,9 @@
 </p-footer>
 </p-dialog>
 
-<p-dialog [(visible)]="showImportKeyDialog" [width]="650" [height]="325" [closable]="true" [modal]="true" appendTo="body">
+<p-dialog [(visible)]="showImportKeyDialog" [width]="650" [height]="340" [closable]="true" [modal]="true" appendTo="body">
     <p-header><span><i class="icon csc-dialog-icon icon-chip"></i>{{ 'PAGES.HOME.IMPORT-KEY' | translate }}</span></p-header>
     <div class="ui-g ui-fluid">
-    <!--
-        <div class="ui-g-1"></div>
-        <div class="ui-g-10"><p-radioButton name="importChoice" value="existing" label="{{'PAGES.HOME.IMPORT-KEY-EXISTING' | translate}}" [(ngModel)]="importSecretChoice" inputId="preopt1"></p-radioButton></div>
-        <div class="ui-g-1"></div>
-        <div class="ui-g-1"></div>
-        <div class="ui-g-10"><p-radioButton name="importChoice" value="addaccount" label="{{'PAGES.HOME.IMPORT-KEY-ADD' | translate}}" [(ngModel)]="importSecretChoice" inputId="preopt2"></p-radioButton></div>
-        <div class="ui-g-1"></div>
-    -->
         <div class="ui-g-1"></div>
         <div class="ui-g-10">
             <p>{{ 'PAGES.HOME.IMPORT-KEY-SECRET' | translate }}</p>
@@ -262,21 +254,28 @@
             <div class="ui-inputgroup">
                 <span class="ui-inputgroup-addon" style="box-sizing: content-box;"><i class="icon icon-key"></i></span>
                 <input type="password" pInputText placeholder="{{ 'PAGES.HOME.WALLET-PASSWORD' | translate }}" style="width: 100%; padding-left: 5px;"
-                       [(ngModel)]="walletPassword" (keyup.enter)="executePasswordCallback()" #passwordInput>         
+                       [(ngModel)]="walletPassword" (keyup.enter)="executeKeyImport()" #passwordInput>         
             </div>
         </div>
         <div class="ui-g-1"></div>
+        <div class="ui-g-1"></div>
+        <div class="ui-g-5">
+            <p style="margin-top: 3px;">Import only (Not Moving funds):</p>
+        </div>
+        <div class="ui-g-1" style="float: unset;">
+            <p-inputSwitch [(ngModel)]="checked"></p-inputSwitch>
+        </div>
     </div>
     <div class="ui-g ui-fluid">
         <div class="ui-g-4">
         </div>
         <div class="ui-g-4" style="text-align: center;">
-            <button pButton type="button" (click)="executeKeyImport()" [(icon)]="active_icon" iconPos="right" label="Ok" style="width: 100px;"></button>
+            <button pButton type="button" (click)="checked ? confirm() : executeKeyImport()" [(icon)]="active_icon" iconPos="right" label="Ok" style="width: 100px;"></button>
         </div>
         <div class="ui-g-4"></div>
     </div>
-    <p-footer *ngIf="footer_visible" class="footer-error">
-        {{footer_message}}
+    <p-footer *ngIf="footer_visible" class="footer-error center" style="text-align: center;">
+        <p>{{footer_message}}</p>
     </p-footer>
 </p-dialog>
 
@@ -383,5 +382,21 @@
     </div>        
 </p-dialog>
 
+<p-dialog  [(visible)]="confirmImportKey" [responsive]="true" [style]="{width: '350px', minWidth: '200px'}">
+        <p-header style="color: rgb(255, 255, 255);">
+                {{ 'PAGES.TOOLS.WAIT-REF' | translate }}
+        </p-header>
+    <div class="ui-g-12">
+        <div class="" style=" display: flex; justify-content: center; align-items: center;">
+            <i class="pi pi-spin pi-spinner" style="font-size: 5em; color: brown" ></i>
+            <h1 style="color: brown;">{{ 'PAGES.TOOLS.REFRESHING' | translate }}</h1>
+        </div>
+    </div>        
+</p-dialog>
 
-
+<p-confirmDialog #cd [style]="{width: '50vw'}" appendTo="body">
+    <p-footer>
+        <button type="button" pButton icon="pi pi-check" label="Yes" (click)="cd.accept()"></button>
+        <button type="button" pButton icon="pi pi-times" label="No" (click)="cd.reject()"></button>
+    </p-footer>
+</p-confirmDialog>

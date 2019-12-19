@@ -16,7 +16,7 @@ import { LokiKey } from '../../domains/lokijs';
 import * as LokiTypes from '../../domains/lokijs';
 import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
 import { CasinocoinAPI } from '@casinocoin/libjs';
-import { SelectItem, Message, MenuItem as PrimeMenuItem } from 'primeng/api';
+import { SelectItem, Message, MenuItem as PrimeMenuItem, ConfirmationService } from 'primeng/api';
 import { GetServerInfoResponse } from '@casinocoin/libjs/common/serverinfo';
 import { TranslateService } from '@ngx-translate/core';
 import Big from 'big.js';
@@ -30,97 +30,101 @@ const fs = require('fs');
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
-  styleUrls: ['./home.component.scss']
+  styleUrls: ['./home.component.scss'],
+  providers: [ConfirmationService
+  ]
 })
 export class HomeComponent implements OnInit, OnDestroy {
 
   @ViewChild('accountDropdown') accountDropdown: Dropdown;
 
-  walletSettings: WalletSettings = {showNotifications: true, fiatCurrency: 'USD'};
-  fiatCurrencies: SelectItem[] = [];
-  selectedFiatCurrency: string;
-  currentWalletObject: WalletDefinition;
-  active_menu_item: string;
-  balance: string;
-  fiat_balance: string;
-  connected_tooltip: string;
+  public walletSettings: WalletSettings = {showNotifications: true, fiatCurrency: 'USD'};
+  public fiatCurrencies: SelectItem[] = [];
+  public selectedFiatCurrency: string;
+  public currentWalletObject: WalletDefinition;
+  public active_menu_item: string;
+  public balance: string;
+  public fiat_balance: string;
+  public connected_tooltip: string;
 
-  show_menu = 'small';
-  menu_items: PrimeMenuItem[];
-  tools_context_menu: ElectronMenu;
-  connection_context_menu: ElectronMenu;
+  public show_menu = 'small';
+  public menu_items: PrimeMenuItem[];
+  public tools_context_menu: ElectronMenu;
+  public connection_context_menu: ElectronMenu;
 
-  applicationVersion: string;
-  serverVersion: string;
-  network: string;
+  public applicationVersion: string;
+  public serverVersion: string;
+  public network: string;
 
-  showPrivateKeyImportDialog = false;
-  showSettingsDialog = false;
-  showServerInfoDialog = false;
-  showPasswordDialog = false;
-  showPasswordCallback: any;
+  public showPrivateKeyImportDialog = false;
+  public showSettingsDialog = false;
+  public showServerInfoDialog = false;
+  public showPasswordDialog = false;
+  public showPasswordCallback: any;
 
-  privateKeySeed: string;
-  walletPassword: string;
-  importFileObject: Object;
+  public privateKeySeed = '';
+  public walletPassword = '';
+  public importFileObject: Object;
 
-  privateKeyExportLocation: string;
-  privateKeyImportfile: string;
-  importKeys: Array<LokiKey> = [];
+  public privateKeyExportLocation: string;
+  public privateKeyImportfile: string;
+  public importKeys: Array<LokiKey> = [];
 
-  // Growl messages
-  msgs: Message[] = [];
+   // Growl messages
+  public msgs: Message[] = [];
 
-  isConnected = new BehaviorSubject<boolean>(false);
-  connected_icon = 'fa fa-wifi fa-2x';
-  connectionColorClass = 'connected-color';
-  connectionImage = 'assets/icons/connected.png';
-  active_icon = 'fa fa-check';
-  manualDisconnect = false;
-  searchDate: Date;
-  display = false;
-  refreshWallet = false;
+  public isConnected = new BehaviorSubject<boolean>(false);
+  public connected_icon = 'fa fa-wifi fa-2x';
+  public connectionColorClass = 'connected-color';
+  public connectionImage = 'assets/icons/connected.png';
+  public active_icon = 'fa fa-check';
+  public manualDisconnect = false;
+  public searchDate: Date;
+  public display = false;
+  public refreshWallet = false;
 
 
-  serverState: any;
-  currentServer: GetServerInfoResponse;
-  currentLedger: LedgerStreamMessages;
-  casinocoinConnectionSubject: Observable<any>;
-  uiChangeSubject = new BehaviorSubject<string>(AppConstants.KEY_INIT);
+  public serverState: any;
+  public currentServer: GetServerInfoResponse;
+  public currentLedger: LedgerStreamMessages;
+  public casinocoinConnectionSubject: Observable<any>;
+  public uiChangeSubject = new BehaviorSubject<string>(AppConstants.KEY_INIT);
 
-  walletBalance: string;
-  transaction_count: number;
-  last_transaction: number;
+  public walletBalance: string;
+  public transaction_count: number;
+  public last_transaction: number;
 
-  footer_visible = false;
-  error_message: string;
-  footer_message: string;
-  passwordDialogHeader = 'CasinoCoin Wallet Password';
+  public footer_visible = false;
+  public error_message: string;
+  public footer_message: string;
+  public passwordDialogHeader = 'CasinoCoin Wallet Password';
 
-  backupPath: string;
+  public backupPath: string;
 
-  showSignMessageDialog = false;
-  showVerifyMessageDialog = false;
-  accounts: SelectItem[] = [];
-  selectedAccount: string;
-  msgToSign: string;
-  signPubKey: string;
-  signSignature: string;
-  msgToVerify: string;
-  verifyPubKey: string;
-  verifySignature: string;
-  verificationFinished = false;
-  verificationResult = false;
+  public showSignMessageDialog = false;
+  public showVerifyMessageDialog = false;
+  public accounts: SelectItem[] = [];
+  public selectedAccount: string;
+  public msgToSign: string;
+  public signPubKey: string;
+  public signSignature: string;
+  public msgToVerify: string;
+  public verifyPubKey: string;
+  public verifySignature: string;
+  public verificationFinished = false;
+  public verificationResult = false;
 
-  copy_context_menu: ElectronMenu;
-  copiedValue: string;
-  walletCloseReceived = false;
-  showImportKeyDialog = false;
-  importAccountSecret: string;
-  importRequiredTotalReserve: any;
-  importSecretChoice = 'existing';
-  errorPass = false;
-  subscriptionWatchItem: Subscription;
+  public copy_context_menu: ElectronMenu;
+  public copiedValue: string;
+  public walletCloseReceived = false;
+  public showImportKeyDialog = false;
+  public importAccountSecret: string;
+  public importRequiredTotalReserve: any;
+  public importSecretChoice = 'existing';
+  public errorPass = false;
+  public subscriptionWatchItem: Subscription;
+  public checked = false;
+
 
   public selectLanguage: any;
   public languages: Array<{name, value}>;
@@ -138,7 +142,8 @@ export class HomeComponent implements OnInit, OnDestroy {
                private router: Router,
                private datePipe: DatePipe,
                private _ngZone: NgZone,
-               private currencyPipe: CurrencyPipe ) {
+               private currencyPipe: CurrencyPipe,
+               private confirmationService: ConfirmationService ) {
     this.languages = languages;
     this.logger.debug('### INIT Home');
     this.applicationVersion = this.electron.remote.app.getVersion();
@@ -328,6 +333,39 @@ export class HomeComponent implements OnInit, OnDestroy {
       });
     });
     this.getSystemLanguage();
+  }
+
+  confirm() {
+    if (this.walletPassword.trim() === '' || this.importAccountSecret.trim() === '') {
+      this.footer_message = 'please verificate all fields';
+      this.active_icon = 'fa fa-check';
+      this.footer_visible = true;
+      this.importAccountSecret = '';
+      this.walletPassword = '';
+      return setTimeout(() => {
+        this.footer_message = null;
+      }, 3000);
+    }
+    if (this.checked) {
+      this.confirmationService.confirm({
+          message: 'Are you sure that you want to proceed?',
+          header: 'Confirmation',
+          icon: 'pi pi-exclamation-triangle',
+        accept: () => {
+          this.ImportOnlyNotMovingFunds();
+        },
+        reject: () => {
+          this.active_icon = 'fa fa-check';
+          this.footer_visible = true;
+          this.importAccountSecret = '';
+          this.walletPassword = '';
+          this.footer_message = '¡ please read too good for you make his decisions !' ;
+          return setTimeout(() => {
+            this.footer_message = null;
+          }, 3000);
+        }
+      });
+    }
   }
 
   getSystemLanguage() {
@@ -669,6 +707,132 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.verificationFinished = true;
       this.logger.debug('### HOME Verify Result: ' + this.verificationResult);
     }
+  }
+
+  ImportOnlyNotMovingFunds() {
+      this.importAccountSecret = this.importAccountSecret.trim();
+      this.logger.debug('### HOME - Execute Import Only Not Moving Funds: ' + this.importSecretChoice);
+      this.active_icon = 'pi fa-spin pi-spinner';
+
+      // check password
+      const walletObject: WalletDefinition = this.sessionStorageService.get(AppConstants.KEY_CURRENT_WALLET);
+      if (this.walletService.checkWalletPasswordHash(this.walletPassword, walletObject.walletUUID, walletObject.passwordHash)) {
+
+        // check the destination account id
+        if (this.casinocoinService.cscAPI.isValidSecret(this.importAccountSecret.trim())) {
+
+          // determine account from secret
+          const importKeyPair = this.casinocoinService.cscAPI.deriveKeypair(this.importAccountSecret);
+          const accountID = this.casinocoinService.cscAPI.deriveAddress(importKeyPair.publicKey);
+          console.log('accountID', accountID);
+
+          const userEmail = this.sessionStorageService.get(AppConstants.KEY_CURRENT_WALLET).userEmail;
+          const secretsCSCCrypto = new CSCCrypto(this.walletPassword, userEmail);
+
+          // get fees, account reserve
+          const fees = this.casinocoinService.serverInfo.validatedLedger.baseFeeCSC;
+          const accountReserve = this.casinocoinService.serverInfo.validatedLedger.reserveBaseCSC;
+          const ownerReserve = Number(this.casinocoinService.serverInfo.validatedLedger.reserveIncrementCSC);
+
+          // get main account to import
+          const mainAccount: LokiTypes.LokiAccount = this.walletService.getMainAccount();
+          const mainAccountKey: LokiKey = this.walletService.getKey(mainAccount.accountID);
+          const mainAccountDecryptedSecret = secretsCSCCrypto.decrypt(mainAccountKey.secret);
+          console.log('mainAccount', mainAccount, 'mainAccountKey', mainAccountKey, 'mainAccountDecryptedSecret', mainAccountDecryptedSecret, );
+
+          let ledgerBalances: any;
+          // let balanceCountHandled = 0;
+          const tokenReadyForTransferSubject = new Subject<any>();
+          // get account balances to import
+          this.casinocoinService.cscAPI.getBalances(accountID).then(balances => {
+            this.logger.debug('### HOME balances: ' + JSON.stringify(balances));
+            ledgerBalances = balances;
+            const requiredOwnerReserve = ownerReserve * balances.length;
+            const requiredFees =  Number(fees) * balances.length * 2;
+            this.importRequiredTotalReserve = new Big(CSCUtil.cscToDrops(accountReserve)).plus(new Big(CSCUtil.cscToDrops(requiredFees.toString()))).plus(new Big(CSCUtil.cscToDrops(requiredOwnerReserve.toString())));
+            const cscBalance = balances.find( item => item.currency === 'CSC');
+            const importCSCValue = new Big(CSCUtil.cscToDrops(cscBalance.value)).minus(this.importRequiredTotalReserve);
+            this.logger.debug('### HOME requiredTotalReserve: ' + this.importRequiredTotalReserve);
+            if ( importCSCValue > 0) {
+              // check if we only have CSC to move
+              if (balances.length === 1 && cscBalance !== undefined) {
+
+              } else {
+                balances.forEach(balance => {
+                  if (balance.currency !== 'CSC') {
+                    // check if main account has a trustline for this token
+                    let tokenAccount = this.walletService.getAccount(balance.currency, mainAccount.accountID);
+                    if (!tokenAccount) {
+                      // create new account
+                      const tokenInfo = this.casinocoinService.getTokenInfo(balance.currency);
+                      tokenAccount = {
+                          pk: (tokenInfo.Token + mainAccount.accountID),
+                          accountID: mainAccount.accountID,
+                          balance: mainAccount.balance,
+                          accountSequence: mainAccount.accountSequence,
+                          currency: tokenInfo.Token,
+                          tokenBalance: '0',
+                          lastSequence: mainAccount.lastSequence,
+                          label: tokenInfo.FullName,
+                          activated: true,
+                          ownerCount: mainAccount.ownerCount,
+                          lastTxID: mainAccount.lastTxID,
+                          lastTxLedger: mainAccount.lastTxLedger
+                      };
+                      // save account to wallet
+                      this.walletService.addAccount(tokenAccount);
+
+                      // get tx account 
+
+                      //
+
+                      // no token account yet so create trustline for it on the main account and add new token account
+                      const trustline = {
+                        currency: tokenInfo.Token,
+                        counterparty: tokenInfo.Issuer,
+                        limit: tokenInfo.TotalSupply
+                      };
+                      this.casinocoinService.cscAPI.prepareTrustline(mainAccount.accountID, trustline).then( preparedTrust => {
+                        this.logger.debug('### HOME Trustline Result: ' + JSON.stringify(preparedTrust));
+                        return this.casinocoinService.cscAPI.sign(preparedTrust.txJSON, mainAccountDecryptedSecret);
+                      }).then( trustSignResult => {
+                        this.logger.debug('### Trustline Sign Result: ' + JSON.stringify(trustSignResult));
+                        return this.casinocoinService.cscAPI.submit(trustSignResult.signedTransaction);
+                      }).then( trustSubmitResult => {
+                        this.logger.debug('### Trustline Submit Result: ' + JSON.stringify(trustSubmitResult));
+                        // mark balance ready for payment
+                        tokenReadyForTransferSubject.next(balance);
+                      });
+                    } else {
+                      // we only need to move the assets
+                      tokenReadyForTransferSubject.next(balance);
+                    }
+                  }
+                });
+              }
+                console.log(this.walletService.getAllAccounts());
+            } else {
+              this.footer_message = 'Not enough CSC in the source account to handle all required transactions.';
+              this.active_icon = 'fa fa-check';
+              this.footer_visible = true;
+              this.importAccountSecret = '';
+              this.walletPassword = '';
+            }
+          });
+
+        } else {
+          this.footer_message = 'Invalid account secret entered!';
+          this.active_icon = 'fa fa-check';
+          this.footer_visible = true;
+          this.importAccountSecret = '';
+          this.walletPassword = '';
+        }
+      } else {
+        this.footer_message = 'Invalid wallet password entered!';
+        this.active_icon = 'fa fa-check';
+        this.footer_visible = true;
+        this.walletPassword = '';
+      }
   }
 
   executeKeyImport() {
