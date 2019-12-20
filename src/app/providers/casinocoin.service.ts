@@ -179,6 +179,10 @@ export class CasinocoinService implements OnDestroy {
         return this.connectSubject.asObservable();
     }
 
+    getAccountInfo(account) {
+        return this.cscAPI.getAccountInfo(account);
+    }
+
     async regenerateAccounts (password) {
 
             const userEmail = this.sessionStorageService.get(AppConstants.KEY_CURRENT_WALLET).userEmail;

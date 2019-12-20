@@ -254,7 +254,7 @@
             <div class="ui-inputgroup">
                 <span class="ui-inputgroup-addon" style="box-sizing: content-box;"><i class="icon icon-key"></i></span>
                 <input type="password" pInputText placeholder="{{ 'PAGES.HOME.WALLET-PASSWORD' | translate }}" style="width: 100%; padding-left: 5px;"
-                       [(ngModel)]="walletPassword" (keyup.enter)="executeKeyImport()" #passwordInput>         
+                       [(ngModel)]="walletPassword" (keyup.enter)="checked ? confirm() : executeKeyImport()" #passwordInput>         
             </div>
         </div>
         <div class="ui-g-1"></div>
