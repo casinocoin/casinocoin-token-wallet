@@ -132,6 +132,7 @@ export class WalletService {
 
     const collectionSubject = new Subject<any>();
     const openSubject = new Subject<string>();
+
     let openErrorHandled = false;
     openSubject.subscribe(result => {
       this.logger.debug('### WalletService openWallet: ' + result);
@@ -145,7 +146,7 @@ export class WalletService {
     });
 
     let openError = false;
-    collectionSubject.subscribe( collection => {
+    collectionSubject.subscribe(collection => {
       if (collection != null) {
         this.logger.debug('### WalletService Open Collection: ' + collection.name);
         if (collection.name === 'accounts') {
@@ -319,12 +320,20 @@ export class WalletService {
     }
   }
 
+  deleteAccount(accountID) {
+    this.accounts.findAndRemove({accountID: accountID});
+  }
+
   getSortedCSCAccounts(sortAttribute: string, descending: boolean): Array<LokiTypes.LokiAccount> {
     return this.accounts.chain().find({'currency': {'$eq': 'CSC'}}).simplesort(sortAttribute, descending).data();
   }
 
   getAllAccounts(): Array<LokiTypes.LokiAccount> {
     return this.accounts.find();
+  }
+
+  getAllAccountsImported() {
+    return this.accounts.find({'accountSequence': {'$eq': -1}});
   }
 
   getAllTokenAccountsByAccountID(accountID: string): Array<LokiTypes.LokiAccount> {
@@ -452,6 +461,10 @@ export class WalletService {
 
   countAccountsPerAccount(account) {
      return this.transactions.find({ 'accountID': account }).length;
+  }
+
+  deleteTransactions(account) {
+    this.transactions.findAndRemove({accountID: account});
   }
 
   countAccountsPerDate(date) {

@@ -1,17 +1,17 @@
 <div class="ui-g form-container">
     <p-fieldset>
         <p-header style="background-color: azure;">
-            <p class="form-text-header" style=" margin: 10px;">{{ 'PAGES.HISTORY.TITLE' | translate }}</p>
+            <p class="form-text-header " style=" margin: 4px; font-size: 1.10em;">{{ 'PAGES.HISTORY.TITLE' | translate }}</p>
         </p-header>
         <div class="ui-g-12" style="padding: 0em;">
             <div style="padding-top: 0em; float: right;">
-                <p style="margin-right: 12px; margin: 0px;"> <b>{{ 'PAGES.HISTORY.TOTAL-TX' | translate }}</b>: <span style="font-size: xx-large; font-family: monospace; color: brown;">{{filterTransactions }}</span> </p> 
+                <p style="margin-right: 12px; margin: 0px;"> <b>{{ 'PAGES.HISTORY.TOTAL-TX' | translate }}</b>: <span style="font-size: 1.10em; color: brown;"><b>{{filterTransactions }}</b></span> </p> 
             </div>
         </div>
         <hr>
         <div class="ui-g-12 ui-md-6 ui-inputgroup">
             <span class="ui-inputgroup-addon" style="box-sizing: content-box; width: 50px; "><i class="icon icon-id"></i></span>
-            <p-dropdown [options]="cscAccounts" [style]="{'width':'370px', 'border-radius': '0px 13px 13px 0px'}" 
+            <p-dropdown [options]="cscAccounts" [style]="{'width':'370px', 'border-radius': '0px 4px 4px 0px'}" 
                 [(ngModel)]="selectedAccount" placeholder="{{'PAGES.TOKENLIST.SEL-ACC' | translate}} ..." name="accountID" [showClear]="true" 
                 (ngModelChange)="scroll(dtTX); filterByAccount(selectedAccount ? selectedAccount : null)">
             </p-dropdown>
@@ -29,14 +29,14 @@
                 <ng-template pTemplate="date" let-date>
                     <span 
                         [ngStyle]="{backgroundColor: (date.day === datesTx[0] || date.day === datesTx[1] || date.day === datesTx[2] || date.day === datesTx[3]) ? '#06D788' : 'inherit'}" 
-                        style="border-radius:50%;padding: .25em;width: 1.75em; height:1.75em; display:block;">{{date.day}}
+                        style="padding: .25em;width: 1.75em; height:1.75em; display:block;">{{date.day}}
                     </span>
                 </ng-template>
             </p-calendar>
         </div>
         <div class="ui-g-12 ui-md-3 ui-inputgroup">
             <span class="ui-inputgroup-addon" style="box-sizing: content-box; width: 50px;"><i class="pi pi-th-large"></i></span>
-            <p-dropdown [options]="tokenTransactions" [style]="{'border-radius': '0px 13px 13px 0px'}" [(ngModel)]="selectedToken" 
+            <p-dropdown [options]="tokenTransactions" [style]="{'border-radius': '0px 4px 4px 0px'}" [(ngModel)]="selectedToken" 
                 placeholder="{{ 'PAGES.HISTORY.SEL-TOK' | translate }}" optionLabel="currency" name="currency" [showClear]="true" 
                 (ngModelChange)="scroll(dtTX); filterByToken(selectedToken ? selectedToken.currency : null)">
                 <ng-template let-item pTemplate="selectedItem">

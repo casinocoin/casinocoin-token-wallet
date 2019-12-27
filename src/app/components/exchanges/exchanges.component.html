@@ -1,7 +1,7 @@
 <div class="ui-widget ui-g form-container">
     <p-fieldset>
         <p-header style="background-color: azure;">
-            <p class="form-text-header" style=" margin: 10px;">{{'PAGES.EXCHANGES.COININFO' | translate}}</p>
+            <p class="form-text-header" style=" margin: 4px; font-size: 1.10em;">{{'PAGES.EXCHANGES.COININFO' | translate}}</p>
         </p-header>
         <p-card>
             <div class="ui-g">
@@ -16,15 +16,15 @@
             </div>
         </p-card>
      </p-fieldset>
-    <div style="margin-top: 10px;">
+    <div style="margin-top: 20px;">
         <p-fieldset>
             <p-header style="background-color: azure;">
-                <p class="form-text-header">{{'PAGES.EXCHANGES.EXCHANGES' | translate}}</p>
+                <p class="form-text-header" style=" margin: 4px; font-size: 1.10em;" >{{'PAGES.EXCHANGES.EXCHANGES' | translate}}</p>
             </p-header>
 
-                    <p-table [value]="exchanges" scrollable="true" scrollHeight="50vh"
+                    <p-table [value]="exchanges" scrollable="true" scrollHeight="60vh"
                             [contextMenu]="cm" (onContextMenuSelect)="onExchangeContextMenu($event)">
-                        <ng-template pTemplate="body" let-rowData style="margin-top: 2px;">
+                        <ng-template pTemplate="body" let-rowData style="margin-top: 10px;">
                             <p-card>
                                 <tr (click)="onExchangeRowClick(rowData)" [pContextMenuRow]="rowData" >
                                     <td style="width: 300px; margin-right: 3em">

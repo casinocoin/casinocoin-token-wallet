@@ -97,6 +97,7 @@ export class TokenlistComponent implements OnInit {
   public showAddresssBook = false;
   public saveAddresssBook = false;
   public messages;
+  public allAccountsImported;
 
   constructor(
               private confirmationService: ConfirmationService,
@@ -224,6 +225,8 @@ export class TokenlistComponent implements OnInit {
       if (result === AppConstants.KEY_LOADED) {
         // get the main CSC AccountID
         this.mainCSCAccountID = this.walletService.getMainAccount().accountID;
+        // get all accounts Imported
+        this.allAccountsImported = this.walletService.getAllAccountsImported();
         // get all CSC accounts for add token dropdown
         this.walletService.getAllAccounts().forEach( element => {
           if (element.currency === 'CSC' && new Big(element.balance) > 0 && element.accountSequence >= 0) {
@@ -259,6 +262,16 @@ export class TokenlistComponent implements OnInit {
         this.cscBalance = account.balance;
       }
     });
+  }
+
+  compareAccountImported(account) {
+    const arr = [];
+    this.allAccountsImported.forEach((item: LokiAccount) => {
+      if (item.accountID === account) {
+        arr.push(item);
+      }
+    });
+    return (arr.length > 0) ? true : false;
   }
 
   filterTokenList() {
@@ -674,7 +687,6 @@ export class TokenlistComponent implements OnInit {
 
   acingData(data: LokiAddress) {
     this.sendForm.patchValue({'accountid': data.accountID, 'description': data.label, 'destinationtag': data.destinationTag  });
-    console.log(this.sendForm);
     this.showAddresssBook = false;
   }
 

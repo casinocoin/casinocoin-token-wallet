@@ -33,7 +33,8 @@
           "CONFIRM": "Confirm",
           "CANCEL": "Cancel",
           "WALL-VER": "Wallet Version",
-          "NETWORK": "Network"
+          "NETWORK": "Network",
+          "IMP-FUNDS": "Import only (Not Moving funds)"
       },
       "LOGIN": {
           "TITLE": "Open Wallet",
@@ -130,7 +131,8 @@
         "FIL-ACC":"Filter by Account",
         "NAME":"Name",
         "DELETE": "Delete",
-        "TOTAL-TOKEN": "Total Accounts"
+        "TOTAL-TOKEN": "Total Accounts",
+        "EXT-ACC": "External Account"
       },
       "HISTORY": {
         "TITLE": "Transaction History",
