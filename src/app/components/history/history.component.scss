@@ -1,9 +1,5 @@
 @import "src/assets/variables";
 
-:host p-dropdown {
-    width: 450px;
-}
-
 ::ng-deep .ui-datatable-header {
     display: none;
 }
@@ -133,4 +129,8 @@ input + label {
     animation: pulse 1s infinite ease-in-out;
     text-indent: -99999px;
     overflow: hidden;
+}
+
+::ng-deep .ui-calendar input {
+    width: 100px;
 }

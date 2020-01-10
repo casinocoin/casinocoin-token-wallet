@@ -133,6 +133,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   public languages: Array<{name, value}>;
   public languageSystem: {name, value};
 
+  public confirmImportKey = false;
+
   constructor( private logger: LogService,
                private electron: ElectronService,
                private walletService: WalletService,

@@ -9,14 +9,14 @@
             </div>
         </div>
         <hr>
-        <div class="ui-g-12 ui-md-6 ui-inputgroup">
+        <div class="ui-g-12 ui-md-5 ui-inputgroup">
             <span class="ui-inputgroup-addon" style="box-sizing: content-box; width: 50px; "><i class="icon icon-id"></i></span>
-            <p-dropdown [options]="cscAccounts" [style]="{'width':'370px', 'border-radius': '0px 4px 4px 0px'}" 
+            <p-dropdown [options]="cscAccounts" [style]="{'width':'250px', 'border-radius': '0px 4px 4px 0px'}" 
                 [(ngModel)]="selectedAccount" placeholder="{{'PAGES.TOKENLIST.SEL-ACC' | translate}} ..." name="accountID" [showClear]="true" 
                 (ngModelChange)="scroll(dtTX); filterByAccount(selectedAccount ? selectedAccount : null)">
             </p-dropdown>
         </div>
-        <div class="ui-g-12 ui-md-3 ">
+        <div class="ui-g-12 ui-md-3">
             <p-calendar
                 [showTransitionOptions]="'200ms'" 
                 [hideTransitionOptions]="'300ms'"
@@ -34,7 +34,7 @@
                 </ng-template>
             </p-calendar>
         </div>
-        <div class="ui-g-12 ui-md-3 ui-inputgroup">
+        <div class="ui-g-12 ui-md-4 ui-inputgroup">
             <span class="ui-inputgroup-addon" style="box-sizing: content-box; width: 50px;"><i class="pi pi-th-large"></i></span>
             <p-dropdown [options]="tokenTransactions" [style]="{'border-radius': '0px 4px 4px 0px'}" [(ngModel)]="selectedToken" 
                 placeholder="{{ 'PAGES.HISTORY.SEL-TOK' | translate }}" optionLabel="currency" name="currency" [showClear]="true" 
@@ -54,7 +54,7 @@
 
         <div class="ui-g-12">
             <p-contextMenu #cm class="hide-context-menu"></p-contextMenu>
-            <p-table [value]="tempTransactions" scrollable="true" scrollHeight="70vh" 
+            <p-table [value]="tempTransactions" scrollable="true" scrollHeight="200px" 
                 responsive="true" styleClass="borderless" (onContextMenuSelect)="showTxContextMenu($event)" [(selection)]="currentTX" contextMenuSelectionMode="joint" #dtTX
                 [lazy]="true" (onLazyLoad)="loadDataOnScroll($event)" [rows]="50" [totalRecords]="filterTransactions"
                 [virtualScroll]="true" [virtualRowHeight]="virtualRowHeight"

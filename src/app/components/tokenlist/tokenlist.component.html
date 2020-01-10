@@ -5,7 +5,7 @@
         </p-header>
         <div class="ui-g-12" style="padding: 0em;">
             <div style="padding-top: 0em; float: right;">
-                 <p style="float:right; margin-right: 30px; margin: 0px; margin-top: 0px; margin-bottom: 0px; font-size: 1.10em;"> <b>{{ 'PAGES.TOKENLIST.TOTAL-TOKEN' | translate }}</b>: <span style="font-size: 1.10em; color: brown;"><b>{{tempTokenList.length}}</b></span> </p> 
+                 <p style="float:right; margin-right: 50px; margin: 0px; margin-top: 0px; margin-bottom: 0px; font-size: 1.10em;"> <b>{{ 'PAGES.TOKENLIST.TOTAL-TOKEN' | translate }}</b>: <span style="font-size: 1.10em; color: brown;"><b>{{tempTokenList.length}}</b></span> </p> 
             </div>
         </div>
         <hr>
@@ -19,7 +19,7 @@
         <button pButton type="button" style="margin: 5px;" (click)="doShowAddToken()" icon="fa fa-plus" iconPos="left" 
             label="{{'PAGES.TOKENLIST.SHOW-ADD-TOKEN'|translate}}" [disabled]="!canActivateAccount()">
         </button>
-        <div class="ui-g-12 ui-md-3 ui-inputgroup" style="float:right;">
+        <div class="ui-g-12 ui-md-4 ui-inputgroup" style="float:right;">
             <span class="ui-inputgroup-addon" style="box-sizing: content-box; width: 50px; float:right;"><i class="pi pi-th-large"></i></span>
             <p-dropdown [options]="filterToken" [style]="{'border-radius': '0px 4px 4px 0px'}" [(ngModel)]="selectedToken" 
                 placeholder="{{ 'PAGES.HISTORY.SEL-TOK' | translate }}" optionLabel="Token" name="Token" [showClear]="true" 

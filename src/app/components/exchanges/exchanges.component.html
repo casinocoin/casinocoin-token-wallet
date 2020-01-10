@@ -21,7 +21,7 @@
             <p-header style="background-color: azure;">
                 <p class="form-text-header" style=" margin: 4px; font-size: 1.10em;" >{{'PAGES.EXCHANGES.EXCHANGES' | translate}}</p>
             </p-header>
-
+            <p-contextMenu #cm class="hide-context-menu"></p-contextMenu>
                     <p-table [value]="exchanges" scrollable="true" scrollHeight="60vh"
                             [contextMenu]="cm" (onContextMenuSelect)="onExchangeContextMenu($event)">
                         <ng-template pTemplate="body" let-rowData style="margin-top: 10px;">
