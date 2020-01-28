@@ -376,23 +376,24 @@
         </p-header>
     <div class="ui-g-12">
         <div class="" style=" display: flex; justify-content: center; align-items: center;">
-            <i class="pi pi-spin pi-spinner" style="font-size: 5em; color: brown" ></i>
-            <h1 style="color: brown;">{{ 'PAGES.TOOLS.REFRESHING' | translate }}</h1>
+            <i class="pi pi-spin pi-spinner" style="font-size: 3em; color: brown" ></i>
+            <p style="color: brown; font-size: 1.1em">{{ 'PAGES.TOOLS.REFRESHING' | translate }}</p>
         </div>
     </div>        
 </p-dialog>
 
-<p-dialog  [(visible)]="confirmImportKey" [responsive]="true" [style]="{width: '350px', minWidth: '200px'}">
+<p-dialog  [(visible)]="showSuccessImport" [responsive]="true" [style]="{width: '350px', minWidth: '200px'}">
         <p-header style="color: rgb(255, 255, 255);">
                 {{ 'PAGES.TOOLS.WAIT-REF' | translate }}
         </p-header>
     <div class="ui-g-12">
         <div class="" style=" display: flex; justify-content: center; align-items: center;">
-            <i class="pi pi-spin pi-spinner" style="font-size: 5em; color: brown" ></i>
-            <h1 style="color: brown;">{{ 'PAGES.TOOLS.REFRESHING' | translate }}</h1>
+            <i class="pi pi-spin pi-spinner" style="font-size: 3em; color: brown" ></i>
+            <p style="color: brown; font-size: 1.1em">{{ 'PAGES.TOOLS.REFRESHING' | translate }}</p>
         </div>
     </div>        
 </p-dialog>
+
 
 <p-confirmDialog #cd [style]="{width: '50vw'}" appendTo="body">
     <p-footer>

@@ -54,10 +54,10 @@
 
         <div class="ui-g-12">
             <p-contextMenu #cm class="hide-context-menu"></p-contextMenu>
-            <p-table [value]="tempTransactions" scrollable="true" scrollHeight="200px" 
-                responsive="true" styleClass="borderless" (onContextMenuSelect)="showTxContextMenu($event)" [(selection)]="currentTX" contextMenuSelectionMode="joint" #dtTX
-                [lazy]="true" (onLazyLoad)="loadDataOnScroll($event)" [rows]="50" [totalRecords]="filterTransactions"
-                [virtualScroll]="true" [virtualRowHeight]="virtualRowHeight"
+            <p-table [value]="tempTransactions" scrollable="true" scrollHeight="75vh" 
+                responsive="true" styleClass="borderless" (onContextMenuSelect)="showTxContextMenu($event)" [(selection)]="currentTX"
+                 contextMenuSelectionMode="joint" #dtTX [lazy]="true" (onLazyLoad)="loadDataOnScroll($event)" [rows]="50" 
+                 [totalRecords]="filterTransactions" [virtualScroll]="true" [virtualRowHeight]="virtualRowHeight" 
                 >
                 <ng-template pTemplate="body" let-rowData>
                     <tr [pContextMenuRow]="rowData">

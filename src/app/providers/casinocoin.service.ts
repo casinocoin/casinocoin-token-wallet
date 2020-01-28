@@ -1065,17 +1065,17 @@ export class CasinocoinService implements OnDestroy {
     }
 
     updateAccountInfo(token: string, accountID: string) {
-        this.logger.debug('### CasinocoinSerivce - updateAccountInfo: ' + token + '/' + accountID);
+        this.logger.debug('### CasinocoinService - updateAccountInfo: ' + token + '/' + accountID);
         // get the account from the wallet
         this.openWalletSubject.subscribe( result => {
             if (result === AppConstants.KEY_LOADED) {
                 const walletAccount: LokiAccount = this.walletService.getAccount(token, accountID);
                 let mainAccountInfo;
                 // check if connected
-                this.connectSubject.subscribe( connectResult => {
+                this.connectSubject.subscribe(connectResult => {
                     if (connectResult === AppConstants.KEY_CONNECTED) {
                         this.cscAPI.getAccountInfo(accountID).then( accountInfo => {
-                            this.logger.debug('### CasinocoinSerivce - accountInfo: ' + JSON.stringify(accountInfo));
+                            this.logger.debug('### CasinocoinService - accountInfo: ' + JSON.stringify(accountInfo));
                             mainAccountInfo = accountInfo;
                             // update the info and CSC balance
                             if (new Big(accountInfo.cscBalance).gt(Big(0))) {
@@ -1106,7 +1106,7 @@ export class CasinocoinService implements OnDestroy {
                             this.updateToken(cscWalletAccount);
                             // get the trustlines information
                             return this.cscAPI.getTrustlines(accountID);
-                        }).then( trustLines => {
+                        }).then(trustLines => {
                             this.logger.debug('### CasinocoinSerivce - trustLines: ' + JSON.stringify(trustLines));
                             this.logger.debug('### CasinocoinSerivce - trustLines - mainAccountInfo: ' + JSON.stringify(mainAccountInfo));
                             // update token balance if applicable
