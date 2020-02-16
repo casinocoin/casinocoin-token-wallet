@@ -11,7 +11,7 @@
         <hr>
         <div class="ui-g-12 ui-md-5 ui-inputgroup">
             <span class="ui-inputgroup-addon" style="box-sizing: content-box; width: 50px; "><i class="icon icon-id"></i></span>
-            <p-dropdown [options]="cscAccounts" [style]="{'width':'250px', 'border-radius': '0px 4px 4px 0px'}" 
+            <p-dropdown [options]="cscAccounts" [style]="{'width':'350px', 'border-radius': '0px 4px 4px 0px'}" 
                 [(ngModel)]="selectedAccount" placeholder="{{'PAGES.TOKENLIST.SEL-ACC' | translate}} ..." name="accountID" [showClear]="true" 
                 (ngModelChange)="scroll(dtTX); filterByAccount(selectedAccount ? selectedAccount : null)">
             </p-dropdown>

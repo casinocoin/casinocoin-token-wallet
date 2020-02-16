@@ -71,13 +71,11 @@ export class HistoryComponent implements OnInit, AfterViewInit {
     this.walletService.openWalletSubject.subscribe( result => {
       if (result === AppConstants.KEY_LOADED) {
         this.init();
-        this.walletService.getAllAccounts().forEach( element => {
-          if (element.currency === 'CSC' && new Big(element.balance) > 0  && element.accountSequence >= 0) {
-            const accountLabel = element.accountID.substring(0, 20) + '...' + ' [Balance: ' + this.cscAmountPipe.transform(element.balance, false, true) + ']';
-            this.cscAccounts.push({label: accountLabel, value: element.accountID});
-          }
-        });
+        this.getAccounts();
       }
+    });
+    this.walletService.importsAccountSubject.subscribe(() => {
+      this.getAccounts();
     });
     // define Transaction Context menu
     this.translate.stream('PAGES.ELECTRON.COPY-ACC').subscribe((translated: string) => {
@@ -128,6 +126,16 @@ export class HistoryComponent implements OnInit, AfterViewInit {
         this.init();
       }
     });
+  }
+
+  getAccounts() {
+    this.walletService.getSortedCSCAccounts('balance', true).forEach(element => {
+      if (element.currency === 'CSC' && new Big(element.balance) > 0) {
+        const accountLabel = element.accountID.substring(0, 20) + '...' + ' [Balance: ' + this.cscAmountPipe.transform(element.balance, false, true) + ']';
+        this.cscAccounts.push({ label: accountLabel, value: element.accountID });
+      }
+    });
+    console.log(this.walletService.getAllAccounts());
   }
 
   init() {

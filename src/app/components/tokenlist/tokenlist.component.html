@@ -80,14 +80,14 @@
                                 <div class="ui-g ui-fluid" style="padding-top: 15px;">
                                     <div class="ui-g-2 ui-inputgroup">
                                         <span class="ui-float-label">
-                                            <input id="float-input-amount" formControlName="amount" type="text"  style="width: 100%;" pInputText required> 
+                                            <input id="float-input-amount" formControlName="amount" type="text"  style="width: 100%; padding-top: 15px;" pInputText required> 
                                             <label for="float-input-amount">{{'PAGES.TOKENLIST.AMOUNT' | translate }}</label>
                                         </span>
                                         <button pButton type="button" style="margin-top: 10px; margin-bottom: 10px;" (click)="doSendAll(rowData)" label="{{'PAGES.TOKENLIST.SEND-ALL'|translate}}"></button>
                                     </div>
                                     <div class="ui-g-5 ui-inputgroup">
                                         <span class="ui-float-label" style="width: 100%;">
-                                            <input id="float-input-accountid" formControlName="accountid" type="text"  style="width: 100%;" pInputText required> 
+                                            <input id="float-input-accountid" formControlName="accountid" type="text"  style="width: 100%; padding-top: 15px;" pInputText required> 
                                             <label for="float-input-accountid">{{'PAGES.TOKENLIST.ACCOUNTID' | translate }}</label>
                                         </span>
                                         <button pButton type="button" style="margin-top: 10px; padding: 2px; font-size: 1.3em; margin-bottom: 10px; " icon="pi pi-users"  (click)="getAllAddress()"></button>

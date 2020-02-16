@@ -229,7 +229,7 @@ export class TokenlistComponent implements OnInit {
         this.allAccountsImported = this.walletService.getAllAccountsImported();
         // get all CSC accounts for add token dropdown
         this.walletService.getAllAccounts().forEach( element => {
-          if (element.currency === 'CSC' && new Big(element.balance) > 0 && element.accountSequence >= 0) {
+          if (element.currency === 'CSC' && new Big(element.balance) > 0 ) {
             const accountLabel = element.accountID.substring(0, 20) + '...' + ' [Balance: ' +
                                 this.cscAmountPipe.transform(element.balance, false, true) + ']';
             this.cscAccounts.push({label: accountLabel, value: element.accountID});
@@ -243,7 +243,7 @@ export class TokenlistComponent implements OnInit {
           // refresh all CSC accounts for add token dropdown
           this.cscAccounts = [];
           this.walletService.getAllAccounts().forEach( element => {
-            if (element.currency === 'CSC' && new Big(element.balance) > 0  && element.accountSequence >= 0) {
+            if (element.currency === 'CSC' && new Big(element.balance) > 0) {
               const accountLabel = element.accountID.substring(0, 20) + '...' + ' [Balance: ' +
                                   this.cscAmountPipe.transform(element.balance, false, true) + ']';
               this.cscAccounts.push({label: accountLabel, value: element.accountID});
@@ -261,6 +261,15 @@ export class TokenlistComponent implements OnInit {
       if (account.currency === 'CSC') {
         this.cscBalance = account.balance;
       }
+    });
+    this.walletService.importsAccountSubject.subscribe(() => {
+      this.walletService.getAllAccounts().forEach(element => {
+        if (element.currency === 'CSC' && new Big(element.balance) > 0) {
+          const accountLabel = element.accountID.substring(0, 20) + '...' + ' [Balance: ' +
+            this.cscAmountPipe.transform(element.balance, false, true) + ']';
+          this.cscAccounts.push({ label: accountLabel, value: element.accountID });
+        }
+      });
     });
   }
 
@@ -660,6 +669,7 @@ export class TokenlistComponent implements OnInit {
         // refresh all CSC accounts for add token dropdown
         this.cscAccounts = [];
         this.walletService.getAllAccounts().forEach( element => {
+          console.log(element.currency === 'CSC', '');
           if (element.currency === 'CSC' && new Big(element.balance) > 0) {
             const accountLabel = element.accountID.substring(0, 20) + '...' + ' [Balance: ' +
                                 this.cscAmountPipe.transform(element.balance, false, true) + ']';

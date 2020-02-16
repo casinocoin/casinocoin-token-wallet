@@ -808,12 +808,13 @@ export class HomeComponent implements OnInit, OnDestroy {
                             lastTxLedger: accountInfo.previousAffectingTransactionLedgerVersion
                           };
                           console.log('tokenAccount', tokenAccount);
-                          // Refresh TokenList in the wallet
-                          this.casinocoinService.updateAccountInfo(tokenAccount.currency, tokenAccount.accountID);
-                          // subcribe to all accounts again
-                          this.casinocoinService.subscribeAccountEvents();
                           // save account to wallet
                           this.walletService.addAccount(tokenAccount);
+                          // subcribe to all accounts again
+                          this.casinocoinService.subscribeAccountEvents();
+                          // Refresh TokenList in the wallet
+                          this.casinocoinService.updateAccountInfo(tokenAccount.currency, tokenAccount.accountID);
+
                         } else {
                           const tokenInfo = this.casinocoinService.getTokenInfo(balance.currency);
                           const tokenAccount: LokiAccount = {
@@ -841,7 +842,7 @@ export class HomeComponent implements OnInit, OnDestroy {
                       }
                     });
                   });
-
+                  this.walletService.importsAccountSubject.next();
                   // get and add all account transactions
                   this.casinocoinService.cscAPI.getTransactions(accountID, { earliestFirst: true }).then( txResult => {
                     console.log('txResult', txResult);

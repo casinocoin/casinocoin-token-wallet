@@ -1146,7 +1146,7 @@ export class CasinocoinService implements OnDestroy {
                 token.Activated = false;
             }
         }
-        this.logger.debug('### CasinocoinService - updateToken: ' + JSON.stringify(token));
+        this.logger.debug('### CasinocoinService - updateToken: ' + JSON.stringify(token.AccountID));
         this.tokenlist[tokenIndex] = token;
     }
 

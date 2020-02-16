@@ -55,6 +55,8 @@ export class WalletService {
   public walletSetup = {} as WalletSetup;
   private cscOfflineAPI = new CasinocoinAPI();
 
+ public importsAccountSubject = new Subject();
+
   constructor(private logger: LogService,
               private datePipe: DatePipe,
               private localStorageService: LocalStorageService,
