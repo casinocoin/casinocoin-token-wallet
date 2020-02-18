@@ -370,7 +370,7 @@ export class CasinocoinService implements OnDestroy {
                         accountFindFinishedSubject.next(false);
                         if (count === 10  ) {
                             count = 0;
-                            this.electron.remote.dialog.showMessageBox({ message: resultMessage, buttons: ['OK']}, (showResult) => {
+                            this.electron.remote.dialog.showMessageBox({ message: resultMessage, buttons: ['OK']}).then(showResult => {
                                 this.eventSubject.next('hiddenRefreshing');
                             });
                             this._ngZone.run(() => {

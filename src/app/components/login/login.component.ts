@@ -250,17 +250,17 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
         this.logger.debug('### LOGIN -> Recover Backup');
         let restoreInProgress = true;
         this.logger.debug('### Login -> Recover With Mnemonic');
-        this.electron.remote.dialog.showMessageBox({ message: 'Recover process will overwrite the current wallet. Are you sure?', buttons: ['OK', 'Cancel']}, (result) => {
+        this.electron.remote.dialog.showMessageBox({ message: 'Recover process will overwrite the current wallet. Are you sure?', buttons: ['OK', 'Cancel']}).then(result => {
             this.logger.debug('### Warning Result: ' + result);
-            if (result === 0) {
+            if (result.response === 0) {
                 // execute recover process
                 this._ngZone.run(() => {
                     this.electron.remote.dialog.showOpenDialog(
                         { title: 'Wallet Backup Location',
                           defaultPath: this.electron.remote.getGlobal('vars').backupLocation,
-                          properties: ['openFile']}, (result) => {
+                          properties: ['openFile']}).then(result => {
                           this.logger.debug('File Dialog Result: ' + JSON.stringify(result));
-                          if (result && result.length > 0) {
+                          if (result && result.filePaths.length > 0) {
                               const backup = JSON.parse(fs.readFileSync(result[0]));
                               this.logger.debug('### localStorage: ' + JSON.stringify(backup.LocalStorage));
                               if (backup.LocalStorage.length > 0) {

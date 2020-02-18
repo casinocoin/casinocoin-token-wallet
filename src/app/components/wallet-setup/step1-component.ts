@@ -33,18 +33,18 @@ const fs = require('fs');
 
     restore() {
       this.logger.debug('### SETUP -> Recover Backup');
-      this.electron.remote.dialog.showMessageBox({ message: 'Recover process will overwrite the current wallet. Are you sure?', buttons: ['OK', 'Cancel']}, (result) => {
+      this.electron.remote.dialog.showMessageBox({ message: 'Recover process will overwrite the current wallet. Are you sure?', buttons: ['OK', 'Cancel']}).then(result => {
         this.logger.debug('### Warning Result: ' + result);
-        if (result === 0) {
+        if (result.response === 0) {
           // execute recover process
           this._ngZone.run(() => {
             let restoreInProgress = true;
             this.electron.remote.dialog.showOpenDialog(
                 { title: 'Wallet Backup Location',
                   defaultPath: this.electron.remote.getGlobal('vars').backupLocation,
-                  properties: ['openFile']}, (result) => {
+                  properties: ['openFile']}).then(result => {
                   this.logger.debug('File Dialog Result: ' + JSON.stringify(result));
-                  if (result && result.length > 0) {
+                  if (result && result.filePaths.length > 0) {
                       const backup = JSON.parse(fs.readFileSync(result[0]));
                       this.logger.debug('### localStorage: ' + JSON.stringify(backup.LocalStorage));
                       if (backup.LocalStorage.length > 0) {
@@ -94,9 +94,9 @@ const fs = require('fs');
 
     recreate() {
       this.logger.debug('### Setup -> Recover With Mnemonic');
-      this.electron.remote.dialog.showMessageBox({ message: 'Recover process will overwrite the current wallet. Are you sure?', buttons: ['OK', 'Cancel']}, (result) => {
+      this.electron.remote.dialog.showMessageBox({ message: 'Recover process will overwrite the current wallet. Are you sure?', buttons: ['OK', 'Cancel']}).then(result => {
         this.logger.debug('### Warning Result: ' + result);
-        if (result === 0) {
+        if (result.response === 0) {
           // execute recover process
           this._ngZone.run(() => {
             this.router.navigate(['recoverMnemonic']);
