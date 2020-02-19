@@ -271,7 +271,22 @@ export class TokenlistComponent implements OnInit {
         this.cscBalance = account.balance;
       }
     });
+    // subject activate when import External Account
     this.walletService.importsAccountSubject.subscribe(() => {
+      this.casinocoinService.refreshAccounts().subscribe(accountRefreshFinished => {
+        if (accountRefreshFinished) {
+          // refresh Token List
+          this.logger.debug('### TokenList Refresh');
+          this.casinocoinService.refreshAccountTokenList().subscribe(finished => {
+            if (finished) {
+              this.tokenlist = this.casinocoinService.tokenlist;
+              this.tempTokenList = this.casinocoinService.tokenlist;
+              this.filterTokenList();
+              this.logger.debug('### TokenList: ' + JSON.stringify(this.tokenlist));
+            }
+          });
+        }
+      });
       this.walletService.getAllAccounts().forEach(element => {
         if (element.currency === 'CSC' && new Big(element.balance) > 0) {
           const accountLabel = element.accountID.substring(0, 20) + '...' + ' [Balance: ' +
@@ -297,7 +312,33 @@ export class TokenlistComponent implements OnInit {
     this.walletService.deleteAccount(account);
     this.walletService.removeKey(account);
     this.walletService.deleteTransactions(account);
-    this.showSuccessDelExtAcc = false;
+    setTimeout(() => {
+      this.showSuccessDelExtAcc = false;
+    }, 2000);
+
+    this.casinocoinService.refreshAccounts().subscribe(accountRefreshFinished => {
+      if (accountRefreshFinished) {
+        // refresh Token List
+        this.logger.debug('### TokenList Refresh');
+        this.casinocoinService.refreshAccountTokenList().subscribe(finished => {
+          if (finished) {
+            this.tokenlist = this.casinocoinService.tokenlist;
+            this.tempTokenList = this.casinocoinService.tokenlist;
+            this.filterTokenList();
+            this.logger.debug('### TokenList: ' + JSON.stringify(this.tokenlist));
+          }
+        });
+      }
+    });
+    // refresh all CSC accounts for add token dropdown
+    this.cscAccounts = [];
+    this.walletService.getAllAccounts().forEach( element => {
+      if (element.currency === 'CSC' && new Big(element.balance) > 0) {
+        const accountLabel = element.accountID.substring(0, 20) + '...' + ' [Balance: ' +
+                            this.cscAmountPipe.transform(element.balance, false, true) + ']';
+        this.cscAccounts.push({label: accountLabel, value: element.accountID});
+      }
+    });
   }
 
   // Verify if be a external account
@@ -325,7 +366,7 @@ export class TokenlistComponent implements OnInit {
 
   confirm(account) {
     this.confirmationService.confirm({
-        message: 'Are you sure that you want to proceed?',
+        message: 'Are you sure you want to delete this external account?',
         header: 'Confirmation',
         icon: 'pi pi-exclamation-triangle',
       accept: () => {

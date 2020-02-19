@@ -1125,6 +1125,7 @@ export class CasinocoinService implements OnDestroy {
                             this.accountSubject.next(walletAccount);
                         }).catch( error => {
                             this.logger.debug('### updateAccountInfo - Error: ' + JSON.stringify(error));
+                            this.logger.debug('### updateAccountInfo - Error: Account ' + token + '/' + accountID );
                         });
                     }
                 });
