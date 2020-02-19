@@ -134,3 +134,7 @@ input + label {
 ::ng-deep .ui-calendar input {
     width: 100px;
 }
+
+::ng-deep .ui-datepicker .ui-datepicker-header a {
+    color: #ffffff;
+}

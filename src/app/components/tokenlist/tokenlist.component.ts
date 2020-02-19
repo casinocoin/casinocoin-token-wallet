@@ -181,28 +181,34 @@ export class TokenlistComponent implements OnInit {
     this.translate.stream('PAGES.ELECTRON.COPY-ACC').subscribe((translated: string) => {
       const token_context_menu_template = [
         { label: this.translate.instant('PAGES.ELECTRON.COPY-ACC'),
+          id: 'COPY-ACC',
           click(menuItem, browserWindow, event) {
             browserWindow.webContents.send('token-context-menu-event', 'copy-account'); }
         },
         { label: this.translate.instant('PAGES.ELECTRON.SHOW-EXP'),
+          id: 'SHOW-EXP',
           click(menuItem, browserWindow, event) {
               browserWindow.webContents.send('token-context-menu-event', 'show-explorer'); }
         },
         { label: this.translate.instant('PAGES.ELECTRON.EDIT-LBL'),
+          id: 'EDIT-LBL',
           click(menuItem, browserWindow, event) {
             browserWindow.webContents.send('token-context-menu-event', 'edit-account-label'); }
         },
         { label: this.translate.instant('PAGES.ELECTRON.REC-QRC'),
+          id: 'REC-QRC',
           click(menuItem, browserWindow, event) {
             browserWindow.webContents.send('token-context-menu-event', 'receive-qrcode');
           }
         },
         { label: this.translate.instant('PAGES.ELECTRON.SHOW-ACC'),
+          id: 'SHOW-ACC',
           click(menuItem, browserWindow, event) {
             browserWindow.webContents.send('token-context-menu-event', 'show-secret');
           }
         },
         { label: this.translate.instant('PAGES.ELECTRON.DEL-EXT-ACC'),
+          id: 'DEL-EXT-ACC',
           click(menuItem, browserWindow, event) {
             browserWindow.webContents.send('token-context-menu-event', 'delete-external-account'); }
         },
@@ -366,7 +372,7 @@ export class TokenlistComponent implements OnInit {
 
   confirm(account) {
     this.confirmationService.confirm({
-        message: 'Are you sure you want to delete this external account?',
+        message: 'Are you sure you want to remove this external account from your wallet? This account will not be recoverable by your wallet seed!',
         header: 'Confirmation',
         icon: 'pi pi-exclamation-triangle',
       accept: () => {
@@ -397,6 +403,14 @@ export class TokenlistComponent implements OnInit {
     this.logger.debug('### showTokenContextMenu: ' + JSON.stringify(event));
     this.walletService.selectedTableAccount = event.originalEvent.rowData;
     this.currentToken = event.originalEvent.rowData;
+    const selectedAccount = this.walletService.getAccount('CSC', this.currentToken.AccountID);
+    const disableItem = this.token_context_menu.getMenuItemById('DEL-EXT-ACC');
+    if (selectedAccount.accountSequence >= 0) {
+      // we need to disable delete external account from the menu
+      disableItem.enabled = false;
+    } else {
+      disableItem.enabled = true;
+    }
     this.token_context_menu.popup({window: this.electronService.remote.getCurrentWindow()});
   }
 
@@ -801,7 +815,7 @@ export class TokenlistComponent implements OnInit {
   onSendFormSubmit(value) {
     this.translate.stream('PAGES.ELECTRON.COPY-ACC').subscribe((translated: string) => {
       this.confirmationService.confirm({
-          message: `Are you sure that you want send: ${value.amount} to Account: ${value.accountid}`,
+          message: `You are about to send: ${value.amount} ${this.currentToken.Token} from account ${this.currentToken.AccountID} to account ${value.accountid} and are paying ${value.fees} CSC in fees for the transaction.`,
           header: 'Send Confirmation',
           icon: 'pi pi-exclamation-triangle',
           accept: () => {

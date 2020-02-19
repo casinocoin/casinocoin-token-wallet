@@ -29,8 +29,8 @@
                     placeholder="{{ 'PAGES.HISTORY.SEL-DAT' | translate }}" 
                     (ngModelChange)="filterByDate(selectedDate)">
                     <ng-template pTemplate="date" let-date>
-                        <span 
-                            [ngStyle]="{backgroundColor: (date.day === datesTx[0] || date.day === datesTx[1] || date.day === datesTx[2] || date.day === datesTx[3]) ? '#81C784' : 'inherit'}" 
+                        <!-- [ngStyle]="{backgroundColor: (date.day === datesTx[0] || date.day === datesTx[1] || date.day === datesTx[2] || date.day === datesTx[3]) ? '#bf0a0a' : 'inherit'}" -->
+                        <span
                             style="border-radius:50%;padding: .25em;width: 1.75em; height:1.75em; display:block;">{{date.day}}
                         </span>
                     </ng-template>
@@ -58,7 +58,7 @@
 
         <div class="ui-g-12">
             <p-contextMenu #cm class="hide-context-menu"></p-contextMenu>
-            <p-table [value]="tempTransactions" scrollable="true" scrollHeight="71vh" 
+            <p-table [value]="tempTransactions" scrollable="true" scrollHeight="69vh" 
                 responsive="true" styleClass="borderless" (onContextMenuSelect)="showTxContextMenu($event)" [(selection)]="currentTX"
                  contextMenuSelectionMode="joint" #dtTX [lazy]="true" (onLazyLoad)="loadDataOnScroll($event)" [rows]="50" 
                  [totalRecords]="filterTransactions" [virtualScroll]="true" [virtualRowHeight]="virtualRowHeight" 

@@ -11,7 +11,7 @@
           "CONNECTED": "Connected",
           "DISCONNECTED": "Disconnected",
           "IMPORT-KEY": "Import Private Key",
-          "IMPORT-KEY-SECRET": "Please provide the Secret for the account you want to import. The funds belonging to the account for the given secret will be moved to the main account in this wallet.",
+          "IMPORT-KEY-SECRET": "Please provide the Secret for the account you want to import. The funds belonging to the account for the given secret will be moved to the main account in this wallet. If 'Import only' is selected the imported account will NOT be recoverable by your wallet seed!",
           "IMPORT-KEY-EXISTING": "Import to existing account in this wallet (recovery possible)",
           "IMPORT-KEY-ADD": "Add account for secret to this wallet (recovery NOT possible!)",
           "ACCOUNT-SECRET": "Account Secret",
