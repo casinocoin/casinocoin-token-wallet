@@ -175,9 +175,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.logger.debug('### HOME Wallet LOADED');
         this.doBalanceUpdate();
         this.listenForMainEvents();
-        // this.walletService.deleteAccount('cU3vvZ3vKuBqHy1QM4wCcYf6TtWtLfSpbU');
-        // this.walletService.removeKey('cU3vvZ3vKuBqHy1QM4wCcYf6TtWtLfSpbU');
-        // this.walletService.deleteTransactions('cU3vvZ3vKuBqHy1QM4wCcYf6TtWtLfSpbU');
+        // this.removingImportAccount();
         // load the account list
         this.walletService.getAllAccounts().forEach( element => {
           if (element.currency === 'CSC') {
@@ -369,7 +367,7 @@ export class HomeComponent implements OnInit, OnDestroy {
           header: 'Confirmation',
           icon: 'pi pi-exclamation-triangle',
         accept: () => {
-          this.ImportOnlyNotMovingFunds();
+          this.importOnlyNotMovingFunds();
         },
         reject: () => {
           this.active_icon = 'fa fa-check';
@@ -726,7 +724,13 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
   }
 
-  ImportOnlyNotMovingFunds() {
+  removingImportAccount(account: string) {
+    this.walletService.deleteAccount(account);
+    this.walletService.removeKey(account);
+    this.walletService.deleteTransactions(account);
+  }
+
+  importOnlyNotMovingFunds() {
       this.importAccountSecret = this.importAccountSecret.trim();
       this.active_icon = 'pi fa-spin pi-spinner';
 
@@ -771,26 +775,26 @@ export class HomeComponent implements OnInit, OnDestroy {
           this.casinocoinService.cscAPI.getBalances(accountID).then(balances => {
             this.logger.debug('### HOME balances: ' + JSON.stringify(balances));
             const requiredOwnerReserve = ownerReserve * balances.length;
-            const requiredFees =  Number(fees) * balances.length * 2;
+            const requiredFees = Number(fees) * balances.length * 2;
             this.importRequiredTotalReserve = new Big(CSCUtil.cscToDrops(accountReserve)).plus(new Big(CSCUtil.cscToDrops(requiredFees.toString()))).plus(new Big(CSCUtil.cscToDrops(requiredOwnerReserve.toString())));
-            const cscBalance = balances.find( item => item.currency === 'CSC');
+            const cscBalance = balances.find(item => item.currency === 'CSC');
             const importCSCValue = new Big(CSCUtil.cscToDrops(cscBalance.value)).minus(this.importRequiredTotalReserve);
             // this.logger.debug('### HOME requiredTotalReserve: ' + this.importRequiredTotalReserve);
 
             // derive keypair
-            const keypair: any	=	deriveKeypair(this.importAccountSecret);
-            const newKeyPair: LokiKey	=	{ secret: this.importAccountSecret, publicKey: keypair.publicKey, privateKey: keypair.privateKey, accountID: deriveAddress(keypair.publicKey), encrypted: false};
+            const keypair: any = deriveKeypair(this.importAccountSecret);
+            const newKeyPair: LokiKey = { secret: this.importAccountSecret, publicKey: keypair.publicKey, privateKey: keypair.privateKey, accountID: deriveAddress(keypair.publicKey), encrypted: false };
             // save key to wallet
             this.walletService.addKey(newKeyPair);
             console.log('newKeyPair', newKeyPair);
 
-             // encrypt wallet keys
-            this.walletService.encryptAllKeys(this.walletPassword, this.sessionStorageService.get(AppConstants.KEY_CURRENT_WALLET).userEmail).subscribe( result => {
+            // encrypt wallet keys
+            this.walletService.encryptAllKeys(this.walletPassword, this.sessionStorageService.get(AppConstants.KEY_CURRENT_WALLET).userEmail).subscribe(result => {
               if (result === AppConstants.KEY_FINISHED) {
                 if (importCSCValue > 0) {
                   balances.forEach(balance => {
                     console.log('balance', balance.currency);
-                      this.casinocoinService.getAccountInfo(accountID).then((accountInfo) => {
+                    this.casinocoinService.getAccountInfo(accountID).then((accountInfo) => {
                       if (accountInfo) {
                         if (balance.currency === 'CSC') {
                           const tokenAccount: LokiAccount = {
@@ -844,9 +848,9 @@ export class HomeComponent implements OnInit, OnDestroy {
                   });
                   this.walletService.importsAccountSubject.next();
                   // get and add all account transactions
-                  this.casinocoinService.cscAPI.getTransactions(accountID, { earliestFirst: true }).then( txResult => {
+                  this.casinocoinService.cscAPI.getTransactions(accountID, { earliestFirst: true }).then(txResult => {
                     console.log('txResult', txResult);
-                    txResult.forEach( tx => {
+                    txResult.forEach(tx => {
                       if (tx.type === 'payment' && tx.outcome.result === 'tesSUCCESS') {
                         let txDirection: string;
                         let txAccountID: string;
@@ -934,6 +938,40 @@ export class HomeComponent implements OnInit, OnDestroy {
                 this.walletService.saveWallet();
               }
             });
+          }).catch((err) => {
+            this.logger.debug('### Import Account Page ::: found error on balances request :');
+            console.log(err);
+            this.logger.debug('### Import Account Page ::: no balances found, adding account :' + accountID);
+            const tokenAccount: LokiAccount = {
+              pk: ('CSC' + accountID),
+              accountID: accountID,
+              balance: '0',
+              accountSequence: -1,
+              currency: 'CSC',
+              tokenBalance: '0',
+              lastSequence: 0,
+              label: 'CSC Account',
+              activated: false,
+              ownerCount: 0,
+              lastTxID: '',
+              lastTxLedger: 0
+            };
+            console.log('tokenAccount', tokenAccount);
+            // subcribe to all accounts again
+            this.casinocoinService.subscribeAccountEvents();
+            // save account to wallet
+            this.walletService.addAccount(tokenAccount);
+            this.active_icon = 'fa fa-check';
+            this.showImportKeyDialog = false;
+            this.showSuccessImport = true;
+            this.importAccountSecret = '';
+            this.walletPassword = '';
+            this.footer_message = '';
+            this.footer_visible = false;
+            this.checked = false;
+            setTimeout(() => {
+              this.showSuccessImport = false;
+            }, 2500);
           });
         } else {
           this.footer_message = 'Invalid account secret entered!';

@@ -204,7 +204,9 @@
           "PASSWORD": "Contraseña",
           "RECH-PASS" : "Contraseña incorrecta",
           "WAIT-REF" : "Espera a que la billetera se actualice",
-          "REFRESHING" : "Actualizando"
+          "REFRESHING" : "Actualizando",
+          "ERR-DEL-EXT-ACC" : "actualmente solo se pueden eliminar cunetas externas !",
+          "INFO": "Mensaje de Información"
         },
         "ELECTRON": {
           "CON-NET":"Conectarse a la red",
@@ -226,7 +228,8 @@
           "SHOW-ACC": "Mostrar secreto de cuenta",
           "COPY-FACC": "Copiar desde la cuenta",
           "COPY-TACC": "Copiar a cuenta",
-          "COPY-TX": "Copiar ID de transacción"
+          "COPY-TX": "Copiar ID de transacción",
+          "DEL-EXT-ACC": "Eliminar Cuenta Externa"
         }
     }
 }

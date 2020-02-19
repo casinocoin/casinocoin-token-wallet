@@ -60,7 +60,7 @@
                     <td style="width: 325px;">
                         <p class="item-label">{{'PAGES.TOKENLIST.ACCOUNT'|translate}}
                             <span *ngIf="rowData.AccountLabel.length > 0"> ({{rowData.AccountLabel}}) </span>
-                            <button style="background-color: cornflowerblue; border-color: cornflowerblue;" *ngIf="compareAccountImported(rowData.AccountID)" pButton type="button" label="{{'PAGES.TOKENLIST.EXT-ACC'| translate}}" class="ui-button-rounded ui-button-warning"></button>
+                            <button style="background-color: #4198D6; border-color: #4198D6;" *ngIf="compareAccountImported(rowData.AccountID)" pButton type="button" label="{{'PAGES.TOKENLIST.EXT-ACC'| translate}}" class="ui-button-rounded ui-button-warning"></button>
                             <span *ngIf="rowData.Activated === false"> ({{'PAGES.TOKENLIST.INACTIVE'|translate}})</span>
                         </p>
                         <p class="item-value">{{rowData.AccountID}}</p>
@@ -342,3 +342,26 @@
 
 <p-messages [value]="messages"></p-messages>
 
+<p-dialog  [(visible)]="dialogShowErrorDeleteAccount" [responsive]="true" [style]="{width: '350px', minWidth: '200px'}">
+    <p-header style="color: rgb(255, 255, 255);">
+            {{ 'PAGES.TOOLS.INFO' | translate }}
+    </p-header>
+    <div class="ui-g-12">
+        <div class="" style=" display: flex; justify-content: center; align-items: center;">
+            <i class="pi pi-info-circle" style="font-size: 3em"></i>
+            <p style="color: brown; font-size: 1.1em">{{ 'PAGES.TOOLS.ERR-DEL-EXT-ACC' | translate }}</p>
+        </div>
+    </div>        
+</p-dialog>
+
+<p-dialog  [(visible)]="showSuccessDelExtAcc" [responsive]="true" [style]="{width: '350px', minWidth: '200px'}">
+        <p-header style="color: rgb(255, 255, 255);">
+                {{ 'PAGES.TOOLS.WAIT-REF' | translate }}
+        </p-header>
+    <div class="ui-g-12">
+        <div class="" style=" display: flex; justify-content: center; align-items: center;">
+            <i class="pi pi-spin pi-spinner" style="font-size: 3em; color: brown" ></i>
+            <p style="color: brown; font-size: 1.1em">{{ 'PAGES.TOOLS.REFRESHING' | translate }}</p>
+        </div>
+    </div>        
+</p-dialog>

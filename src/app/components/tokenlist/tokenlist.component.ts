@@ -99,6 +99,9 @@ export class TokenlistComponent implements OnInit {
   public messages;
   public allAccountsImported;
 
+  public dialogShowErrorDeleteAccount = false;
+  public showSuccessDelExtAcc = false;
+
   constructor(
               private confirmationService: ConfirmationService,
               private logger: LogService,
@@ -198,7 +201,11 @@ export class TokenlistComponent implements OnInit {
           click(menuItem, browserWindow, event) {
             browserWindow.webContents.send('token-context-menu-event', 'show-secret');
           }
-        }
+        },
+        { label: this.translate.instant('PAGES.ELECTRON.DEL-EXT-ACC'),
+          click(menuItem, browserWindow, event) {
+            browserWindow.webContents.send('token-context-menu-event', 'delete-external-account'); }
+        },
       ];
       this.token_context_menu = this.electronService.remote.Menu.buildFromTemplate(token_context_menu_template);
       // listen to connection context menu events
@@ -214,6 +221,8 @@ export class TokenlistComponent implements OnInit {
             this.doShowReceiveQRCode();
           } else if (arg === 'show-secret') {
             this.doShowAccountSecretDialog();
+          } else if (arg === 'delete-external-account') {
+            this.verifyExternalAccount(this.walletService.selectedTableAccount.AccountID);
           } else {
             this.logger.debug('### Context menu not implemented: ' + arg);
           }
@@ -282,6 +291,54 @@ export class TokenlistComponent implements OnInit {
     });
     return (arr.length > 0) ? true : false;
   }
+
+  // delete External Account
+  removingImportAccount(account: string) {
+    this.walletService.deleteAccount(account);
+    this.walletService.removeKey(account);
+    this.walletService.deleteTransactions(account);
+    this.showSuccessDelExtAcc = false;
+  }
+
+  // Verify if be a external account
+  verifyExternalAccount(account) {
+    console.log(account);
+    const allExternalAccount: LokiAccount[] = this.walletService.getAllAccountsImported();
+    console.log(allExternalAccount);
+    if (allExternalAccount) {
+      const findAccount = allExternalAccount.find(item => item.accountID === account);
+      if (findAccount) {
+        this.confirm(account);
+      } else {
+        this.dialogShowErrorDeleteAccount = true;
+        setTimeout(() => {
+          this.dialogShowErrorDeleteAccount = false;
+        }, 3000);
+      }
+    } else {
+      this.dialogShowErrorDeleteAccount = true;
+      setTimeout(() => {
+        this.dialogShowErrorDeleteAccount = false;
+      }, 3000);
+    }
+  }
+
+  confirm(account) {
+    this.confirmationService.confirm({
+        message: 'Are you sure that you want to proceed?',
+        header: 'Confirmation',
+        icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.showSuccessDelExtAcc = true;
+        console.log('deleting account', account);
+        this.removingImportAccount(account);
+        },
+        reject: () => {
+          console.log('Reject');
+        }
+    });
+  }
+
 
   filterTokenList() {
     this.filterToken = Object.values(this.tokenlist.reduce((prev, next) => Object.assign(prev, {[next.Token]: next}), {}));

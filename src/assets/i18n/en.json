@@ -203,7 +203,9 @@
         "PASSWORD": "Password",
         "RECH-PASS" : "Incorrect Password",
         "WAIT-REF" : "Wait for the wallet to refresh",
-        "REFRESHING" : "Refreshing"
+        "REFRESHING" : "Refreshing",
+        "ERR-DEL-EXT-ACC": "Currently only external ditches can be removed !",
+        "INFO": "Info Message"
       },
       "ELECTRON": {
         "CON-NET":"Connect to Network",
@@ -225,7 +227,8 @@
         "SHOW-ACC": "Show Account Secret",
         "COPY-FACC": "Copy From Account",
         "COPY-TACC": "Copy To Account",
-        "COPY-TX": "Copy Transaction ID"
+        "COPY-TX": "Copy Transaction ID",
+        "DEL-EXT-ACC": "Delete External Account"
       }
   }
 }
