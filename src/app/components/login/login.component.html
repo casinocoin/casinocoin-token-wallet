@@ -43,18 +43,18 @@
     <div class="ui-g ui-fluid">
         <div class="ui-g-12" style="height: 30px;"></div>
         <div class="ui-g-2"></div>
-        <div class="ui-g-8" style="text-align:center;">
-            <a (click)="onRecoverBackup()">{{ 'PAGES.LOGIN.RECOVER-BACKUP' | translate }}</a>
+        <div class="ui-g-8" style="text-align:center; "> 
+            <a (click)="onRecoverBackup()" style="cursor: pointer;">{{ 'PAGES.LOGIN.RECOVER-BACKUP' | translate }}</a>
         </div>
         <div class="ui-g-2"></div>
         <div class="ui-g-2"></div>
         <div class="ui-g-8" style="text-align:center;">
-            <a (click)="onRecoverMnemonic()">{{ 'PAGES.LOGIN.RECOVER-MNEMONIC' | translate }}</a>
+            <a (click)="onRecoverMnemonic()" style="cursor: pointer;">{{ 'PAGES.LOGIN.RECOVER-MNEMONIC' | translate }}</a>
         </div>
         <div class="ui-g-2"></div>
         <div class="ui-g-3"></div>
         <div class="ui-g-6" style="text-align:center;">
-            <button pButton type="button" (click)="doOpenWallet()" [(icon)]="login_icon" iconPos="right" label="Open Wallet"></button>
+            <button pButton type="button" style="cursor: pointer;" (click)="doOpenWallet()" [(icon)]="login_icon" iconPos="right" label="Open Wallet"></button>
         </div>
         <div class="ui-g-3"></div>
     </div>

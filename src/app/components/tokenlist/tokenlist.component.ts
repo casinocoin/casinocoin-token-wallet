@@ -1,3 +1,5 @@
+import { LokiAddress } from './../../domains/lokijs';
+import { ConfirmationService } from 'primeng/api';
 import { Component, OnInit, AfterViewInit, ViewChild, Renderer2, NgZone } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { timer } from 'rxjs';
@@ -19,11 +21,13 @@ import Big from 'big.js';
 import { NotificationService } from '../../providers/notification.service';
 import { SelectItem } from 'primeng/primeng';
 import { CSCAmountPipe } from '../../app-pipes.module';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-tokenlist',
   templateUrl: './tokenlist.component.html',
   styleUrls: ['./tokenlist.component.scss'],
+  providers: [ConfirmationService],
   animations: [
     trigger('rowExpansionTrigger', [
         state('void', style({
@@ -40,54 +44,68 @@ import { CSCAmountPipe } from '../../app-pipes.module';
 })
 export class TokenlistComponent implements OnInit {
 
-  columnCount: number;
-  tokenlist: Array<TokenType>;
-  ledgers: LedgerStreamMessages[] = [];
-  receipient: string;
-  description: string;
-  amount: string;
-  fees: string;
-  accountReserve: string;
-  reserveIncrement: string;
-  walletPassword: string;
-  showPasswordDialog: boolean;
-  showLedgerDialog: boolean;
-  showAddTokenDialog: boolean;
-  showAddCSCDialog: boolean;
-  signAndSubmitIcon: string;
-  token_context_menu: ElectronMenu;
-  translateParams = {accountReserve: '10'};
-  cscBalance: string;
-  canActivateToken: boolean;
-  currentToken: TokenType;
-  sendForm: FormGroup;
-  activateForm: FormGroup;
-  mainCSCAccountID: string;
-  availableTokenlist: Array<TokenType> = [];
-  addToken: TokenType;
-  addIcon = 'fa fa-plus';
-  footer_visible = false;
-  error_message: string;
-  cscAccounts: SelectItem[] = [];
-  selectedCSCAccount: string;
-  addTokenAccountSelected: boolean;
-  showErrorDialog = false;
+  public columnCount: number;
+  public tokenlist: Array<TokenType>;
+  public ledgers: LedgerStreamMessages[] = [];
+  public receipient: string;
+  public description: string;
+  public amount: string;
+  public fees: string;
+  public accountReserve: string;
+  public reserveIncrement: string;
+  public walletPassword: string;
+  public showPasswordDialog: boolean;
+  public showLedgerDialog: boolean;
+  public showAddTokenDialog: boolean;
+  public showAddCSCDialog: boolean;
+  public signAndSubmitIcon: string;
+  public token_context_menu: ElectronMenu;
+  public translateParams = {accountReserve: '10'};
+  public cscBalance: string;
+  public canActivateToken: boolean;
+  public currentToken: TokenType;
+  public sendForm: FormGroup;
+  public activateForm: FormGroup;
+  public mainCSCAccountID: string;
+  public availableTokenlist: Array<TokenType> = [];
+  public addToken: TokenType;
+  public addIcon = 'fa fa-plus';
+  public footer_visible = false;
+  public error_message: string;
+  public cscAccounts: SelectItem[] = [];
+  public selectedCSCAccount: string;
+  public addTokenAccountSelected: boolean;
+  public showErrorDialog = false;
+  public tempTokenList: Array<TokenType> = [];
+  public selectedToken;
+  public filterToken;
 
   public cscReceiveURI: string = null;
-  showReceiveQRCodeDialog = false;
-  sendAmount: string;
-  destinationTag: number;
-  label: string;
-  copyIcon = 'fa fa-copy';
+  public showReceiveQRCodeDialog = false;
+  public sendAmount: string;
+  public destinationTag: number;
+  public label: string;
+  public copyIcon = 'fa fa-copy';
 
-  showSecretDialog = false;
-  showSecret = false;
-  accountSecret: string;
+  public showSecretDialog = false;
+  public showSecret = false;
+  public accountSecret: string;
 
-  showEditAccountLabel = false;
-  accountLabel = '';
+  public showEditAccountLabel = false;
+  public accountLabel = '';
+  public addressBook = null;
+  public showAddresssBook = false;
+  public saveAddresssBook = false;
+  public messages;
+  public allAccountsImported;
 
-  constructor(private logger: LogService,
+  public dialogShowErrorDeleteAccount = false;
+  public showSuccessDelExtAcc = false;
+
+  constructor(
+              private confirmationService: ConfirmationService,
+              private logger: LogService,
+              private translate: TranslateService,
               private casinocoinService: CasinocoinService,
               private sessionStorageService: SessionStorageService,
               private walletService: WalletService,
@@ -135,7 +153,10 @@ export class TokenlistComponent implements OnInit {
             this.casinocoinService.refreshAccountTokenList().subscribe(finished => {
               if (finished) {
                 this.tokenlist = this.casinocoinService.tokenlist;
-                this.logger.debug('### TokenList: ' + JSON.stringify(this.tokenlist));
+                this.tempTokenList = this.casinocoinService.tokenlist;
+                this.filterTokenList();
+                // get all accounts Imported
+                this.allAccountsImported = this.walletService.getAllAccountsImported();
                 // remove password from session if its still there
                 this.sessionStorageService.remove(AppConstants.KEY_WALLET_PASSWORD);
               }
@@ -158,47 +179,61 @@ export class TokenlistComponent implements OnInit {
     this.showLedgerDialog = false;
     this.signAndSubmitIcon = 'pi pi-check';
     // define Transaction Context menu
-    const token_context_menu_template = [
-      { label: 'Copy Account',
-        click(menuItem, browserWindow, event) {
-          browserWindow.webContents.send('token-context-menu-event', 'copy-account'); }
-      },
-      { label: 'Show in Block Explorer',
-        click(menuItem, browserWindow, event) {
-            browserWindow.webContents.send('token-context-menu-event', 'show-explorer'); }
-      },
-      { label: 'Edit Label',
-        click(menuItem, browserWindow, event) {
-          browserWindow.webContents.send('token-context-menu-event', 'edit-account-label'); }
-      },
-      { label: 'Receive QRCode',
-        click(menuItem, browserWindow, event) {
-          browserWindow.webContents.send('token-context-menu-event', 'receive-qrcode');
-        }
-      },
-      { label: 'Show Account Secret',
-        click(menuItem, browserWindow, event) {
-          browserWindow.webContents.send('token-context-menu-event', 'show-secret');
-        }
-      }
-    ];
-    this.token_context_menu = this.electronService.remote.Menu.buildFromTemplate(token_context_menu_template);
-    // listen to connection context menu events
-    this.electronService.ipcRenderer.on('token-context-menu-event', (event, arg) => {
-      this._ngZone.run(() => {
-        if (arg === 'copy-account') {
-            this.electronService.clipboard.writeText(this.walletService.selectedTableAccount.AccountID);
-        } else if (arg === 'edit-account-label') {
-          this.doShowEditAccountLabel();
-        } else if (arg === 'show-explorer') {
-          this.showAccountOnExplorer(this.walletService.selectedTableAccount.AccountID);
-        } else if (arg === 'receive-qrcode') {
-          this.doShowReceiveQRCode();
-        } else if (arg === 'show-secret') {
-          this.doShowAccountSecretDialog();
-        } else {
-          this.logger.debug('### Context menu not implemented: ' + arg);
-        }
+    this.translate.stream('PAGES.ELECTRON.COPY-ACC').subscribe((translated: string) => {
+      const token_context_menu_template = [
+        { label: this.translate.instant('PAGES.ELECTRON.COPY-ACC'),
+          id: 'COPY-ACC',
+          click(menuItem, browserWindow, event) {
+            browserWindow.webContents.send('token-context-menu-event', 'copy-account'); }
+        },
+        { label: this.translate.instant('PAGES.ELECTRON.SHOW-EXP'),
+          id: 'SHOW-EXP',
+          click(menuItem, browserWindow, event) {
+              browserWindow.webContents.send('token-context-menu-event', 'show-explorer'); }
+        },
+        { label: this.translate.instant('PAGES.ELECTRON.EDIT-LBL'),
+          id: 'EDIT-LBL',
+          click(menuItem, browserWindow, event) {
+            browserWindow.webContents.send('token-context-menu-event', 'edit-account-label'); }
+        },
+        { label: this.translate.instant('PAGES.ELECTRON.REC-QRC'),
+          id: 'REC-QRC',
+          click(menuItem, browserWindow, event) {
+            browserWindow.webContents.send('token-context-menu-event', 'receive-qrcode');
+          }
+        },
+        { label: this.translate.instant('PAGES.ELECTRON.SHOW-ACC'),
+          id: 'SHOW-ACC',
+          click(menuItem, browserWindow, event) {
+            browserWindow.webContents.send('token-context-menu-event', 'show-secret');
+          }
+        },
+        { label: this.translate.instant('PAGES.ELECTRON.DEL-EXT-ACC'),
+          id: 'DEL-EXT-ACC',
+          click(menuItem, browserWindow, event) {
+            browserWindow.webContents.send('token-context-menu-event', 'delete-external-account'); }
+        },
+      ];
+      this.token_context_menu = this.electronService.remote.Menu.buildFromTemplate(token_context_menu_template);
+      // listen to connection context menu events
+      this.electronService.ipcRenderer.on('token-context-menu-event', (event, arg) => {
+        this._ngZone.run(() => {
+          if (arg === 'copy-account') {
+              this.electronService.clipboard.writeText(this.walletService.selectedTableAccount.AccountID);
+          } else if (arg === 'edit-account-label') {
+            this.doShowEditAccountLabel();
+          } else if (arg === 'show-explorer') {
+            this.showAccountOnExplorer(this.walletService.selectedTableAccount.AccountID);
+          } else if (arg === 'receive-qrcode') {
+            this.doShowReceiveQRCode();
+          } else if (arg === 'show-secret') {
+            this.doShowAccountSecretDialog();
+          } else if (arg === 'delete-external-account') {
+            this.verifyExternalAccount(this.walletService.selectedTableAccount.AccountID);
+          } else {
+            this.logger.debug('### Context menu not implemented: ' + arg);
+          }
+        });
       });
     });
 
@@ -206,9 +241,11 @@ export class TokenlistComponent implements OnInit {
       if (result === AppConstants.KEY_LOADED) {
         // get the main CSC AccountID
         this.mainCSCAccountID = this.walletService.getMainAccount().accountID;
+        // get all accounts Imported
+        this.allAccountsImported = this.walletService.getAllAccountsImported();
         // get all CSC accounts for add token dropdown
         this.walletService.getAllAccounts().forEach( element => {
-          if (element.currency === 'CSC' && new Big(element.balance) > 0 && element.accountSequence >= 0) {
+          if (element.currency === 'CSC' && new Big(element.balance) > 0 ) {
             const accountLabel = element.accountID.substring(0, 20) + '...' + ' [Balance: ' +
                                 this.cscAmountPipe.transform(element.balance, false, true) + ']';
             this.cscAccounts.push({label: accountLabel, value: element.accountID});
@@ -222,7 +259,7 @@ export class TokenlistComponent implements OnInit {
           // refresh all CSC accounts for add token dropdown
           this.cscAccounts = [];
           this.walletService.getAllAccounts().forEach( element => {
-            if (element.currency === 'CSC' && new Big(element.balance) > 0  && element.accountSequence >= 0) {
+            if (element.currency === 'CSC' && new Big(element.balance) > 0) {
               const accountLabel = element.accountID.substring(0, 20) + '...' + ' [Balance: ' +
                                   this.cscAmountPipe.transform(element.balance, false, true) + ']';
               this.cscAccounts.push({label: accountLabel, value: element.accountID});
@@ -241,12 +278,140 @@ export class TokenlistComponent implements OnInit {
         this.cscBalance = account.balance;
       }
     });
+    // subject activate when import External Account
+    this.walletService.importsAccountSubject.subscribe(() => {
+      this.casinocoinService.refreshAccounts().subscribe(accountRefreshFinished => {
+        if (accountRefreshFinished) {
+          // refresh Token List
+          this.logger.debug('### TokenList Refresh');
+          this.casinocoinService.refreshAccountTokenList().subscribe(finished => {
+            if (finished) {
+              this.tokenlist = this.casinocoinService.tokenlist;
+              this.tempTokenList = this.casinocoinService.tokenlist;
+              this.filterTokenList();
+              this.logger.debug('### TokenList: ' + JSON.stringify(this.tokenlist));
+            }
+          });
+        }
+      });
+      this.walletService.getAllAccounts().forEach(element => {
+        if (element.currency === 'CSC' && new Big(element.balance) > 0) {
+          const accountLabel = element.accountID.substring(0, 20) + '...' + ' [Balance: ' +
+            this.cscAmountPipe.transform(element.balance, false, true) + ']';
+          this.cscAccounts.push({ label: accountLabel, value: element.accountID });
+        }
+      });
+    });
+  }
+
+  compareAccountImported(account) {
+    const arr = [];
+    this.allAccountsImported.forEach((item: LokiAccount) => {
+      if (item.accountID === account) {
+        arr.push(item);
+      }
+    });
+    return (arr.length > 0) ? true : false;
+  }
+
+  // delete External Account
+  removingImportAccount(account: string) {
+    this.walletService.deleteAccount(account);
+    this.walletService.removeKey(account);
+    this.walletService.deleteTransactions(account);
+    setTimeout(() => {
+      this.showSuccessDelExtAcc = false;
+    }, 2000);
+
+    this.casinocoinService.refreshAccounts().subscribe(accountRefreshFinished => {
+      if (accountRefreshFinished) {
+        // refresh Token List
+        this.logger.debug('### TokenList Refresh');
+        this.casinocoinService.refreshAccountTokenList().subscribe(finished => {
+          if (finished) {
+            this.tokenlist = this.casinocoinService.tokenlist;
+            this.tempTokenList = this.casinocoinService.tokenlist;
+            this.filterTokenList();
+            this.logger.debug('### TokenList: ' + JSON.stringify(this.tokenlist));
+          }
+        });
+      }
+    });
+    // refresh all CSC accounts for add token dropdown
+    this.cscAccounts = [];
+    this.walletService.getAllAccounts().forEach( element => {
+      if (element.currency === 'CSC' && new Big(element.balance) > 0) {
+        const accountLabel = element.accountID.substring(0, 20) + '...' + ' [Balance: ' +
+                            this.cscAmountPipe.transform(element.balance, false, true) + ']';
+        this.cscAccounts.push({label: accountLabel, value: element.accountID});
+      }
+    });
+  }
+
+  // Verify if be a external account
+  verifyExternalAccount(account) {
+    console.log(account);
+    const allExternalAccount: LokiAccount[] = this.walletService.getAllAccountsImported();
+    console.log(allExternalAccount);
+    if (allExternalAccount) {
+      const findAccount = allExternalAccount.find(item => item.accountID === account);
+      if (findAccount) {
+        this.confirm(account);
+      } else {
+        this.dialogShowErrorDeleteAccount = true;
+        setTimeout(() => {
+          this.dialogShowErrorDeleteAccount = false;
+        }, 3000);
+      }
+    } else {
+      this.dialogShowErrorDeleteAccount = true;
+      setTimeout(() => {
+        this.dialogShowErrorDeleteAccount = false;
+      }, 3000);
+    }
+  }
+
+  confirm(account) {
+    this.confirmationService.confirm({
+        message: 'Are you sure you want to remove this external account from your wallet? This account will not be recoverable by your wallet seed!',
+        header: 'Confirmation',
+        icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.showSuccessDelExtAcc = true;
+        console.log('deleting account', account);
+        this.removingImportAccount(account);
+        },
+        reject: () => {
+          console.log('Reject');
+        }
+    });
+  }
+
+
+  filterTokenList() {
+    this.filterToken = Object.values(this.tokenlist.reduce((prev, next) => Object.assign(prev, {[next.Token]: next}), {}));
+  }
+
+  filterByToken(token: TokenType) {
+    if (!token) {
+      this.tempTokenList = this.tokenlist;
+    } else {
+      this.tempTokenList = this.tokenlist.filter( transaction => transaction.Token === token.Token);
+    }
   }
 
   showTokenContextMenu(event) {
     this.logger.debug('### showTokenContextMenu: ' + JSON.stringify(event));
     this.walletService.selectedTableAccount = event.originalEvent.rowData;
     this.currentToken = event.originalEvent.rowData;
+    const selectedAccount = this.walletService.getAccount('CSC', this.currentToken.AccountID);
+    const disableItem = this.token_context_menu.getMenuItemById('DEL-EXT-ACC');
+    if (selectedAccount.accountSequence >= 0) {
+      // we need to disable delete external account from the menu
+      disableItem.enabled = false;
+    } else {
+      disableItem.enabled = true;
+    }
     this.token_context_menu.popup({window: this.electronService.remote.getCurrentWindow()});
   }
 
@@ -347,6 +512,7 @@ export class TokenlistComponent implements OnInit {
     this.casinocoinService.refreshAccountTokenList().subscribe( refreshResult => {
       if (refreshResult) {
         this.tokenlist = this.casinocoinService.tokenlist;
+        this.tempTokenList = this.casinocoinService.tokenlist;
       }
     });
     this.showEditAccountLabel = false;
@@ -383,7 +549,7 @@ export class TokenlistComponent implements OnInit {
   }
 
   onRowSelect(event) {
-    this.logger.debug('### onRowSelect: ' + JSON.stringify(event));
+    // this.logger.debug('### onRowSelect: ' + JSON.stringify(event));
     if (this.currentToken === undefined) {
       this.currentToken = event;
     } else if (event.PK !== this.currentToken.PK) {
@@ -497,6 +663,7 @@ export class TokenlistComponent implements OnInit {
                     this.casinocoinService.refreshAccountTokenList().subscribe( refreshResult => {
                       if (refreshResult) {
                         this.tokenlist = this.casinocoinService.tokenlist;
+                        this.tempTokenList = this.casinocoinService.tokenlist;
                       }
                     });
                     // reset addToken, password and close dialog
@@ -561,6 +728,7 @@ export class TokenlistComponent implements OnInit {
       this.casinocoinService.refreshAccountTokenList().subscribe( refreshResult => {
         if (refreshResult) {
           this.tokenlist = this.casinocoinService.tokenlist;
+          this.tempTokenList = this.casinocoinService.tokenlist;
         }
       });
       // reset addToken, password and close dialog
@@ -610,6 +778,7 @@ export class TokenlistComponent implements OnInit {
         this.casinocoinService.refreshAccountTokenList().subscribe( refreshResult => {
           if (refreshResult) {
             this.tokenlist = this.casinocoinService.tokenlist;
+            this.tempTokenList = this.casinocoinService.tokenlist;
           }
         });
         // subcribe to all accounts again
@@ -617,6 +786,7 @@ export class TokenlistComponent implements OnInit {
         // refresh all CSC accounts for add token dropdown
         this.cscAccounts = [];
         this.walletService.getAllAccounts().forEach( element => {
+          console.log(element.currency === 'CSC', '');
           if (element.currency === 'CSC' && new Big(element.balance) > 0) {
             const accountLabel = element.accountID.substring(0, 20) + '...' + ' [Balance: ' +
                                 this.cscAmountPipe.transform(element.balance, false, true) + ']';
@@ -631,7 +801,41 @@ export class TokenlistComponent implements OnInit {
     });
   }
 
+  getAllAddress() {
+    this.addressBook = this.walletService.getAllAddresses();
+    if (this.addressBook.length === 0) { this.addressBook = null; }
+    this.showAddresssBook = true;
+  }
+
+  deleteAccountAddress(data: LokiAddress) {
+    this.walletService.removeAddress(data.accountID);
+    this.addressBook = this.walletService.getAllAddresses();
+  }
+
+  acingData(data: LokiAddress) {
+    this.sendForm.patchValue({'accountid': data.accountID, 'description': data.label, 'destinationtag': data.destinationTag  });
+    this.showAddresssBook = false;
+  }
+
   onSendFormSubmit(value) {
+    this.translate.stream('PAGES.ELECTRON.COPY-ACC').subscribe((translated: string) => {
+      this.confirmationService.confirm({
+          message: `You are about to send: ${value.amount} ${this.currentToken.Token} from account ${this.currentToken.AccountID} to account ${value.accountid} and are paying ${value.fees} CSC in fees for the transaction.`,
+          header: 'Send Confirmation',
+          icon: 'pi pi-exclamation-triangle',
+          accept: () => {
+            // this.messages = [{severity: 'success', summary: 'Confirmed', detail: 'You have accepted'}];
+            console.log('saveAddresssBook', this.saveAddresssBook);
+            this.sendTx(value);
+          },
+          reject: () => {
+            // this.messages = [{severity: 'info', summary: 'Rejected', detail: 'You have rejected'}];
+          }
+      });
+    });
+  }
+
+  sendTx(value) {
     this.logger.debug('### onSendFormSubmit: ' + JSON.stringify(value));
     // check password
     const walletObject: WalletDefinition = this.sessionStorageService.get(AppConstants.KEY_CURRENT_WALLET);
@@ -639,6 +843,21 @@ export class TokenlistComponent implements OnInit {
       // check the destination account id
       if (this.casinocoinService.cscAPI.isValidAddress(value.accountid.trim())) {
         if (!isNaN(value.amount)) {
+          if (this.saveAddresssBook) {
+            // Find account in loki db
+            const findAccount = this.walletService.getAddress(value.accountid);
+            if (!findAccount) {
+              // create addressbook entry
+              this.walletService.addAddress({
+                destinationTag: value.destinationtag,
+                accountID: value.accountid,
+                label: value.description,
+                owner: false
+              });
+            } else {
+              console.log('Your contact is actualized ');
+            }
+          }
           // get the account secret for the CSC account
           const accountKey = this.walletService.getKey(this.currentToken.AccountID);
           this.logger.debug('### send accountID: ' + JSON.stringify(this.currentToken));

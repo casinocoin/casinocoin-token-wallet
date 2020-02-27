@@ -489,7 +489,7 @@ export class RecoverMnemonicComponent implements OnInit {
                                         this.localStorageService.set(AppConstants.KEY_WALLET_PASSWORD_HASH, this.walletService.walletSetup.walletPasswordHash);
                                         this.localStorageService.set(AppConstants.KEY_SETUP_COMPLETED, true);
                                     }
-                                    this.electron.remote.dialog.showMessageBox({ message: resultMessage, buttons: ['OK']}, (showResult) => {
+                                    this.electron.remote.dialog.showMessageBox({ message: resultMessage, buttons: ['OK']}).then(showResult => {
                                         cscSubscription.unsubscribe();
                                         this.casinocoinService.disconnect();
                                         this.router.navigate(['login']);
