@@ -351,12 +351,15 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   confirm() {
-    if (this.walletPassword.trim() === '' || this.importAccountSecret.trim() === '') {
-      this.footer_message = 'please verificate all fields';
+    if ( this.walletPassword.trim() === '' ||
+         this.importAccountSecret.trim() === '' ||
+         this.casinocoinService.isValidSecret(this.importAccountSecret.trim()) === false) {
+      this.footer_message = 'Empty password or invalid account secret';
       this.active_icon = 'fa fa-check';
       this.footer_visible = true;
       this.importAccountSecret = '';
       this.walletPassword = '';
+      this.checked = false;
       return setTimeout(() => {
         this.footer_message = null;
       }, 3000);
@@ -371,10 +374,11 @@ export class HomeComponent implements OnInit, OnDestroy {
         },
         reject: () => {
           this.active_icon = 'fa fa-check';
-          this.footer_visible = true;
+          this.footer_visible = false;
           this.importAccountSecret = '';
           this.walletPassword = '';
-          this.footer_message = '¡ please read too good for you make his decisions !' ;
+          this.footer_message = '' ;
+          this.checked = false;
           return setTimeout(() => {
             this.footer_message = null;
           }, 3000);
@@ -818,7 +822,6 @@ export class HomeComponent implements OnInit, OnDestroy {
                           this.casinocoinService.subscribeAccountEvents();
                           // Refresh TokenList in the wallet
                           this.casinocoinService.updateAccountInfo(tokenAccount.currency, tokenAccount.accountID);
-
                         } else {
                           const tokenInfo = this.casinocoinService.getTokenInfo(balance.currency);
                           const tokenAccount: LokiAccount = {

@@ -155,7 +155,8 @@ export class TokenlistComponent implements OnInit {
                 this.tokenlist = this.casinocoinService.tokenlist;
                 this.tempTokenList = this.casinocoinService.tokenlist;
                 this.filterTokenList();
-                this.logger.debug('### TokenList: ' + JSON.stringify(this.tokenlist));
+                // get all accounts Imported
+                this.allAccountsImported = this.walletService.getAllAccountsImported();
                 // remove password from session if its still there
                 this.sessionStorageService.remove(AppConstants.KEY_WALLET_PASSWORD);
               }
@@ -511,6 +512,7 @@ export class TokenlistComponent implements OnInit {
     this.casinocoinService.refreshAccountTokenList().subscribe( refreshResult => {
       if (refreshResult) {
         this.tokenlist = this.casinocoinService.tokenlist;
+        this.tempTokenList = this.casinocoinService.tokenlist;
       }
     });
     this.showEditAccountLabel = false;
@@ -547,7 +549,7 @@ export class TokenlistComponent implements OnInit {
   }
 
   onRowSelect(event) {
-    this.logger.debug('### onRowSelect: ' + JSON.stringify(event));
+    // this.logger.debug('### onRowSelect: ' + JSON.stringify(event));
     if (this.currentToken === undefined) {
       this.currentToken = event;
     } else if (event.PK !== this.currentToken.PK) {
@@ -661,6 +663,7 @@ export class TokenlistComponent implements OnInit {
                     this.casinocoinService.refreshAccountTokenList().subscribe( refreshResult => {
                       if (refreshResult) {
                         this.tokenlist = this.casinocoinService.tokenlist;
+                        this.tempTokenList = this.casinocoinService.tokenlist;
                       }
                     });
                     // reset addToken, password and close dialog
@@ -725,6 +728,7 @@ export class TokenlistComponent implements OnInit {
       this.casinocoinService.refreshAccountTokenList().subscribe( refreshResult => {
         if (refreshResult) {
           this.tokenlist = this.casinocoinService.tokenlist;
+          this.tempTokenList = this.casinocoinService.tokenlist;
         }
       });
       // reset addToken, password and close dialog
@@ -774,6 +778,7 @@ export class TokenlistComponent implements OnInit {
         this.casinocoinService.refreshAccountTokenList().subscribe( refreshResult => {
           if (refreshResult) {
             this.tokenlist = this.casinocoinService.tokenlist;
+            this.tempTokenList = this.casinocoinService.tokenlist;
           }
         });
         // subcribe to all accounts again
