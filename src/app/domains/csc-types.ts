@@ -199,6 +199,7 @@ export interface LedgerStreamMessages {
 }
 
 export interface TokenType {
+    IconImage: string;
     PK: string;
     ApiEndpoint: string;
     ContactEmail: string;

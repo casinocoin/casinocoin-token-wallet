@@ -80,4 +80,5 @@ export interface LokiAddress {
     accountID: string;
     label: string;
     owner: boolean;
+    destinationTag?: number;
 }

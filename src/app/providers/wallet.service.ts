@@ -21,6 +21,8 @@ import * as LokiIndexedAdapter from 'lokijs/src/loki-indexed-adapter';
 import * as LokiTypes from '../domains/lokijs';
 import { LokiKey } from '../domains/lokijs';
 import { WalletSetup } from '../domains/csc-types';
+import { sequence } from '@angular/animations';
+import { DatePipe } from '@angular/common';
 
 // const lfsa = require('../../../node_modules/lokijs/src/loki-fs-structured-adapter.js');
 // import  LokiIndexedAdapter = require('../../../node_modules/lokijs/src/loki-indexed-adapter.js');
@@ -35,6 +37,7 @@ export class WalletService {
 
   private accounts;
   private transactions;
+  private addressbook;
   private keys;
 
   public isWalletOpen = false;
@@ -52,7 +55,10 @@ export class WalletService {
   public walletSetup = {} as WalletSetup;
   private cscOfflineAPI = new CasinocoinAPI();
 
+ public importsAccountSubject = new Subject();
+
   constructor(private logger: LogService,
+              private datePipe: DatePipe,
               private localStorageService: LocalStorageService,
               private sessionStorageService: SessionStorageService,
               private electron: ElectronService,
@@ -93,6 +99,8 @@ export class WalletService {
         this.transactions = collection;
       } else if (collection.name === 'keys') {
         this.keys = collection;
+      } else if (collection.name === 'addressbook') {
+        this.addressbook = collection;
       }
       this.isWalletOpen = true;
     });
@@ -107,10 +115,10 @@ export class WalletService {
     });
 
     function createCollections() {
-      console.log('### WalletService - createCollections');
       collectionSubject.next(walletDB.addCollection('accounts', {unique: ['pk']}));
       collectionSubject.next(walletDB.addCollection('transactions', {unique: ['txID']}));
       collectionSubject.next(walletDB.addCollection('keys', {unique: ['accountID']}));
+      collectionSubject.next(walletDB.addCollection('addressbook', {unique: ['accountID']}));
       createSubject.next(AppConstants.KEY_FINISHED);
     }
     this.walletDB = walletDB;
@@ -126,6 +134,7 @@ export class WalletService {
 
     const collectionSubject = new Subject<any>();
     const openSubject = new Subject<string>();
+
     let openErrorHandled = false;
     openSubject.subscribe(result => {
       this.logger.debug('### WalletService openWallet: ' + result);
@@ -139,7 +148,7 @@ export class WalletService {
     });
 
     let openError = false;
-    collectionSubject.subscribe( collection => {
+    collectionSubject.subscribe(collection => {
       if (collection != null) {
         this.logger.debug('### WalletService Open Collection: ' + collection.name);
         if (collection.name === 'accounts') {
@@ -148,6 +157,8 @@ export class WalletService {
           this.transactions = collection;
         } else if (collection.name === 'keys') {
           this.keys = collection;
+        } else if (collection.name === 'addressbook') {
+          this.addressbook = collection;
         }
         this.isWalletOpen = true;
       } else {
@@ -156,22 +167,28 @@ export class WalletService {
       }
     });
 
+    const openCollections = (result) => {
+      collectionSubject.next(walletDB.getCollection('accounts'));
+      collectionSubject.next(walletDB.getCollection('transactions'));
+      collectionSubject.next(walletDB.getCollection('keys'));
+      if (!walletDB.getCollection('addressbook')) {
+        collectionSubject.next(walletDB.addCollection('addressbook', {unique: ['accountID']}));
+      } else {
+        collectionSubject.next(walletDB.getCollection('addressbook'));
+      }
+      if (!openError) {
+        openSubject.next(AppConstants.KEY_LOADED);
+      }
+    };
+
     this.lokiAdapter = new LokiIndexedAdapter('casinocoin');
     const walletDB = new loki(walletLocation,
       { adapter: this.lokiAdapter,
         autoload: true,
-        autoloadCallback: function openCollections(result) {
-          collectionSubject.next(walletDB.getCollection('accounts'));
-          collectionSubject.next(walletDB.getCollection('transactions'));
-          collectionSubject.next(walletDB.getCollection('keys'));
-          if (!openError) {
-            openSubject.next(AppConstants.KEY_LOADED);
-          }
-        },
+        autoloadCallback: openCollections,
         autosave: true,
         autosaveInterval: 5000
     });
-
     this.walletDB = walletDB;
     return this.openWalletSubject.asObservable();
   }
@@ -187,12 +204,21 @@ export class WalletService {
     this.accounts = null;
     this.transactions = null;
     this.keys = null;
+    this.addressbook = null;
     // set wallet open to false
     this.isWalletOpen = false;
     // reset wallet object
     this.walletDB = null;
     // publish result
     this.openWalletSubject.next(AppConstants.KEY_CLOSED);
+  }
+
+  resetWallet() {
+    // reset all collection objects
+    this.accounts.clear();
+    this.transactions.clear();
+    this.keys.clear();
+    this.addressbook.clear();
   }
 
   // encrypt secret key
@@ -216,6 +242,45 @@ export class WalletService {
   // #########################################
   // Accounts Collection
   // #########################################
+
+  addAddress(newAddress: LokiTypes.LokiAddress): LokiTypes.LokiAddress {
+    const insertedAddress = this.addressbook.insert(newAddress);
+    return insertedAddress;
+  }
+
+  getAddress(accountID: string): LokiTypes.LokiAddress {
+    if (this.isWalletOpen) {
+      if (this.addressbook.count() > 0) {
+        return this.addressbook.findOne({'accountID': {'$eq': accountID}});
+      } else {
+        return null;
+      }
+    } else {
+      return null;
+    }
+  }
+
+  getAllAddresses(): Array<LokiTypes.LokiAddress> {
+    if (this.isWalletOpen) {
+      if (!this.addressbook) {
+        return null;
+      } else {
+        return this.addressbook.find();
+      }
+    } else {
+      return null;
+    }
+
+  }
+
+  updateAddress(address: LokiTypes.LokiAddress) {
+    this.addressbook.update(address);
+  }
+
+  removeAddress(accountID: string) {
+    this.addressbook.findAndRemove({accountID: accountID});
+  }
+
   addAccount(newAccount: LokiTypes.LokiAccount): LokiTypes.LokiAccount {
     const insertAccount = this.accounts.insert(newAccount);
     return insertAccount;
@@ -257,12 +322,20 @@ export class WalletService {
     }
   }
 
+  deleteAccount(accountID) {
+    this.accounts.findAndRemove({accountID: accountID});
+  }
+
   getSortedCSCAccounts(sortAttribute: string, descending: boolean): Array<LokiTypes.LokiAccount> {
     return this.accounts.chain().find({'currency': {'$eq': 'CSC'}}).simplesort(sortAttribute, descending).data();
   }
 
   getAllAccounts(): Array<LokiTypes.LokiAccount> {
     return this.accounts.find();
+  }
+
+  getAllAccountsImported() {
+    return this.accounts.find({'accountSequence': {'$eq': -1}});
   }
 
   getAllTokenAccountsByAccountID(accountID: string): Array<LokiTypes.LokiAccount> {
@@ -318,7 +391,12 @@ export class WalletService {
   }
 
   getAccountsMaxSequence(): number {
-    return this.accounts.chain().find().simplesort('accountSequence', true).limit(1).data()[0].accountSequence;
+    const account = this.accounts.chain().find().simplesort('accountSequence', true).limit(1).data()[0];
+    if (!account) {
+      return -1;
+    } else {
+      return account.accountSequence;
+    }
   }
 
   // #########################################
@@ -383,6 +461,24 @@ export class WalletService {
     return this.transactions.chain().find().simplesort('timestamp', true).data();
   }
 
+  countAccountsPerAccount(account) {
+     return this.transactions.find({ 'accountID': account }).length;
+  }
+
+  deleteTransactions(account) {
+    this.transactions.findAndRemove({accountID: account});
+  }
+
+  countAccountsPerDate(date) {
+    const isoStringDate = new Date(date).toISOString();
+    const dateUTC = CSCUtil.iso8601ToCasinocoinTime(isoStringDate) - 18000;
+    return this.transactions.find({ timestamp: { '$between': [dateUTC, dateUTC + 86399] } }).length;
+  }
+
+  countAccountsPerToken(token) {
+    return this.transactions.find({ 'currency': token }).length;
+  }
+
   getTransactionsLazy(offset: number, limit: number): Array<LokiTypes.LokiTransaction> {
     // return all transactions sorted by descending timestamp for offset and limit
     return this.transactions.chain().find()
@@ -391,6 +487,36 @@ export class WalletService {
                                     .limit(limit)
                                     .data();
   }
+
+  getTransactionsLazyAccount(offset: number, limit: number, account): Array<LokiTypes.LokiTransaction> {
+    return this.transactions.chain().find({'accountID': account})
+                                    .simplesort('timestamp', true)
+                                    .offset(offset)
+                                    .limit(limit)
+                                    .data();
+  }
+
+  getTransactionsLazyCurrency(offset: number, limit: number, currency): Array<LokiTypes.LokiTransaction> {
+    return this.transactions.chain().find({ 'currency': currency })
+                                    .simplesort('timestamp', true)
+                                    .offset(offset)
+                                    .limit(limit)
+                                    .data();
+  }
+
+  getTransactionsLazyDate(offset: number, limit: number, date): Array<LokiTypes.LokiTransaction> {
+    const isoStringDate = new Date(date).toISOString();
+    const dateUTC = CSCUtil.iso8601ToCasinocoinTime(isoStringDate) - 18000;
+    // const dateTimestampTT = CSCUtil.casinocoinTimeToISO8601(dateUTC);
+    // const dateTimestampT2 = CSCUtil.casinocoinTimeToISO8601(dateUTC + 86399);
+    // const dateTimestamp = this.datePipe.transform(628749799, 'M/dd/yyyy hh:ss');
+    return this.transactions.chain().find({ timestamp: { '$between': [dateUTC, dateUTC + 86399] }})
+                                    .simplesort('timestamp', true)
+                                    .offset(offset)
+                                    .limit(limit)
+                                    .data();
+  }
+
 
   getUnvalidatedTransactions(): Array<LokiTypes.LokiTransaction> {
     return this.transactions.find({ validated: false });

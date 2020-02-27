@@ -1444,4 +1444,55 @@ p-togglebutton.ng-dirty.ng-invalid .ui-button {
   padding-bottom: 5px;
 }
 
+.ui.ui-dialog-titlebar {
+  background: #000000;
+  color: whitesmoke;
+}
+
+.ui-fieldset-legend {
+  background: inherit;
+  border-color: #969696;
+  color: black;
+}
+
+.ui-fieldset.ui-fieldset-toggleable .ui-fieldset-legend:hover {
+  border-color: #e8e1b5;
+  background-color: #bcb9ae;
+  color: #363636;
+}
+
+.ui-fieldset.ui-fieldset-toggleable .ui-fieldset-legend:hover a {
+  color: #363636;
+}
+
+.ui-fieldset .ui-fieldset-legend {
+  padding: 0em 2em;
+}
+
+.ui-inputgroup .ui-inputgroup-addon {
+  border-color: #bf0a0a;
+  background-color: #bf0a0a;
+  color: #ffffff;
+}
+
+.ui-inputgroup .ui-inputgroup-addon:first-child {
+  border-top-left-radius: 1px;
+  border-bottom-left-radius: 1px;
+}
+
+.ui-inputgroup .ui-inputgroup-addon:last-child {
+  border-top-right-radius: 1px;
+  border-bottom-right-radius: 1px;
+}
+
+.ui-inputgroup .ui-button:first-child {
+  border-top-left-radius: 1px;
+  border-bottom-left-radius: 1px;
+}
+
+.ui-inputgroup .ui-button:last-child {
+  border-top-right-radius: 1px;
+  border-bottom-right-radius: 1px;
+}
+
 /*# sourceMappingURL=theme.css.map */

@@ -1,13 +1,18 @@
 <div class="ui-widget ui-g form-container">
-    <p class="form-text-header">Support</p>
-    <p>If you experience any issues with the CasinoCoin wallet, there are multiple ways to contact the team:</p>
-    <mat-list>
-        <mat-list-item><b>Discord: </b>Live chat with the community and foundation <a class="link-color" href="#" (click)="openDiscord()">here</a>.</mat-list-item>
-        <mat-list-item><b>Github: </b>Report an error or bug on the <a class="link-color" href="#" (click)="openGithub()">CasinoCoin project site</a>.</mat-list-item>
-        <mat-list-item><b>FAQ: </b>Go to the <a class="link-color" href="#" (click)="openFAQ()">CasinoCoin FAQ page</a> on the website. The answer may already be there.</mat-list-item>
-        <mat-list-item><b>Email: </b>Write to us at <a class="link-color" href="mailto:support@casinocoin.org">support@casinocoin.org</a> and a support agent will get back to you.</mat-list-item>
-        <mat-list-item><b>Reddit: </b>Join our official subreddit and post your question <a class="link-color" href="#" (click)="openReddit()">here</a>.</mat-list-item>
-        <mat-list-item><b>Social media: </b> Like us on <a class="link-color" href="#" (click)="openFacebook()">Facebook</a> and follow us on <a class="link-color" href="#" (click)="openTwitter()">Twitter</a>.</mat-list-item>
-        <mat-list-item><b>BitcoinTalk: </b> Share your comments and ideas on whats latest @casinocoin, <a class="link-color" href="#"(click)="openBitcoinTalk()">click here</a>.</mat-list-item>
-    </mat-list>
+    <p-fieldset>
+        <p-header style="background-color: azure;">
+            <p class="form-text-header" style=" margin: 4px; font-size: 1.10em;">{{ 'PAGES.SUPPORT.SUPPORT' | translate }}</p>
+        </p-header>
+        <p>{{ 'PAGES.SUPPORT.SUP-SUB' | translate }} :</p>
+        <hr>
+        <mat-list>
+            <mat-list-item><b>Discord: </b>{{ 'PAGES.SUPPORT.REF-DISC' | translate }} <a class="link-color" href="#" (click)="openDiscord()">{{ 'PAGES.SUPPORT.HERE' | translate }}</a>.</mat-list-item>
+            <mat-list-item><b>Github: </b>{{ 'PAGES.SUPPORT.REF-GIT' | translate }} <a class="link-color" href="#" (click)="openGithub()">{{ 'PAGES.SUPPORT.PRO-SIT' | translate }}</a>.</mat-list-item>
+            <mat-list-item><b>FAQ: </b>{{ 'PAGES.SUPPORT.REF-FAQ1' | translate }} <a class="link-color" href="#" (click)="openFAQ()">CasinoCoin FAQ page</a> {{ 'PAGES.SUPPORT.REF-FAQ2' | translate }}.</mat-list-item>
+            <mat-list-item><b>{{ 'PAGES.SUPPORT.EMAIL' | translate }}: </b>{{ 'PAGES.SUPPORT.EMA-RE1' | translate }} <a class="link-color" href="mailto:support@casinocoin.org">support@casinocoin.org </a>{{ 'PAGES.SUPPORT.EMA-RE2' | translate }}.</mat-list-item>
+            <mat-list-item><b>Reddit: </b>{{ 'PAGES.SUPPORT.REF-REEDIT' | translate }} <a class="link-color" href="#" (click)="openReddit()">{{ 'PAGES.SUPPORT.HERE' | translate }}</a>.</mat-list-item>
+            <mat-list-item><b>{{ 'PAGES.SUPPORT.SOCIAL-MED' | translate }}: </b> {{ 'PAGES.SUPPORT.SOCIAL-RE1' | translate }} <a class="link-color" href="#" (click)="openFacebook()">Facebook</a> {{ 'PAGES.SUPPORT.SOCIAL-RE2' | translate }} <a class="link-color" href="#" (click)="openTwitter()">Twitter</a>.</mat-list-item>
+            <mat-list-item><b>BitcoinTalk: </b> {{ 'PAGES.SUPPORT.BITC-TLK' | translate }} <a class="link-color" href="#"(click)="openBitcoinTalk()">click {{ 'PAGES.SUPPORT.HERE' | translate }}</a>.</mat-list-item>
+        </mat-list>
+    </p-fieldset>
 </div>
