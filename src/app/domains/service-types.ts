@@ -11,6 +11,8 @@ export interface CoinMarketCapType {
     selected_fiat?: string;
     market_24h_volume_usd?: string;
     market_cap_usd?: string;
+    market_volume_24h?: string;
+    market_volume_24h_btc?: string;
     available_supply?: string;
     total_supply?: string;
     max_supply?: string;

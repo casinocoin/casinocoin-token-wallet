@@ -22,6 +22,7 @@ export class ExchangesComponent implements OnInit {
   marketCapital = '0.00';
   marketVolumeUSD = '0.00';
   visit_exchange_clicked = false;
+  marketVolume24h;
 
   constructor(private logger: LogService,
               private electronService: ElectronService,
@@ -68,13 +69,16 @@ export class ExchangesComponent implements OnInit {
 
   updateCoininfo() {
     if (this.marketService.coinMarketInfo != null) {
-      const coinFiat = this.marketService.coinMarketInfo.price_fiat ? this.marketService.coinMarketInfo.price_fiat : '0.00';
-      const volumeUSD = this.marketService.coinMarketInfo.market_24h_volume_usd ? this.marketService.coinMarketInfo.market_24h_volume_usd : '0.00';
+      const coinFiat = this.marketService.coinMarketInfo.price_fiat || '0.00';
+      const volumeUSD = this.marketService.coinMarketInfo.market_24h_volume_usd || '0.00';
+      const marketVolume24h = this.marketService.coinMarketInfo.market_volume_24h || '0.00';
+      console.log('coinFiat', coinFiat, 'volumeUSD', volumeUSD);
       this.logger.debug('### updateCoininfo - coinFiat: ' + coinFiat);
       const marketFiat = new Big(this.coinSupply).times(new Big(coinFiat)).toString();
       this.fiatValue = this.currencyPipe.transform(coinFiat, this.marketService.coinMarketInfo.selected_fiat, 'symbol', '1.2-6');
       this.marketCapital = this.currencyPipe.transform(marketFiat, this.marketService.coinMarketInfo.selected_fiat, 'symbol', '1.2-2');
       this.marketVolumeUSD = this.currencyPipe.transform(volumeUSD, this.marketService.coinMarketInfo.selected_fiat, 'symbol-narrow', '1.2-2');
+      this.marketVolume24h = marketVolume24h;
     }
   }
 

@@ -12,6 +12,7 @@ export class MarketService {
 
     private coinmarketCapURLCSC = 'https://api.coinmarketcap.com/v1/ticker/casinocoin/?convert=';
     private coinmarketCapURLBTC = 'https://api.coinmarketcap.com/v1/ticker/bitcoin/?convert=';
+    private coinInfoCSC = 'https://api.casinocoin.org/1.0.1/info/coininfo';
     private exchangesURL = 'https://api.casinocoin.org/1.0.0/info/exchanges/all';
     public coinMarketInfo: CoinMarketCapType;
     public exchanges: Array<ExchangesType>;
@@ -67,39 +68,61 @@ export class MarketService {
     }
 
     getCoinInfo() {
-        const options = {
-            headers: new HttpHeaders().set('Content-Type', 'application/json')
-        };
-        this.http.get(this.coinmarketCapURLCSC + this.fiatCurrency, options).subscribe(result => {
-            this.logger.debug('### MarketService: ' + JSON.stringify(result));
-            const coinInfo = result[0];
-            if (coinInfo) {
+        this.http.get(this.coinInfoCSC).subscribe((data: any) => {
+            if (data) {
                 this.coinMarketInfo = {
-                    id: coinInfo.id,
-                    name: coinInfo.name,
-                    symbol: coinInfo.symbol,
-                    rank: coinInfo.rank,
-                    price_fiat: coinInfo['price_' + this.fiatCurrency.toLowerCase()],
+                    id: data._id,
+                    name: data.name,
+                    symbol: data.symbol,
+                    price_btc: data.price_btc,
+                    price_fiat: data.price_usd,
                     selected_fiat: this.fiatCurrency,
-                    price_btc: coinInfo.price_btc,
-                    market_24h_volume_usd: coinInfo['24h_volume_usd'],
-                    market_cap_usd: coinInfo.market_cap_usd,
-                    available_supply: coinInfo.available_supply,
-                    total_supply: coinInfo.total_supply,
-                    last_updated: coinInfo.last_updated
+                    market_cap_usd: (data.max_supply * data.price_usd).toString(),
+                    market_volume_24h: data.market_volume_24h,
+                    market_24h_volume_usd: data.market_volume_24h_usd,
+                    market_volume_24h_btc: data.market_volume_24h_btc,
+                    rank: '',
+                    available_supply: data.available_supply,
+                    total_supply: data.max_supply,
+                    last_updated: data.last_updated
                 };
+                this.btcPrice = data.price_btc;
                 // store in localstorage
                 this.localStorageService.set(AppConstants.KEY_COININFO, this.coinMarketInfo);
                 // put onto subject
                 this.coininfoUpdates.next(this.coinMarketInfo);
             }
         });
-        this.http.get(this.coinmarketCapURLBTC + this.fiatCurrency, options).subscribe(result => {
-            const coinInfo = result[0];
-            if (coinInfo) {
-                this.btcPrice = Number(coinInfo['price_' + this.fiatCurrency.toLowerCase()]);
-            }
-        });
+        // this.http.get(this.coinmarketCapURLCSC + this.fiatCurrency, options).subscribe(result => {
+        //     this.logger.debug('### MarketService: ' + JSON.stringify(result));
+        //     const coinInfo = result[0];
+        //     if (coinInfo) {
+        //         this.coinMarketInfo = {
+        //             id: coinInfo.id,
+        //             name: coinInfo.name,
+        //             symbol: coinInfo.symbol,
+        //             rank: coinInfo.rank,
+        //             price_fiat: coinInfo['price_' + this.fiatCurrency.toLowerCase()],
+        //             selected_fiat: this.fiatCurrency,
+        //             price_btc: coinInfo.price_btc,
+        //             market_24h_volume_usd: coinInfo['24h_volume_usd'],
+        //             market_cap_usd: coinInfo.market_cap_usd,
+        //             available_supply: coinInfo.available_supply,
+        //             total_supply: coinInfo.total_supply,
+        //             last_updated: coinInfo.last_updated
+        //         };
+        //         // store in localstorage
+        //         this.localStorageService.set(AppConstants.KEY_COININFO, this.coinMarketInfo);
+        //         // put onto subject
+        //         this.coininfoUpdates.next(this.coinMarketInfo);
+        //     }
+        // });
+        // this.http.get(this.coinmarketCapURLBTC + this.fiatCurrency, options).subscribe(result => {
+        //     const coinInfo = result[0];
+        //     if (coinInfo) {
+        //         this.btcPrice = Number(coinInfo['price_' + this.fiatCurrency.toLowerCase()]);
+        //     }
+        // });
     }
 
     getExchanges() {

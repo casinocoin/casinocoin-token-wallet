@@ -577,7 +577,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   doBalanceUpdate() {
-    this.walletBalance = this.walletService.getWalletBalance('CSC') ? this.walletService.getWalletBalance('CSC') : '0';
+    this.walletBalance = this.walletService.getWalletBalance('CSC') || '0';
     this.logger.debug('### HOME - Wallet Balance: ' + this.walletBalance);
     this.balance = CSCUtil.dropsToCsc(this.walletBalance);
     const balanceCSC = new Big(this.balance);
