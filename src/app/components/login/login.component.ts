@@ -255,13 +255,15 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
             if (result.response === 0) {
                 // execute recover process
                 this._ngZone.run(() => {
-                    this.electron.remote.dialog.showOpenDialog(
-                        { title: 'Wallet Backup Location',
-                          defaultPath: this.electron.remote.getGlobal('vars').backupLocation,
-                          properties: ['openFile']}).then(result => {
-                          this.logger.debug('File Dialog Result: ' + JSON.stringify(result));
+                    this.electron.remote.dialog.showOpenDialog({
+                            title: 'Wallet Backup Location',
+                            defaultPath: this.electron.remote.getGlobal('vars').backupLocation,
+                            properties: ['openFile'],
+                            filters: [{ name: 'Backup', extensions: ['backup'] }]
+                        }).then(result => {
+                            this.logger.debug('File Dialog Result: ' + JSON.stringify(result));
                           if (result && result.filePaths.length > 0) {
-                              const backup = JSON.parse(fs.readFileSync(result[0]));
+                              const backup = JSON.parse(fs.readFileSync(result.filePaths[0]));
                               this.logger.debug('### localStorage: ' + JSON.stringify(backup.LocalStorage));
                               if (backup.LocalStorage.length > 0) {
                                 // clear current local storage
