@@ -135,7 +135,6 @@ export class HistoryComponent implements OnInit, AfterViewInit {
         this.cscAccounts.push({ label: accountLabel, value: element.accountID });
       }
     });
-    console.log(this.walletService.getAllAccounts());
   }
 
   init() {

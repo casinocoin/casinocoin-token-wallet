@@ -156,7 +156,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    // console.log(this.walletService.getAllAccounts());
     // get the backup path
     this.backupPath = this.electron.remote.getGlobal('vars').backupLocation;
     this.logger.debug('### HOME Backup Location: ' + this.backupPath);
@@ -164,7 +163,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.currentWalletObject = this.sessionStorageService.get(AppConstants.KEY_CURRENT_WALLET);
     this.logger.info('### HOME currentWallet: ' + JSON.stringify(this.currentWalletObject));
     // check if wallet is open else open it
-    this.walletService.openWalletSubject.subscribe( result => {
+    this.walletService.openWalletSubject.subscribe(result => {
+      this.active_menu_item = 'wallet';
       if (result === AppConstants.KEY_INIT) {
         this.logger.debug('### HOME Wallet INIT');
         // wallet not opened yet so open it
@@ -760,7 +760,6 @@ export class HomeComponent implements OnInit, OnDestroy {
             }, 5000);
             return;
           }
-          console.log('accountID', accountID);
 
           const userEmail = this.sessionStorageService.get(AppConstants.KEY_CURRENT_WALLET).userEmail;
           const secretsCSCCrypto = new CSCCrypto(this.walletPassword, userEmail);
@@ -790,7 +789,6 @@ export class HomeComponent implements OnInit, OnDestroy {
             const newKeyPair: LokiKey = { secret: this.importAccountSecret, publicKey: keypair.publicKey, privateKey: keypair.privateKey, accountID: deriveAddress(keypair.publicKey), encrypted: false };
             // save key to wallet
             this.walletService.addKey(newKeyPair);
-            console.log('newKeyPair', newKeyPair);
 
             // encrypt wallet keys
             this.walletService.encryptAllKeys(this.walletPassword, this.sessionStorageService.get(AppConstants.KEY_CURRENT_WALLET).userEmail).subscribe(async result => {
@@ -813,8 +811,7 @@ export class HomeComponent implements OnInit, OnDestroy {
                           ownerCount: accountInfo.ownerCount,
                           lastTxID: accountInfo.previousAffectingTransactionID,
                           lastTxLedger: accountInfo.previousAffectingTransactionLedgerVersion
-                        };
-                        console.log('tokenAccount', tokenAccount);
+                        };;
                         // save account to wallet
                         this.walletService.addAccount(tokenAccount);
                         // subcribe to all accounts again
@@ -837,7 +834,6 @@ export class HomeComponent implements OnInit, OnDestroy {
                           lastTxID: accountInfo.previousAffectingTransactionID,
                           lastTxLedger: accountInfo.previousAffectingTransactionLedgerVersion
                         };
-                        console.log('tokenAccount', tokenAccount);
                         // Refresh TokenList in the wallet
                         this.casinocoinService.updateAccountInfo(tokenAccount.currency, tokenAccount.accountID);
                         // subcribe to all accounts again
@@ -848,7 +844,6 @@ export class HomeComponent implements OnInit, OnDestroy {
                     }
                   }
                   // Subject to update Token list
-                  this.walletService.importsAccountSubject.next();
                   // get and add all account transactions
                   this.casinocoinService.cscAPI.getTransactions(accountID, { earliestFirst: true }).then(txResult => {
                     console.log('txResult', txResult);
@@ -925,6 +920,9 @@ export class HomeComponent implements OnInit, OnDestroy {
                   this.checked = false;
                   setTimeout(() => {
                     this.showSuccessImport = false;
+                    this.walletService.importsAccountSubject.next();
+                    this.active_menu_item = 'wallet';
+                    this.router.navigate(['home']);
                   }, 2500);
                 } else {
                   this.footer_message = 'Not enough CSC in the source account to handle all required transactions.';
@@ -957,7 +955,6 @@ export class HomeComponent implements OnInit, OnDestroy {
               lastTxID: '',
               lastTxLedger: 0
             };
-            console.log('tokenAccount', tokenAccount);
             // subcribe to all accounts again
             this.casinocoinService.subscribeAccountEvents();
             // save account to wallet

@@ -350,9 +350,7 @@ export class TokenlistComponent implements OnInit {
 
   // Verify if be a external account
   verifyExternalAccount(account) {
-    console.log(account);
     const allExternalAccount: LokiAccount[] = this.walletService.getAllAccountsImported();
-    console.log(allExternalAccount);
     if (allExternalAccount) {
       const findAccount = allExternalAccount.find(item => item.accountID === account);
       if (findAccount) {
@@ -786,7 +784,6 @@ export class TokenlistComponent implements OnInit {
         // refresh all CSC accounts for add token dropdown
         this.cscAccounts = [];
         this.walletService.getAllAccounts().forEach( element => {
-          console.log(element.currency === 'CSC', '');
           if (element.currency === 'CSC' && new Big(element.balance) > 0) {
             const accountLabel = element.accountID.substring(0, 20) + '...' + ' [Balance: ' +
                                 this.cscAmountPipe.transform(element.balance, false, true) + ']';

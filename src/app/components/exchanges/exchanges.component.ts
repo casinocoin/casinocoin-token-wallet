@@ -72,7 +72,6 @@ export class ExchangesComponent implements OnInit {
       const coinFiat = this.marketService.coinMarketInfo.price_fiat || '0.00';
       const volumeUSD = this.marketService.coinMarketInfo.market_24h_volume_usd || '0.00';
       const marketVolume24h = this.marketService.coinMarketInfo.market_volume_24h || '0.00';
-      console.log('coinFiat', coinFiat, 'volumeUSD', volumeUSD);
       this.logger.debug('### updateCoininfo - coinFiat: ' + coinFiat);
       const marketFiat = new Big(this.coinSupply).times(new Big(coinFiat)).toString();
       this.fiatValue = this.currencyPipe.transform(coinFiat, this.marketService.coinMarketInfo.selected_fiat, 'symbol', '1.2-6');
